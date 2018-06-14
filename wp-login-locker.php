@@ -18,14 +18,16 @@ use Dwnload\WpLoginLocker\Actions\NewUser;
 use Dwnload\WpLoginLocker\Login\LastLoginColumns;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\LoginLocker;
+use Dwnload\WpLoginLocker\WpCore\WpSignup;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 
-$login_locker = new LoginLocker(Request::createFromGlobals());
+$login_locker = (new LoginLocker())->setRequest(Request::createFromGlobals());
 PluginFactory::create('login-locker')
     ->add(new Login())
     ->add(new NewUser())
-    ->add(new WpLogin())
+    ->add((new WpLogin())->setRequest($login_locker->getRequest()))
+    ->add((new WpSignup())->setRequest($login_locker->getRequest()))
     ->addOnHook(LastLoginColumns::class, 'admin_init', 10, true)
     ->initialize();
 

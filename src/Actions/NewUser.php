@@ -3,7 +3,6 @@
 namespace Dwnload\WpLoginLocker\Actions;
 
 use Dwnload\WpLoginLocker\Login\LastLoginColumns;
-use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
@@ -12,7 +11,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  * Class NewUser
  * @package Dwnload\WpLoginLocker\Actions
  */
-class NewUser implements RequestsInterface, WpHooksInterface
+class NewUser implements WpHooksInterface
 {
     use GeoUtilTrait, HooksTrait;
 

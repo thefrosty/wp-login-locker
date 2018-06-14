@@ -2,8 +2,6 @@
 
 namespace Dwnload\WpLoginLocker;
 
-use Symfony\Component\HttpFoundation\Request;
-
 /**
  * Class LoginLocker
  *
@@ -15,13 +13,4 @@ final class LoginLocker implements RequestsInterface
 
     const HOOK_PREFIX = 'login_locker/';
     const META_PREFIX = 'login_locker_';
-
-    /**
-     * LoginLocker constructor.
-     * @param Request $request
-     */
-    public function __construct(Request $request)
-    {
-        $this->setRequest($request);
-    }
 }

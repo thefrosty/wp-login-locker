@@ -26,6 +26,8 @@ trait RequestsTrait
         if (!(self::$request instanceof Request)) {
             self::$request = $request;
         }
+
+        return $this;
     }
 
     /**

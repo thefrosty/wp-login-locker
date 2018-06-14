@@ -15,6 +15,7 @@ interface RequestsInterface
      * Set the Request.
      *
      * @param Request $request Main plugin instance.
+     * @return $this
      */
     public function setRequest(Request $request);
 

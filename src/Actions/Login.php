@@ -5,7 +5,6 @@ namespace Dwnload\WpLoginLocker\Actions;
 use Dwnload\WpLoginLocker\Login\LastLoginColumns;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\Plugins\WpUserProfiles\UserEmailSection;
-use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use Dwnload\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
@@ -16,7 +15,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  * Class Login
  * @package Dwnload\WpLoginLocker\Actions
  */
-class Login extends AbstractHookProvider implements RequestsInterface, WpHooksInterface
+class Login extends AbstractHookProvider implements WpHooksInterface
 {
     use GeoUtilTrait, HooksTrait;
 
