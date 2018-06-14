@@ -26,6 +26,10 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
     const COOKIE_EXPIRE = '+1 year';
     const LOGIN_SLUG = 'sign-in';
 
+    const ENCRYPTION_DELIMITER = '|';
+    const ENCRYPTION_KEY = 'WpL0gin' . self::ENCRYPTION_DELIMITER;
+    const ENCRYPTION_METHOD = 'AES-256-CBC';
+
     /**
      * Add class hooks.
      */
@@ -136,7 +140,7 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
             ->setStatusCode(Response::HTTP_FORBIDDEN)
             ->sendHeaders()
             ->send();
-
+        \session_write_close();
         exit;
     }
 
@@ -192,7 +196,7 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
     }
 
     /**
-     * Return a md5 hash from the incoming value and our defined
+     * Returns a encrypted hash from the incoming value and our defined
      * class COOKIE_VALUE.
      *
      * @param string $value
@@ -201,6 +205,36 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
      */
     private function getCookieValue(string $value): string
     {
-        return \md5(\sprintf(self::COOKIE_VALUE_S, $value));
+        return $this->encrypt(\sprintf(self::COOKIE_VALUE_S, $value));
+    }
+
+    /**
+     * Decrypt a string.
+     *
+     * @param string $data
+     * @param string $encryption_key
+     *
+     * @return string
+     */
+    private function decrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
+    {
+        $key = hash('sha256', $encryption_key);
+        $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
+        return openssl_decrypt(base64_decode($data), self::ENCRYPTION_METHOD, $key, 0, $iv);
+    }
+
+    /**
+     * Encrypt a string.
+     *
+     * @param string $data
+     * @param string $encryption_key
+     *
+     * @return string
+     */
+    private function encrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
+    {
+        $key = hash('sha256', $encryption_key);
+        $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
+        return base64_encode(openssl_encrypt($data, self::ENCRYPTION_METHOD, $key, 0, $iv));
     }
 }
