@@ -2,6 +2,7 @@
 
 namespace Dwnload\WpLoginLocker\WpMail;
 
+use Dwnload\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
@@ -84,8 +85,8 @@ class WpMail implements PluginAwareInterface
             $this->html = false;
         }
 
-        $this->addAction(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_send_before', [$this, 'sendBefore']);
-        $this->addAction(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_send_after', [$this, 'sendAfter']);
+        $this->addAction(LoginLocker::HOOK_PREFIX . 'email_send_before', [$this, 'sendBefore']);
+        $this->addAction(LoginLocker::HOOK_PREFIX . 'email_send_after', [$this, 'sendAfter']);
     }
 
     /**
@@ -122,7 +123,7 @@ class WpMail implements PluginAwareInterface
             $this->from_name = get_bloginfo('name');
         }
 
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_from_name',
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_name',
             wp_specialchars_decode($this->from_name),
             $this);
     }
@@ -138,7 +139,7 @@ class WpMail implements PluginAwareInterface
             $this->from_address = get_site_option('admin_email');
         }
 
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_from_address', $this->from_address, $this);
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_address', $this->from_address, $this);
     }
 
     /**
@@ -149,13 +150,13 @@ class WpMail implements PluginAwareInterface
     public function getContentType(): string
     {
         if (empty($this->content_type) && $this->html) {
-            $this->content_type = (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_default_content_type',
+            $this->content_type = (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_default_content_type',
                 self::CONTENT_TYPE_HTML, $this);
         } elseif (!$this->html) {
             $this->content_type = self::CONTENT_TYPE_PLAIN;
         }
 
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_content_type', $this->content_type, $this);
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_content_type', $this->content_type, $this);
     }
 
     /**
@@ -171,7 +172,7 @@ class WpMail implements PluginAwareInterface
             $this->headers .= "Content-Type: {$this->getContentType()}; charset=utf-8\r\n";
         }
 
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_headers', $this->headers, $this);
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_headers', $this->headers, $this);
     }
 
     /**
@@ -185,7 +186,7 @@ class WpMail implements PluginAwareInterface
             $this->template = 'default';
         }
 
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_template', $this->template);
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_template', $this->template);
     }
 
     /**
@@ -195,7 +196,7 @@ class WpMail implements PluginAwareInterface
      */
     public function getHeading(): string
     {
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_heading', $this->heading);
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_heading', $this->heading);
     }
 
     /**
@@ -220,7 +221,7 @@ class WpMail implements PluginAwareInterface
     public function buildEmail(string $message): string
     {
         if (!$this->html) {
-            return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_message', wp_strip_all_tags($message),
+            return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', wp_strip_all_tags($message),
                 $this);
         }
 
@@ -229,37 +230,37 @@ class WpMail implements PluginAwareInterface
         ob_start();
 
         // Render the header
-        include $this->getPlugin()->getDirectory() . "templates/email/header.php";
+        include $this->getPlugin()->getDirectory() . 'templates/email/header.php';
 
         /**
          * Hooks into the email header
          */
-        do_action(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_header', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_header', $this);
 
         // Render the body
-        include $this->getPlugin()->getDirectory() . "templates/email/body.php";
+        include $this->getPlugin()->getDirectory() . 'templates/email/body.php';
 
         /**
          * Hooks into the body of the email
          *
          * @param WpMail $this
          */
-        do_action(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_body', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_body', $this);
 
         // Render the footer
-        include $this->getPlugin()->getDirectory() . "templates/email/footer.php";
+        include $this->getPlugin()->getDirectory() . 'templates/email/footer.php';
 
         /**
          * Hooks into the footer of the email
          *
          * @param WpMail $this
          */
-        do_action(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_footer', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_footer', $this);
 
         $body = ob_get_clean();
         $message = str_replace(['{pretext}', '{email}'], [$this->pretext, $message], $body);
 
-        return (string)\apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_message', $message, $this);
+        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', $message, $this);
     }
 
     /**
@@ -289,16 +290,16 @@ class WpMail implements PluginAwareInterface
          *
          * @param WpMail $this
          */
-        do_action(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_send_before', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_send_before', $this);
 
         $subject = $this->parseTags($subject);
         $message = $this->parseTags($message);
         $message = $this->buildEmail($message);
 
-        $attachments = apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_attachments', $attachments, $this);
+        $attachments = apply_filters(LoginLocker::HOOK_PREFIX . 'email_attachments', $attachments, $this);
 
         $sent = wp_mail($to, $subject, $message, $this->getHeaders(), $attachments);
-        $log_errors = apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'log_email_errors', true, $to, $subject, $message);
+        $log_errors = apply_filters(LoginLocker::HOOK_PREFIX . 'log_email_errors', true, $to, $subject, $message);
 
         if (!$sent && $log_errors) {
             if (is_array($to)) {
@@ -322,7 +323,7 @@ class WpMail implements PluginAwareInterface
          * @param WpMail $this
          * @param bool $sent Whether the email was sent
          */
-        do_action(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_send_after', $this, $sent);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_send_after', $this, $sent);
 
         return $sent;
     }
@@ -361,7 +362,7 @@ class WpMail implements PluginAwareInterface
     public function textToHtml(string $message): string
     {
         if ($this->content_type === self::CONTENT_TYPE_HTML || $this->html === true) {
-            $message = apply_filters(Dwnload::DWNLOAD_HOOK_PREFIX . 'email_template_wpautop', true) ?
+            $message = apply_filters(LoginLocker::HOOK_PREFIX . 'email_template_wpautop', true) ?
                 wpautop($message) : $message;
         }
 
