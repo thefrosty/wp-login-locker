@@ -2,6 +2,7 @@
 
 namespace Dwnload\WpLoginLocker\Login;
 
+use function Dwnload\WpLoginLocker\Helpers\terminate;
 use Dwnload\WpLoginLocker\LoginLocker;
 use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\RequestsTrait;
@@ -140,8 +141,7 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
             ->setStatusCode(Response::HTTP_FORBIDDEN)
             ->sendHeaders()
             ->send();
-        \session_write_close();
-        exit;
+        terminate();
     }
 
     /**
@@ -209,21 +209,6 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
     }
 
     /**
-     * Decrypt a string.
-     *
-     * @param string $data
-     * @param string $encryption_key
-     *
-     * @return string
-     */
-    private function decrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
-    {
-        $key = hash('sha256', $encryption_key);
-        $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
-        return openssl_decrypt(base64_decode($data), self::ENCRYPTION_METHOD, $key, 0, $iv);
-    }
-
-    /**
      * Encrypt a string.
      *
      * @param string $data
@@ -236,5 +221,20 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
         $key = hash('sha256', $encryption_key);
         $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
         return base64_encode(openssl_encrypt($data, self::ENCRYPTION_METHOD, $key, 0, $iv));
+    }
+
+    /**
+     * Decrypt a string.
+     *
+     * @param string $data
+     * @param string $encryption_key
+     *
+     * @return string
+     */
+    private function decrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
+    {
+        $key = hash('sha256', $encryption_key);
+        $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
+        return openssl_decrypt(base64_decode($data), self::ENCRYPTION_METHOD, $key, 0, $iv);
     }
 }
