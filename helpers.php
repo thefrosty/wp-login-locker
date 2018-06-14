@@ -28,3 +28,11 @@ function filter_var_int( $variable ) : int {
 function filter_var_string( $variable ) : string {
     return \filter_var( $variable, FILTER_SANITIZE_STRING );
 }
+
+/**
+ * Close the current session and terminate all scripts.
+ */
+function terminate() {
+    session_write_close();
+    exit;
+}
