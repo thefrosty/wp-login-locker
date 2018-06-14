@@ -20,7 +20,12 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
 {
     use GeoUtilTrait, HooksTrait;
 
-    const SUBJECT = 'New login to Dwnload.io account';
+    const SUBJECT = 'New login to %1$s account';
+
+    /**
+     * @var WpMail $wp_mail
+     */
+    private $wp_mail;
 
     /**
      * Add class hooks.
@@ -47,9 +52,13 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
          * (and the user has login notifications 'on'), send a notification.
          */
         if ($current_ip !== $last_login_ip && empty($user_notification)) {
-            $mail = new WpMail();
-            $mail->__set('pretext', $this->getEmailPretext());
-            $mail->send($user->user_email, self::SUBJECT, $this->getEmailMessage($user));
+            $this->wp_mail = new WpMail();
+            $this->wp_mail->__set('pretext', $this->getEmailPretext());
+            $this->wp_mail->send(
+                $user->user_email,
+                sprintf(self::SUBJECT, $this->getHomeUrl()),
+                $this->getEmailMessage($user)
+            );
         }
 
         /**
@@ -69,8 +78,12 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
     {
         \ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-pretext.php';
+        $content = \ob_get_clean();
 
-        return \ob_get_clean();
+        /**
+         * %1$s Site name
+         */
+        return sprintf($content, $this->wp_mail->getFromName());
     }
 
     /**
@@ -99,16 +112,20 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
         );
 
         /**
-         * 1. User first and last name (display name)
-         * 2. User Agent
-         * 3. IP Address
-         * 4. Login URL
+         * %1$s User first and last name (display name)
+         * %2$s User agent
+         * %3$s IP address
+         * %4$s Login URL
+         * %5$s Site name
+         * %6$s Site email
          */
         return sprintf($content,
             $this->getUserName($user),
             $this->getUserAgent(),
             $this->getIP(),
-            \esc_url($login_url)
+            \esc_url($login_url),
+            $this->wp_mail->getFromName(),
+            $this->wp_mail->getFromAddress()
         );
     }
 
@@ -130,5 +147,15 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
         }
 
         return $user->user_login;
+    }
+
+    /**
+     * Returns the site url host.
+     *
+     * @return string
+     */
+    private function getHomeUrl(): string
+    {
+        return parse_url(home_url(), PHP_URL_HOST);
     }
 }
