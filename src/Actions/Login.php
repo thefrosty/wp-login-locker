@@ -4,6 +4,7 @@ namespace Dwnload\WpLoginLocker\Actions;
 
 use Dwnload\WpLoginLocker\Login\LastLoginColumns;
 use Dwnload\WpLoginLocker\Login\WpLogin;
+use Dwnload\WpLoginLocker\LoginLocker;
 use Dwnload\WpLoginLocker\Plugins\WpUserProfiles\UserEmailSection;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use Dwnload\WpLoginLocker\WpMail\WpMail;
@@ -35,7 +36,8 @@ class Login extends AbstractHookProvider implements WpHooksInterface
     }
 
     /**
-     * Create a email notifying the user someone has logged in.
+     * Create a email notifying the user someone has logged in (if their notifications aren't off).
+     * Also adds user meta data of their IP address and login time.
      *
      * @param string $user_login
      * @param \WP_User $user
@@ -43,29 +45,39 @@ class Login extends AbstractHookProvider implements WpHooksInterface
     protected function wpLoginAction(string $user_login, \WP_User $user)
     {
         $current_ip = $this->getIP();
-        $last_login_ip = \get_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY, true);
+        $last_login_ip = \get_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY);
         $user_notification = \get_user_meta($user->ID, UserEmailSection::USER_META_KEY, true);
 
         /**
          * If the current IP does not match their last login IP
          * (and the user has login notifications 'on'), send a notification.
          */
-        if ($current_ip !== $last_login_ip && empty($user_notification)) {
+        if ($current_ip !== \end($last_login_ip) && empty($user_notification)) {
             $this->wp_mail = new WpMail();
             $this->wp_mail->__set('pretext', $this->getEmailPretext());
             $this->wp_mail->send(
                 $user->user_email,
-                sprintf(self::SUBJECT, $this->getHomeUrl()),
+                \sprintf(self::SUBJECT, $this->getHomeUrl()),
                 $this->getEmailMessage($user)
             );
         }
 
         /**
+         * Action when a user logs-in you can hook into.
+         *
+         * @param string $current_ip The current users IP address.
+         * @param array $last_login_ip An array of the users last login IP's.
+         * @param mixed $user_notification Whether the users notification preferences are enabled.
+         */
+        \do_action( LoginLocker::HOOK_PREFIX . 'wp_login', $current_ip, $last_login_ip, $user_notification );
+
+        /**
          * Update the current users login meta data
          * (regardless of current IP or notification settings)
          */
-        \update_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY, $current_ip, $last_login_ip);
-        \update_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_TIME_META_KEY, \time());
+        \add_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY, $current_ip, true);
+        \add_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_TIME_META_KEY, \time(), true);
+        unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
     }
 
     /**
@@ -82,7 +94,7 @@ class Login extends AbstractHookProvider implements WpHooksInterface
         /**
          * %1$s Site name
          */
-        return sprintf($content, $this->wp_mail->getFromName());
+        return \sprintf($content, $this->wp_mail->getFromName());
     }
 
     /**
@@ -155,6 +167,6 @@ class Login extends AbstractHookProvider implements WpHooksInterface
      */
     private function getHomeUrl(): string
     {
-        return parse_url(home_url(), PHP_URL_HOST);
+        return \parse_url(\home_url(), PHP_URL_HOST);
     }
 }
