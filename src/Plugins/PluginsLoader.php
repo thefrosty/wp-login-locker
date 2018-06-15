@@ -12,6 +12,9 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  */
 class PluginsLoader implements WpHooksInterface
 {
+    /**
+     * Add class hooks.
+     */
     public function addHooks()
     {
         if (class_exists(\WP_User_Profile_Section::class)) {

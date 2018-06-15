@@ -106,7 +106,7 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
     {
         $min = \defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
         \wp_enqueue_style(
-            'dwnload',
+            'wp-login-locker',
             $this->getPlugin()->getUrl("/dist/css/wp-login{$min}.css"),
             ['login'],
             self::ASSETS_VERSION,

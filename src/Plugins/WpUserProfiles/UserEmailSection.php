@@ -33,17 +33,17 @@ class UserEmailSection extends \WP_User_Profile_Section implements PluginAwareIn
     }
 
     /**
-     * Add the meta boxes for this section
+     * Add the meta boxes for this section.
      *
      * @param  string $type
      * @param  null|\WP_User $user
      */
-    public function add_meta_boxes($type = '', $user = null)
+    protected function addMetaBoxes($type = '', $user = null)
     {
         // User Emails
         \add_meta_box(
-            'dwnload-emails',
-            esc_attr_x('Emails', 'users user-admin edit screen', 'dwnload'),
+            'wp-login-locker-notifications',
+            \esc_attr_x('Emails', 'users user-admin edit screen', 'wp-login-locker'),
             function (\WP_User $user = null) {
                 $this->emailsMetaboxCallback($user);
             },
