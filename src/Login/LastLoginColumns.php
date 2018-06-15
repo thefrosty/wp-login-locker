@@ -48,7 +48,7 @@ class LastLoginColumns implements WpHooksInterface
      */
     protected function addColumn(array $cols): array
     {
-        $cols[self::LAST_LOGIN] = __('Last Login', 'wp-login-locker');
+        $cols[self::LAST_LOGIN] = \esc_html__('Last Login', 'wp-login-locker');
 
         return $cols;
     }
@@ -70,7 +70,7 @@ class LastLoginColumns implements WpHooksInterface
             $last_login = \get_user_meta($user_id, self::LAST_LOGIN_TIME_META_KEY, true);
 
             if (!empty($last_login)) {
-                $value = \date_i18n(\get_option('date_format'), $last_login);
+                $value = \date_i18n(\get_option('date_format'), \end($last_login));
             }
         }
 
