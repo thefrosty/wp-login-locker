@@ -24,13 +24,13 @@ class NewUser implements WpHooksInterface
     }
 
     /**
-     * Create a email notifying the user someone has logged in.
+     * On user registration, add their first unique meta of their IP address and login time.
      *
-     * @param int $user_id
+     * @param int $user_id The new users ID.
      */
     protected function userRegisterAction(int $user_id)
     {
-        \add_user_meta($user_id, LastLoginColumns::LAST_LOGIN_IP_META_KEY, $this->getIP());
-        \add_user_meta($user_id, LastLoginColumns::LAST_LOGIN_TIME_META_KEY, \time());
+        \add_user_meta($user_id, LastLoginColumns::LAST_LOGIN_IP_META_KEY, $this->getIP(), true);
+        \add_user_meta($user_id, LastLoginColumns::LAST_LOGIN_TIME_META_KEY, \time(), true);
     }
 }
