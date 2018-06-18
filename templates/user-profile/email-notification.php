@@ -3,7 +3,7 @@
 use Dwnload\WpLoginLocker\LoginLocker;
 
 ?>
-<h3><?php esc_html_e('Your new login notification setting', 'wp-login-locker'); ?></h3>
+<h4><?php esc_html_e('Your new login notification setting', 'wp-login-locker'); ?></h4>
 <table class="form-table">
     <tr>
         <th scope="row"><?php esc_html_e('Login Notifications', 'wp-login-locker'); ?></th>

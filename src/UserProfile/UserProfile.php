@@ -45,10 +45,8 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
      */
     protected function doUserProfileAction(\WP_User $user = null)
     {
-        \printf('<h2>%s</h2>',
-            \esc_html__('Login Locker Settings', 'wp-login-locker')
-        );
         if (!\did_action(self::USER_PROFILE_HOOK)) {
+            \printf('<h2>%s</h2>', \esc_html__('Login Locker Settings', 'wp-login-locker'));
             \do_action(self::USER_PROFILE_HOOK, $user);
         }
     }
