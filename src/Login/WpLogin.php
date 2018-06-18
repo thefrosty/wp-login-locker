@@ -37,8 +37,6 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
     public function addHooks()
     {
         $this->addAction('login_init', [$this, 'loginAuthCheck']);
-        $this->addAction('login_enqueue_scripts', [$this, 'loginScripts']);
-
         $this->addFilter('login_url', [$this, 'loginUrl']);
         $this->addFilter('login_message', [$this, 'lostPasswordMessage'], 11);
     }
@@ -96,21 +94,6 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
         if (!$has_auth) {
             $this->noAuthLoginHtml();
         }
-    }
-
-    /**
-     * Enqueue the style(s) for the wp-login.php page.
-     */
-    protected function loginScripts()
-    {
-        $min = \defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
-        \wp_enqueue_style(
-            'wp-login-locker',
-            $this->getPlugin()->getUrl("/dist/css/wp-login{$min}.css"),
-            ['login'],
-            self::ASSETS_VERSION,
-            'screen'
-        );
     }
 
     /**
