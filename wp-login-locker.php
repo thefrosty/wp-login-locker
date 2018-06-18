@@ -24,8 +24,8 @@ use TheFrosty\WpUtilities\Plugin\PluginFactory;
 
 $login_locker = (new LoginLocker())->setRequest(Request::createFromGlobals());
 PluginFactory::create('login-locker')
-    ->add(new Login())
-    ->add(new NewUser())
+    ->add((new Login())->setRequest($login_locker->getRequest()))
+    ->add((new NewUser())->setRequest($login_locker->getRequest()))
     ->add((new WpLogin())->setRequest($login_locker->getRequest()))
     ->add((new WpSignup())->setRequest($login_locker->getRequest()))
     ->addOnHook(LastLoginColumns::class, 'admin_init', 10, true)
@@ -43,3 +43,7 @@ call_user_func_array(
     },
     ['pre_site_transient_update_plugins', 'site_transient_update_plugins']
 );
+
+register_activation_hook( __FILE__, function() {
+    flush_rewrite_rules();
+} );
