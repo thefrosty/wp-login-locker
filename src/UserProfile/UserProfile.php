@@ -30,16 +30,24 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
      */
     public function addHooks()
     {
+        $this->addAction('show_user_profile', [$this, 'showExtraUserFields']);
+        $this->addAction('edit_user_profile', [$this, 'showExtraUserFields']);
         $this->addAction('personal_options_update', [$this, 'saveExtraProfileFields']);
         $this->addAction('edit_user_profile_update', [$this, 'saveExtraProfileFields']);
     }
 
     /**
+     * @param \WP_User|null $user
+     * @return void
+     */
+    abstract protected function showExtraUserFields(\WP_User $user = null);
+
+    /**
      * @param int $user_id The current users ID.
      */
-    function saveExtraProfileFields($user_id)
+    protected function saveExtraProfileFields($user_id)
     {
-        if (!current_user_can('edit_user', $user_id)) {
+        if (!current_user_can('edit_user', $user_id) || empty($this->fields)) {
             return;
         }
 

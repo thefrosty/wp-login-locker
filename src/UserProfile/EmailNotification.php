@@ -2,11 +2,6 @@
 
 namespace Dwnload\WpLoginLocker\UserProfile;
 
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
-use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
-
 /**
  * Class EmailNotification
  *
@@ -14,16 +9,6 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  */
 class EmailNotification extends UserProfile
 {
-    /**
-     * Add class hooks.
-     */
-    public function addHooks()
-    {
-        $this->addAction('show_user_profile', [$this, 'showExtraUserFields']);
-        $this->addAction('edit_user_profile', [$this, 'showExtraUserFields']);
-        parent::addHooks();
-    }
-
     /**
      * Show extra user fields for last login IP and time.
      *

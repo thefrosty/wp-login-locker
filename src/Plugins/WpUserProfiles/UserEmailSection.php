@@ -16,9 +16,6 @@ class UserEmailSection implements PluginAwareInterface, WpHooksInterface
 {
     use HooksTrait, PluginAwareTrait;
 
-    const USER_EMAIL = LoginLocker::META_PREFIX . 'user_email';
-    const USER_EMAIL_META_KEY = self::USER_EMAIL . '_notification';
-
     /**
      * Add class hooks.
      */

@@ -5,7 +5,6 @@ namespace Dwnload\WpLoginLocker\Actions;
 use Dwnload\WpLoginLocker\Login\LastLoginColumns;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\Plugins\WpUserProfiles\UserEmailSection;
 use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use Dwnload\WpLoginLocker\WpMail\WpMail;
@@ -46,8 +45,8 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
     protected function wpLoginAction(string $user_login, \WP_User $user)
     {
         $current_ip = $this->getIP();
-        $last_login_ip = \get_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY);
-        $user_notification = \get_user_meta($user->ID, UserEmailSection::USER_EMAIL_META_KEY, true);
+        $last_login_ip = \get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
+        $user_notification = \get_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY, true);
 
         /**
          * If the current IP does not match their last login IP
@@ -77,8 +76,8 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
          * Update the current users login meta data
          * (regardless of current IP or notification settings)
          */
-        \add_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY, $current_ip, true);
-        \add_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_TIME_META_KEY, \time(), true);
+        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, true);
+        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), true);
         unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
     }
 

@@ -18,10 +18,6 @@ class LastLoginColumns implements WpHooksInterface
 {
     use HooksTrait;
 
-    const LAST_LOGIN = LoginLocker::META_PREFIX . 'user_last_login';
-    const LAST_LOGIN_IP_META_KEY = self::LAST_LOGIN . '_ip';
-    const LAST_LOGIN_TIME_META_KEY = self::LAST_LOGIN . '_time';
-
     /**
      * Add class hooks.
      */
@@ -48,7 +44,7 @@ class LastLoginColumns implements WpHooksInterface
      */
     protected function addColumn(array $cols): array
     {
-        $cols[self::LAST_LOGIN] = \esc_html__('Last Login', 'wp-login-locker');
+        $cols[LoginLocker::LAST_LOGIN] = \esc_html__('Last Login', 'wp-login-locker');
 
         return $cols;
     }
@@ -65,9 +61,9 @@ class LastLoginColumns implements WpHooksInterface
      */
     protected function manageUsersCustomColumn(string $value, string $column_name, int $user_id): string
     {
-        if ($column_name === self::LAST_LOGIN) {
+        if ($column_name === LoginLocker::LAST_LOGIN) {
             $value = \esc_html__('Unknown', 'wp-login-locker');
-            $last_login = \get_user_meta($user_id, self::LAST_LOGIN_TIME_META_KEY);
+            $last_login = \get_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY);
 
             if (!empty($last_login)) {
                 $value = \date_i18n(\get_option('date_format'), \end($last_login));
@@ -87,7 +83,7 @@ class LastLoginColumns implements WpHooksInterface
      */
     protected function addSortable(array $columns): array
     {
-        $columns[self::LAST_LOGIN] = self::LAST_LOGIN;
+        $columns[LoginLocker::LAST_LOGIN] = LoginLocker::LAST_LOGIN;
 
         return $columns;
     }
@@ -103,12 +99,12 @@ class LastLoginColumns implements WpHooksInterface
     protected function preGetUsers(\WP_User_Query $user_query): \WP_User_Query
     {
         if (isset($user_query->query_vars['orderby']) &&
-            $user_query->query_vars['orderby'] === self::LAST_LOGIN
+            $user_query->query_vars['orderby'] === LoginLocker::LAST_LOGIN
         ) {
             $user_query->query_vars = \array_merge(
                 $user_query->query_vars,
                 [
-                    'meta_key' => self::LAST_LOGIN_TIME_META_KEY,
+                    'meta_key' => LoginLocker::LAST_LOGIN_TIME_META_KEY,
                     'orderby' => 'meta_value_num',
                 ]
             );

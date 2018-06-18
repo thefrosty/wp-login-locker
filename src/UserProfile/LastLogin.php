@@ -2,29 +2,13 @@
 
 namespace Dwnload\WpLoginLocker\UserProfile;
 
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
-use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
-
 /**
  * Class LastLogin
  *
  * @package Dwnload\WpLoginLocker\UserProfile
  */
-class LastLogin implements PluginAwareInterface, WpHooksInterface
+class LastLogin extends UserProfile
 {
-    use HooksTrait, PluginAwareTrait;
-
-    /**
-     * Add class hooks.
-     */
-    public function addHooks()
-    {
-        $this->addAction('show_user_profile', [$this, 'showExtraUserFields']);
-        $this->addAction('edit_user_profile', [$this, 'showExtraUserFields']);
-    }
-
     /**
      * Show extra user fields for last login IP and time.
      *

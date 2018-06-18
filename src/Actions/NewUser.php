@@ -2,7 +2,7 @@
 
 namespace Dwnload\WpLoginLocker\Actions;
 
-use Dwnload\WpLoginLocker\Login\LastLoginColumns;
+use Dwnload\WpLoginLocker\LoginLocker;
 use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
@@ -31,7 +31,7 @@ class NewUser implements RequestsInterface, WpHooksInterface
      */
     protected function userRegisterAction(int $user_id)
     {
-        \add_user_meta($user_id, LastLoginColumns::LAST_LOGIN_IP_META_KEY, $this->getIP(), true);
-        \add_user_meta($user_id, LastLoginColumns::LAST_LOGIN_TIME_META_KEY, \time(), true);
+        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $this->getIP(), true);
+        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), true);
     }
 }
