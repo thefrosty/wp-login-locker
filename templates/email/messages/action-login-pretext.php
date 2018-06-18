@@ -1,1 +1,1 @@
-Someone has just logged into your %$1s account.
+Someone has just logged into your %1$s account.
