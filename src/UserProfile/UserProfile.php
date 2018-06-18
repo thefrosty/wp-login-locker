@@ -2,6 +2,7 @@
 
 namespace Dwnload\WpLoginLocker\UserProfile;
 
+use Dwnload\WpLoginLocker\LoginLocker;
 use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\RequestsTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
@@ -18,6 +19,8 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
 {
     use HooksTrait, PluginAwareTrait, RequestsTrait;
 
+    const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
+
     /**
      * User meta fields to save.
      *
@@ -30,8 +33,8 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
      */
     public function addHooks()
     {
-        $this->addAction('show_user_profile', [$this, 'showExtraUserFields']);
-        $this->addAction('edit_user_profile', [$this, 'showExtraUserFields']);
+        $this->addAction('show_user_profile', [$this, 'doUserProfileAction'], 19);
+        $this->addAction('edit_user_profile', [$this, 'doUserProfileAction'], 19);
         $this->addAction('personal_options_update', [$this, 'saveExtraProfileFields']);
         $this->addAction('edit_user_profile_update', [$this, 'saveExtraProfileFields']);
     }
@@ -40,14 +43,24 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
      * @param \WP_User|null $user
      * @return void
      */
-    abstract protected function showExtraUserFields(\WP_User $user = null);
+    protected function doUserProfileAction(\WP_User $user = null)
+    {
+        \printf('<h2>%s</h2>',
+            \esc_html__('Login Locker Settings', 'wp-login-locker')
+        );
+        if (!\did_action(self::USER_PROFILE_HOOK)) {
+            \do_action(self::USER_PROFILE_HOOK, $user);
+        }
+    }
 
     /**
+     * If the inherited class set's fields, save them.
+     *
      * @param int $user_id The current users ID.
      */
     protected function saveExtraProfileFields($user_id)
     {
-        if (!current_user_can('edit_user', $user_id) || empty($this->fields)) {
+        if (empty($this->fields) || !current_user_can('edit_user', $user_id)) {
             return;
         }
 
@@ -58,5 +71,17 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
                 \delete_user_meta($user_id, $field);
             }
         }
+    }
+
+    /**
+     * Helper to get the user meta as an array.
+     *
+     * @param int $user_id
+     * @param string $key
+     * @return array
+     */
+    protected function getUserMeta(int $user_id, string $key): array
+    {
+        return \get_user_meta($user_id, $key, false);
     }
 }
