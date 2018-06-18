@@ -2,6 +2,7 @@
 
 namespace Dwnload\WpLoginLocker\Plugins\WpUserProfiles;
 
+use Dwnload\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
@@ -11,25 +12,19 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  * Class UserEmailSection
  * @package Dwnload\WpLoginLocker\Plugins\WpUserProfiles
  */
-class UserEmailSection extends \WP_User_Profile_Section implements PluginAwareInterface, WpHooksInterface
+class UserEmailSection implements PluginAwareInterface, WpHooksInterface
 {
     use HooksTrait, PluginAwareTrait;
 
-    const ARGS = [
-        'id' => 'emails',
-        'slug' => 'emails',
-        'name' => 'Emails',
-        'cap' => 'edit_profile',
-        'icon' => 'dashicons-email-alt',
-        'order' => 95,
-    ];
-    const USER_META_KEY = 'dwnload_disable_login_notification';
+    const USER_EMAIL = LoginLocker::META_PREFIX . 'user_email';
+    const USER_EMAIL_META_KEY = self::USER_EMAIL . '_notification';
 
     /**
      * Add class hooks.
      */
     public function addHooks()
     {
+        $this->addAction('add_meta_boxes', [$this, 'addMetaBox'], 10, 2);
     }
 
     /**
@@ -38,9 +33,8 @@ class UserEmailSection extends \WP_User_Profile_Section implements PluginAwareIn
      * @param  string $type
      * @param  null|\WP_User $user
      */
-    protected function addMetaBoxes($type = '', $user = null)
+    protected function addMetaBox($type = '', $user = null)
     {
-        // User Emails
         \add_meta_box(
             'wp-login-locker-notifications',
             \esc_attr_x('Emails', 'users user-admin edit screen', 'wp-login-locker'),
@@ -68,16 +62,13 @@ class UserEmailSection extends \WP_User_Profile_Section implements PluginAwareIn
      * Save section data
      *
      * @param \WP_User|null $user
-     *
-     * @return \WP_User|null|int|\WP_Error
      */
     public function save($user = null)
     {
-        if (isset($_POST[self::USER_META_KEY])) {
-            \update_user_meta($user->ID, self::USER_META_KEY, true);
+        if (isset($_POST[self::USER_EMAIL_META_KEY])) {
+            \update_user_meta($user->ID, self::USER_EMAIL_META_KEY, true);
         } else {
-            \delete_user_meta($user->ID, self::USER_META_KEY);
+            \delete_user_meta($user->ID, self::USER_EMAIL_META_KEY);
         }
-        return parent::save($user);
     }
 }

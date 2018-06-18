@@ -47,7 +47,7 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
     {
         $current_ip = $this->getIP();
         $last_login_ip = \get_user_meta($user->ID, LastLoginColumns::LAST_LOGIN_IP_META_KEY);
-        $user_notification = \get_user_meta($user->ID, UserEmailSection::USER_META_KEY, true);
+        $user_notification = \get_user_meta($user->ID, UserEmailSection::USER_EMAIL_META_KEY, true);
 
         /**
          * If the current IP does not match their last login IP
