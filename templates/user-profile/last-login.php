@@ -8,24 +8,19 @@ if (empty($user_login_ip) || empty($user_login_time)) {
     return;
 }
 ?>
-
 <h3><?php esc_html_e('Last login data', 'wp-login-locker'); ?></h3>
-
 <table class="form-table">
-
     <tr>
         <th><?php esc_html_e('Last login IP', 'wp-login-locker'); ?></th>
-
         <td>
             <?php echo '<strong>' . esc_html(end($user_login_ip)) . '</strong>'; ?>
         </td>
-
+    </tr>
+    <tr>
         <th><?php esc_html_e('Last login Date', 'wp-login-locker'); ?></th>
-
         <td>
             <?php echo '<strong>' . esc_html(date_i18n(get_option('date_format'),
                     end($user_login_time))) . '</strong>'; ?>
         </td>
     </tr>
-
 </table>
