@@ -31,7 +31,7 @@ class UserLastLoginMetaBox implements PluginAwareInterface, WpHooksInterface
     protected function addMetaBox($hook = '', \WP_User $user = null)
     {
         \add_meta_box(
-            'last-login-ip',
+            'wp-login-locker-last-login-ip',
             esc_attr_x('Login Status', 'users user-admin edit screen', 'wp-login-locker'),
             function(\WP_User $user = null) {
                 $this->lastLoginMetaBoxCallback($user);
