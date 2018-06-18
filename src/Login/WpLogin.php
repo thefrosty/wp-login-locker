@@ -54,7 +54,6 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
     protected function loginAuthCheck()
     {
         $has_auth = true;
-
         if ($this->getRequest()->query->has(self::AUTH_CHECK_KEY) &&
             !$this->getRequest()->cookies->has(self::COOKIE_NAME)
         ) {
@@ -79,8 +78,8 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
                         $this->getCookieValue($user->$field),
                         strtotime(self::COOKIE_EXPIRE),
                         COOKIEPATH,
-                        COOKIE_DOMAIN,
-                        ('https' === parse_url(wp_login_url(), PHP_URL_SCHEME))
+                        is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : \parse_url(\home_url(), PHP_URL_HOST),
+                        ('https' === \parse_url(\wp_login_url(), PHP_URL_SCHEME))
                     );
                 } else {
                     $has_auth = false;
