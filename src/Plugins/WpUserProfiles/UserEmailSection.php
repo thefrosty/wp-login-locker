@@ -12,16 +12,24 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  * Class UserEmailSection
  * @package Dwnload\WpLoginLocker\Plugins\WpUserProfiles
  */
-class UserEmailSection implements PluginAwareInterface, WpHooksInterface
+class UserEmailSection extends \WP_User_Profile_Section implements PluginAwareInterface, WpHooksInterface
 {
     use HooksTrait, PluginAwareTrait;
+    const ARGS = [
+        'id' => 'emails',
+        'slug' => 'emails',
+        'name' => 'Emails',
+        'cap' => 'edit_profile',
+        'icon' => 'dashicons-email-alt',
+        'order' => 95,
+    ];
 
     /**
      * Add class hooks.
      */
     public function addHooks()
     {
-        $this->addAction('add_meta_boxes', [$this, 'addMetaBox'], 10, 2);
+        $this->addAction('wp_user_profiles_add_meta_boxes', [$this, 'addMetaBox'], 10, 2);
     }
 
     /**
@@ -36,7 +44,7 @@ class UserEmailSection implements PluginAwareInterface, WpHooksInterface
             'wp-login-locker-notifications',
             \esc_attr_x('Emails', 'users user-admin edit screen', 'wp-login-locker'),
             function (\WP_User $user = null) {
-                $this->emailsMetaboxCallback($user);
+                $this->emailsMetaMoxCallback($user);
             },
             $type,
             'normal',
@@ -48,7 +56,7 @@ class UserEmailSection implements PluginAwareInterface, WpHooksInterface
     /**
      * @param \WP_User|null $user
      */
-    private function emailsMetaboxCallback(\WP_User $user = null)
+    private function emailsMetaMoxCallback(\WP_User $user = null)
     {
         \ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/metaboxes/user-profile-emails.php';
@@ -59,13 +67,17 @@ class UserEmailSection implements PluginAwareInterface, WpHooksInterface
      * Save section data
      *
      * @param \WP_User|null $user
+     * @return \WP_User|null|int|\WP_Error
      */
-    public function save($user = null)
+    public function save(\WP_User $user = null)
     {
-        if (isset($_POST[self::USER_EMAIL_META_KEY])) {
-            \update_user_meta($user->ID, self::USER_EMAIL_META_KEY, true);
+        // @todo change this to the RequestsTrait & RequestsInterface
+        if (isset($_POST[LoginLocker::USER_EMAIL_META_KEY])) {
+            \update_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY, true);
         } else {
-            \delete_user_meta($user->ID, self::USER_EMAIL_META_KEY);
+            \delete_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY);
         }
+
+        return parent::save( $user );
     }
 }
