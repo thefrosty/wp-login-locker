@@ -66,8 +66,8 @@ class LastLoginColumns implements WpHooksInterface
     protected function manageUsersCustomColumn(string $value, string $column_name, int $user_id): string
     {
         if ($column_name === self::LAST_LOGIN) {
-            $value = \esc_html__('Never', 'wp-login-locker');
-            $last_login = \get_user_meta($user_id, self::LAST_LOGIN_TIME_META_KEY, true);
+            $value = \esc_html__('Unknown', 'wp-login-locker');
+            $last_login = \get_user_meta($user_id, self::LAST_LOGIN_TIME_META_KEY);
 
             if (!empty($last_login)) {
                 $value = \date_i18n(\get_option('date_format'), \end($last_login));
