@@ -120,11 +120,11 @@ class WpMail implements PluginAwareInterface
     public function getFromName(): string
     {
         if (empty($this->from_name)) {
-            $this->from_name = get_bloginfo('name');
+            $this->from_name = \get_bloginfo('name');
         }
 
         return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_name',
-            wp_specialchars_decode($this->from_name),
+            \wp_specialchars_decode($this->from_name),
             $this);
     }
 
@@ -136,7 +136,7 @@ class WpMail implements PluginAwareInterface
     public function getFromAddress(): string
     {
         if (empty($this->from_address)) {
-            $this->from_address = get_site_option('admin_email');
+            $this->from_address = \get_site_option('admin_email');
         }
 
         return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_address', $this->from_address, $this);
@@ -221,13 +221,13 @@ class WpMail implements PluginAwareInterface
     public function buildEmail(string $message): string
     {
         if (!$this->html) {
-            return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', wp_strip_all_tags($message),
+            return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', \wp_strip_all_tags($message),
                 $this);
         }
 
         $message = $this->textToHtml($message);
 
-        ob_start();
+        \ob_start();
 
         // Render the header
         include $this->getPlugin()->getDirectory() . 'templates/email/header.php';
@@ -235,7 +235,7 @@ class WpMail implements PluginAwareInterface
         /**
          * Hooks into the email header
          */
-        do_action(LoginLocker::HOOK_PREFIX . 'email_header', $this);
+        \do_action(LoginLocker::HOOK_PREFIX . 'email_header', $this);
 
         // Render the body
         include $this->getPlugin()->getDirectory() . 'templates/email/body.php';
@@ -245,7 +245,7 @@ class WpMail implements PluginAwareInterface
          *
          * @param WpMail $this
          */
-        do_action(LoginLocker::HOOK_PREFIX . 'email_body', $this);
+        \do_action(LoginLocker::HOOK_PREFIX . 'email_body', $this);
 
         // Render the footer
         include $this->getPlugin()->getDirectory() . 'templates/email/footer.php';
@@ -255,10 +255,10 @@ class WpMail implements PluginAwareInterface
          *
          * @param WpMail $this
          */
-        do_action(LoginLocker::HOOK_PREFIX . 'email_footer', $this);
+        \do_action(LoginLocker::HOOK_PREFIX . 'email_footer', $this);
 
-        $body = ob_get_clean();
-        $message = str_replace(['{pretext}', '{email}'], [$this->pretext, $message], $body);
+        $body = \ob_get_clean();
+        $message = \str_replace(['{pretext}', '{email}'], [$this->pretext, $message], $body);
 
         return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', $message, $this);
     }
@@ -275,10 +275,10 @@ class WpMail implements PluginAwareInterface
      */
     public function send($to, $subject, $message, $attachments = ''): bool
     {
-        if (!did_action('init') && !did_action('admin_init')) {
-            _doing_it_wrong(
+        if (!\did_action('init') && !\did_action('admin_init')) {
+            \_doing_it_wrong(
                 __FUNCTION__,
-                sprintf('You cannot send email with `%s` until `init` or `admin_init` has been reached.', self::class),
+                \sprintf('You cannot send email with `%s` until `init` or `admin_init` has been reached.', self::class),
                 null
             );
 
@@ -290,31 +290,31 @@ class WpMail implements PluginAwareInterface
          *
          * @param WpMail $this
          */
-        do_action(LoginLocker::HOOK_PREFIX . 'email_send_before', $this);
+        \do_action(LoginLocker::HOOK_PREFIX . 'email_send_before', $this);
 
         $subject = $this->parseTags($subject);
         $message = $this->parseTags($message);
         $message = $this->buildEmail($message);
 
-        $attachments = apply_filters(LoginLocker::HOOK_PREFIX . 'email_attachments', $attachments, $this);
+        $attachments = \apply_filters(LoginLocker::HOOK_PREFIX . 'email_attachments', $attachments, $this);
 
-        $sent = wp_mail($to, $subject, $message, $this->getHeaders(), $attachments);
-        $log_errors = apply_filters(LoginLocker::HOOK_PREFIX . 'log_email_errors', true, $to, $subject, $message);
+        $sent = \wp_mail($to, $subject, $message, $this->getHeaders(), $attachments);
+        $log_errors = \apply_filters(LoginLocker::HOOK_PREFIX . 'log_email_errors', true, $to, $subject, $message);
 
         if (!$sent && $log_errors) {
-            if (is_array($to)) {
-                $to = implode(',', $to);
+            if (\is_array($to)) {
+                $to = \implode(',', $to);
             }
 
             $log_message = sprintf(
                 "Email from %s failed to send.\nSend time: %s\nTo: %s\nSubject: %s\n\n",
                 self::class,
-                date_i18n('F j Y H:i:s', current_time('timestamp')),
+                \date_i18n('F j Y H:i:s', \current_time('timestamp')),
                 $to,
                 $subject
             );
 
-            error_log($log_message);
+            \error_log($log_message);
         }
 
         /**
@@ -323,7 +323,7 @@ class WpMail implements PluginAwareInterface
          * @param WpMail $this
          * @param bool $sent Whether the email was sent
          */
-        do_action(LoginLocker::HOOK_PREFIX . 'email_send_after', $this, $sent);
+        \do_action(LoginLocker::HOOK_PREFIX . 'email_send_after', $this, $sent);
 
         return $sent;
     }
@@ -362,8 +362,8 @@ class WpMail implements PluginAwareInterface
     public function textToHtml(string $message): string
     {
         if ($this->content_type === self::CONTENT_TYPE_HTML || $this->html === true) {
-            $message = apply_filters(LoginLocker::HOOK_PREFIX . 'email_template_wpautop', true) ?
-                wpautop($message) : $message;
+            $message = \apply_filters(LoginLocker::HOOK_PREFIX . 'email_template_wpautop', true) ?
+                \wpautop($message) : $message;
         }
 
         return $message;
