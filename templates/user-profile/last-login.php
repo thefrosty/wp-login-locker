@@ -1,26 +1,16 @@
-<?php
-
-use Dwnload\WpLoginLocker\LoginLocker;
-
-$user_login_ip = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, false);
-$user_login_time = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, false);
-if (empty($user_login_ip) || empty($user_login_time)) {
-    return;
-}
-?>
-<h3><?php esc_html_e('Last login data', 'wp-login-locker'); ?></h3>
+<?php /** @var \Dwnload\WpLoginLocker\UserProfile\LastLogin $this */ ?>
+<h3><?php esc_html_e('Your recent login data', 'wp-login-locker'); ?></h3>
 <table class="form-table">
     <tr>
-        <th><?php esc_html_e('Last login IP', 'wp-login-locker'); ?></th>
+        <th scope="row"><?php esc_html_e('Last login IP', 'wp-login-locker'); ?></th>
         <td>
-            <?php echo '<strong>' . esc_html(end($user_login_ip)) . '</strong>'; ?>
+            <?php echo esc_html($this->getLastLoginIp($user->ID)); ?>
         </td>
     </tr>
     <tr>
-        <th><?php esc_html_e('Last login Date', 'wp-login-locker'); ?></th>
+        <th scope="row"><?php esc_html_e('Last login Date', 'wp-login-locker'); ?></th>
         <td>
-            <?php echo '<strong>' . esc_html(date_i18n(get_option('date_format'),
-                    end($user_login_time))) . '</strong>'; ?>
+            <?php echo esc_html($this->getLastLogin($user->ID)); ?>
         </td>
     </tr>
 </table>
