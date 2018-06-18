@@ -56,7 +56,7 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
             !$this->getRequest()->cookies->has(self::COOKIE_NAME)
         ) {
             if (!empty($this->getRequest()->query->get(self::AUTH_CHECK_KEY))) {
-                list($user, $field) = array_values(
+                list($user, $field) = \array_values(
                     $this->getUserBy($this->getRequest()->query->get(self::AUTH_CHECK_KEY))
                 );
 
@@ -200,9 +200,9 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
      */
     private function encrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
     {
-        $key = hash('sha256', $encryption_key);
-        $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
-        return base64_encode(openssl_encrypt($data, self::ENCRYPTION_METHOD, $key, 0, $iv));
+        $key = \hash('sha256', $encryption_key);
+        $iv = \substr(hash('sha256', \sprintf('%s_iv', $encryption_key)), 0, 16);
+        return \base64_encode(\openssl_encrypt($data, self::ENCRYPTION_METHOD, $key, 0, $iv));
     }
 
     /**
@@ -215,8 +215,8 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
      */
     private function decrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
     {
-        $key = hash('sha256', $encryption_key);
-        $iv = substr(hash('sha256', sprintf('%s_iv', $encryption_key)), 0, 16);
-        return openssl_decrypt(base64_decode($data), self::ENCRYPTION_METHOD, $key, 0, $iv);
+        $key = \hash('sha256', $encryption_key);
+        $iv = \substr(hash('sha256', \sprintf('%s_iv', $encryption_key)), 0, 16);
+        return \openssl_decrypt(\base64_decode($data), self::ENCRYPTION_METHOD, $key, 0, $iv);
     }
 }
