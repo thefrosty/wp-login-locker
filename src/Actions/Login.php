@@ -55,6 +55,7 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
          */
         if ($current_ip !== \end($last_login_ip) && empty($user_notification)) {
             $this->wp_mail = new WpMail();
+            $this->wp_mail->setPlugin($this->getPlugin());
             $this->wp_mail->__set('pretext', $this->getEmailPretext());
             $this->wp_mail->send(
                 $user->user_email,
@@ -70,7 +71,7 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
          * @param array $last_login_ip An array of the users last login IP's.
          * @param mixed $user_notification Whether the users notification preferences are enabled.
          */
-        \do_action( LoginLocker::HOOK_PREFIX . 'wp_login', $current_ip, $last_login_ip, $user_notification );
+        \do_action(LoginLocker::HOOK_PREFIX . 'wp_login', $current_ip, $last_login_ip, $user_notification);
 
         /**
          * Update the current users login meta data
