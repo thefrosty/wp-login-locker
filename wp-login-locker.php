@@ -18,7 +18,7 @@ use Dwnload\WpLoginLocker\Actions\NewUser;
 use Dwnload\WpLoginLocker\Login\LastLoginColumns;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\UserProfile\EmailNotification;
+use Dwnload\WpLoginLocker\UserProfile\EmailNotificationSetting;
 use Dwnload\WpLoginLocker\UserProfile\LastLogin;
 use Dwnload\WpLoginLocker\WpCore\WpSignup;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,9 +30,9 @@ PluginFactory::create('login-locker')
     ->add((new NewUser())->setRequest($login_locker->getRequest()))
     ->add((new WpLogin())->setRequest($login_locker->getRequest()))
     ->add((new WpSignup())->setRequest($login_locker->getRequest()))
+    ->add((new LastLogin())->setRequest($login_locker->getRequest()))
+    ->add((new EmailNotificationSetting())->setRequest($login_locker->getRequest()))
     ->addOnHook(LastLoginColumns::class, 'admin_init', 10, true)
-    ->addOnHook(LastLogin::class, 'admin_init', 10, true)
-    ->add((new EmailNotification())->setRequest($login_locker->getRequest()))
     ->initialize();
 
 call_user_func_array(
@@ -47,7 +47,3 @@ call_user_func_array(
     },
     ['pre_site_transient_update_plugins', 'site_transient_update_plugins']
 );
-
-register_activation_hook(__FILE__, function () {
-    flush_rewrite_rules();
-});
