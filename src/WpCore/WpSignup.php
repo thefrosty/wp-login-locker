@@ -37,7 +37,7 @@ class WpSignup implements RequestsInterface, WpHooksInterface
         if (!empty($this->getRequest()->request->all())) {
             \wp_die(self::MAGIC_WORD, 'Access Denied');
         }
-       \ wp_safe_redirect(\network_home_url(), Response::HTTP_PERMANENTLY_REDIRECT);
+        \wp_safe_redirect(\network_home_url(), Response::HTTP_PERMANENTLY_REDIRECT);
         terminate();
     }
 }
