@@ -117,7 +117,6 @@ class WpLogin extends AbstractLoginLocker
      * Called on a priority higher than `lost_password_message` of 10.
      *
      * @param string $message
-     *
      * @return string
      */
     protected function lostPasswordMessage($message): string
@@ -131,6 +130,8 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
+     * Is the current URL a lost password or expired request?
+     *
      * @return bool
      */
     private function isLostPassOrExpired(): bool
@@ -167,7 +168,6 @@ class WpLogin extends AbstractLoginLocker
      * class COOKIE_VALUE.
      *
      * @param string $value
-     *
      * @return string
      */
     private function getCookieValue(string $value): string
@@ -180,7 +180,6 @@ class WpLogin extends AbstractLoginLocker
      *
      * @param string $data
      * @param string $encryption_key
-     *
      * @return string
      */
     private function encrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
@@ -195,7 +194,6 @@ class WpLogin extends AbstractLoginLocker
      *
      * @param string $data
      * @param string $encryption_key
-     *
      * @return string
      */
     private function decrypt(string $data, string $encryption_key = self::ENCRYPTION_KEY): string
