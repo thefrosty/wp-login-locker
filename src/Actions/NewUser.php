@@ -2,28 +2,26 @@
 
 namespace Dwnload\WpLoginLocker\Actions;
 
+use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\RequestsInterface;
+use Dwnload\WpLoginLocker\RequestsTrait;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
-use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
 /**
  * Class NewUser
  * @package Dwnload\WpLoginLocker\Actions
  */
-class NewUser extends AbstractHookProvider implements RequestsInterface
+class NewUser extends AbstractLoginLocker
 {
-    use GeoUtilTrait, HooksTrait;
+    use GeoUtilTrait, HooksTrait, RequestsTrait;
 
     /**
      * Add class hooks.
      */
     public function addHooks()
     {
-        /** @var \Symfony\Component\HttpFoundation\Request $request */
-        $request = $this->getPlugin()->getContainer()->get(LoginLocker::CONTAINER_REQUEST);
-        $this->setRequest($request);
+        $this->setRequest();
         $this->addAction('user_register', [$this, 'userRegisterAction']);
     }
 
@@ -34,7 +32,7 @@ class NewUser extends AbstractHookProvider implements RequestsInterface
      */
     protected function userRegisterAction(int $user_id)
     {
-        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $this->getIP(), true);
-        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), true);
+        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $this->getIP(), false);
+        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
     }
 }
