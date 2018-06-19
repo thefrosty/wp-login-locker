@@ -4,7 +4,6 @@ namespace Dwnload\WpLoginLocker\Actions;
 
 use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\RequestsTrait;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
@@ -14,7 +13,7 @@ use TheFrosty\WpUtilities\Plugin\HooksTrait;
  */
 class NewUser extends AbstractLoginLocker
 {
-    use GeoUtilTrait, HooksTrait, RequestsTrait;
+    use GeoUtilTrait, HooksTrait;
 
     /**
      * Add class hooks.
