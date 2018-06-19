@@ -2,22 +2,21 @@
 
 namespace Dwnload\WpLoginLocker\UserProfile;
 
+use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\RequestsTrait;
+use TheFrosty\WpUtilities\Plugin\ContainerAwareTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class UserProfile
  *
  * @package Dwnload\WpLoginLocker\UserProfile
  */
-abstract class UserProfile implements PluginAwareInterface, RequestsInterface, WpHooksInterface
+abstract class UserProfile extends AbstractLoginLocker
 {
-    use HooksTrait, PluginAwareTrait, RequestsTrait;
+    use ContainerAwareTrait, HooksTrait, PluginAwareTrait, RequestsTrait;
 
     const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
 
@@ -33,6 +32,7 @@ abstract class UserProfile implements PluginAwareInterface, RequestsInterface, W
      */
     public function addHooks()
     {
+        $this->setRequest();
         $this->addAction('show_user_profile', [$this, 'doUserProfileAction'], 19);
         $this->addAction('edit_user_profile', [$this, 'doUserProfileAction'], 19);
         $this->addAction('personal_options_update', [$this, 'saveExtraProfileFields']);

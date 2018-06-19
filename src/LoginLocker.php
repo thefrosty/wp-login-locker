@@ -7,10 +7,8 @@ namespace Dwnload\WpLoginLocker;
  *
  * @package Dwnload\WpLoginLocker
  */
-final class LoginLocker implements RequestsInterface
+final class LoginLocker
 {
-    use RequestsTrait;
-
     const HOOK_PREFIX = 'login_locker/';
     const META_PREFIX = 'login_locker_';
 
@@ -20,4 +18,6 @@ final class LoginLocker implements RequestsInterface
 
     const USER_EMAIL = self::META_PREFIX . 'user_email';
     const USER_EMAIL_META_KEY = self::USER_EMAIL . '_notification';
+
+    const CONTAINER_REQUEST = 'request';
 }

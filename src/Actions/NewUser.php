@@ -5,14 +5,14 @@ namespace Dwnload\WpLoginLocker\Actions;
 use Dwnload\WpLoginLocker\LoginLocker;
 use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
+use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class NewUser
  * @package Dwnload\WpLoginLocker\Actions
  */
-class NewUser implements RequestsInterface, WpHooksInterface
+class NewUser extends AbstractHookProvider implements RequestsInterface
 {
     use GeoUtilTrait, HooksTrait;
 
@@ -21,6 +21,9 @@ class NewUser implements RequestsInterface, WpHooksInterface
      */
     public function addHooks()
     {
+        /** @var \Symfony\Component\HttpFoundation\Request $request */
+        $request = $this->getPlugin()->getContainer()->get(LoginLocker::CONTAINER_REQUEST);
+        $this->setRequest($request);
         $this->addAction('user_register', [$this, 'userRegisterAction']);
     }
 

@@ -2,21 +2,19 @@
 
 namespace Dwnload\WpLoginLocker\Login;
 
+use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use function Dwnload\WpLoginLocker\Helpers\terminate;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\RequestsTrait;
 use Symfony\Component\HttpFoundation\Response;
-use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class WpLogin
  * For all things related to the WordPress login.
  * @package Dwnload\WpLoginLocker\Login
  */
-class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooksInterface
+class WpLogin extends AbstractLoginLocker
 {
     use HooksTrait, RequestsTrait;
 
@@ -35,6 +33,7 @@ class WpLogin extends AbstractHookProvider implements RequestsInterface, WpHooks
      */
     public function addHooks()
     {
+        $this->setRequest();
         $this->addAction('login_init', [$this, 'loginAuthCheck']);
         $this->addFilter('login_message', [$this, 'lostPasswordMessage'], 11);
     }

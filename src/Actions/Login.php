@@ -2,21 +2,18 @@
 
 namespace Dwnload\WpLoginLocker\Actions;
 
-use Dwnload\WpLoginLocker\Login\LastLoginColumns;
+use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use Dwnload\WpLoginLocker\WpMail\WpMail;
-use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class Login
  * @package Dwnload\WpLoginLocker\Actions
  */
-class Login extends AbstractHookProvider implements RequestsInterface, WpHooksInterface
+class Login extends AbstractLoginLocker
 {
     use GeoUtilTrait, HooksTrait;
 
@@ -32,6 +29,7 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
      */
     public function addHooks()
     {
+        $this->setRequest();
         $this->addAction('wp_login', [$this, 'wpLoginAction'], 10, 2);
     }
 
@@ -52,7 +50,7 @@ class Login extends AbstractHookProvider implements RequestsInterface, WpHooksIn
          * If the current IP does not match their last login IP
          * (and the user has login notifications 'on'), send a notification.
          */
-        if ($current_ip !== \end($last_login_ip) && empty($user_notification)) {
+        if ((!empty($last_login_ip) && $current_ip !== \end($last_login_ip)) && empty($user_notification)) {
             $this->wp_mail = new WpMail();
             $this->wp_mail->setPlugin($this->getPlugin());
             $this->wp_mail->__set('pretext', $this->getEmailPretext());

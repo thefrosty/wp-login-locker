@@ -6,6 +6,7 @@ use function Dwnload\WpLoginLocker\Helpers\terminate;
 use Dwnload\WpLoginLocker\RequestsInterface;
 use Dwnload\WpLoginLocker\RequestsTrait;
 use Symfony\Component\HttpFoundation\Response;
+use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
@@ -14,7 +15,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  *
  * @package Dwnload\WpLoginLocker\WpCore
  */
-class WpSignup implements RequestsInterface, WpHooksInterface
+class WpSignup extends AbstractHookProvider implements RequestsInterface, WpHooksInterface
 {
     use HooksTrait, RequestsTrait;
 
@@ -25,6 +26,7 @@ class WpSignup implements RequestsInterface, WpHooksInterface
      */
     public function addHooks()
     {
+        $this->setRequest();
         $this->addAction('before_signup_header', [$this, 'redirectWpSignup']);
     }
 

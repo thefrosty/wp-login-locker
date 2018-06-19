@@ -3,7 +3,7 @@
  * Plugin Name: Login Locker
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
- * Author URI: http://github.com/thefrosty
+ * Author URI: https://github.com/thefrosty
  * Version: 1.0.0
  * Requires at least: 4.9
  * Tested up to: 4.9
@@ -24,14 +24,17 @@ use Dwnload\WpLoginLocker\WpCore\WpSignup;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 
-$login_locker = (new LoginLocker())->setRequest(Request::createFromGlobals());
-PluginFactory::create('login-locker')
-    ->add((new Login())->setRequest($login_locker->getRequest()))
-    ->add((new NewUser())->setRequest($login_locker->getRequest()))
-    ->add((new WpLogin())->setRequest($login_locker->getRequest()))
-    ->add((new WpSignup())->setRequest($login_locker->getRequest()))
-    ->add((new LastLogin())->setRequest($login_locker->getRequest()))
-    ->add((new EmailNotificationSetting())->setRequest($login_locker->getRequest()))
+$plugin = PluginFactory::create('login-locker');
+$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = function () {
+    return Request::createFromGlobals();
+};
+$plugin
+    ->add(new Login())
+    ->add(new NewUser())
+    ->add(new WpLogin())
+    ->add(new WpSignup())
+    ->add(new LastLogin())
+    ->add(new EmailNotificationSetting())
     ->addOnHook(LastLoginColumns::class, 'admin_init', 10, true)
     ->initialize();
 
