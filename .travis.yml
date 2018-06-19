@@ -1,0 +1,29 @@
+language: php
+
+php:
+  - '7.0'
+  - '7.1'
+  - '7.2'
+
+install: composer install
+
+script:
+  - ./vendor/bin/phpunit --coverage-html coverage
+  - ./vendor/bin/phpcs --standard=PSR2 --extensions=php src
+
+after_script:
+  - composer export-coverage
+
+cache:
+  directories:
+    - vendor
+
+branches:
+  only:
+    - master
+    - develop
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
