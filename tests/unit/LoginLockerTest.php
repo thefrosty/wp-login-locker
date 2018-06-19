@@ -4,7 +4,6 @@ namespace Dwnload\WpRestApi\Tests;
 
 use Dwnload\WpLoginLocker\LoginLocker;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class TestWpRestApiCache
@@ -22,12 +21,32 @@ class LoginLockerTest extends TestCase
      */
     public function setUp()
     {
-        $this->login_locker = new LoginLocker(Request::createFromGlobals());
+        $this->login_locker = new LoginLocker();
     }
 
     public function tearDown()
     {
         unset($this->login_locker);
+    }
+
+    /**
+     * Test class has constants.
+     */
+    public function testConstants()
+    {
+        $expected = [
+            LoginLocker::HOOK_PREFIX,
+            LoginLocker::META_PREFIX,
+            LoginLocker::LAST_LOGIN,
+            LoginLocker::LAST_LOGIN_IP_META_KEY,
+            LoginLocker::LAST_LOGIN_TIME_META_KEY,
+            LoginLocker::USER_EMAIL,
+            LoginLocker::USER_EMAIL_META_KEY,
+            LoginLocker::CONTAINER_REQUEST,
+        ];
+        $constants = $this->getReflection()->getConstants();
+        $this->assertNotEmpty($constants);
+        $this->assertSame($expected, array_values($constants));
     }
 
     /**
