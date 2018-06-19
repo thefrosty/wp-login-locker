@@ -13,7 +13,10 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  *
  * @package Dwnload\WpLoginLocker
  */
-abstract class AbstractLoginLocker extends AbstractHookProvider implements PluginAwareInterface, RequestsInterface, WpHooksInterface
+abstract class AbstractLoginLocker extends AbstractHookProvider implements
+    PluginAwareInterface,
+    RequestsInterface,
+    WpHooksInterface
 {
     use HooksTrait, PluginAwareTrait, RequestsTrait;
 }

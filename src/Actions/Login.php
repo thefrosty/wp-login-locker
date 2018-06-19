@@ -152,7 +152,8 @@ class Login extends AbstractLoginLocker
          * %5$s Site name
          * %6$s Site email
          */
-        return sprintf($content,
+        return \sprintf(
+            $content,
             $this->getUserName($user),
             $this->getUserAgent(),
             $this->getIP(),

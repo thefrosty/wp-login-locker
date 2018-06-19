@@ -123,9 +123,11 @@ class WpMail implements PluginAwareInterface
             $this->from_name = \get_bloginfo('name');
         }
 
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_name',
+        return (string)\apply_filters(
+            LoginLocker::HOOK_PREFIX . 'email_from_name',
             \wp_specialchars_decode($this->from_name),
-            $this);
+            $this
+        );
     }
 
     /**
@@ -150,8 +152,11 @@ class WpMail implements PluginAwareInterface
     public function getContentType(): string
     {
         if (empty($this->content_type) && $this->html) {
-            $this->content_type = (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_default_content_type',
-                self::CONTENT_TYPE_HTML, $this);
+            $this->content_type = (string)\apply_filters(
+                LoginLocker::HOOK_PREFIX . 'email_default_content_type',
+                self::CONTENT_TYPE_HTML,
+                $this
+            );
         } elseif (!$this->html) {
             $this->content_type = self::CONTENT_TYPE_PLAIN;
         }
@@ -221,8 +226,11 @@ class WpMail implements PluginAwareInterface
     public function buildEmail(string $message): string
     {
         if (!$this->html) {
-            return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', \wp_strip_all_tags($message),
-                $this);
+            return (string)\apply_filters(
+                LoginLocker::HOOK_PREFIX . 'email_message',
+                \wp_strip_all_tags($message),
+                $this
+            );
         }
 
         $message = $this->textToHtml($message);
