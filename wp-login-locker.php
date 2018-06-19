@@ -33,8 +33,8 @@ $plugin
     ->add(new NewUser())
     ->add(new WpLogin())
     ->add(new WpSignup())
-    ->add(new LastLogin())
-    ->add(new EmailNotificationSetting())
+    ->addOnHook(LastLogin::class, 'admin_init', 10, true)
+    ->addOnHook(EmailNotificationSetting::class, 'admin_init', 10, true)
     ->addOnHook(LastLoginColumns::class, 'admin_init', 10, true)
     ->initialize();
 
