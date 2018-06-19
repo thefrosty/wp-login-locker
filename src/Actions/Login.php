@@ -31,6 +31,7 @@ class Login extends AbstractLoginLocker
     {
         $this->setRequest();
         $this->addAction('wp_login', [$this, 'wpLoginAction'], 10, 2);
+        $this->addFilter('is_protected_meta', [$this, 'setProtectedMeta'], 10, 2);
     }
 
     /**
@@ -74,9 +75,31 @@ class Login extends AbstractLoginLocker
          * Update the current users login meta data
          * (regardless of current IP or notification settings)
          */
-        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, true);
-        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), true);
+        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, false);
+        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
         unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
+    }
+
+    /**
+     * Filters whether a meta key is protected.
+     *
+     * @uses is_protected_meta()
+     * @param bool $protected
+     * @param string $meta_key
+     * @return bool
+     */
+    protected function setProtectedMeta($protected, $meta_key): bool
+    {
+        switch ($meta_key) {
+            case LoginLocker::LAST_LOGIN_IP_META_KEY:
+                $protected = true;
+                break;
+            case LoginLocker::LAST_LOGIN_TIME_META_KEY:
+                $protected = true;
+                break;
+        }
+
+        return $protected;
     }
 
     /**
