@@ -3,7 +3,6 @@
 namespace Dwnload\WpLoginLocker\UserProfile;
 
 use Dwnload\WpLoginLocker\LoginLocker;
-use TheFrosty\WpUtilities\Plugin\ContainerAwareTrait;
 
 /**
  * Class LastLogin
@@ -12,8 +11,6 @@ use TheFrosty\WpUtilities\Plugin\ContainerAwareTrait;
  */
 class LastLogin extends UserProfile
 {
-    use ContainerAwareTrait;
-
     /**
      * Add class hooks.
      */
