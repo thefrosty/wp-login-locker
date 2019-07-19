@@ -9,15 +9,17 @@ namespace Dwnload\WpLoginLocker;
  */
 final class LoginLocker
 {
-    const HOOK_PREFIX = 'login_locker/';
-    const META_PREFIX = 'login_locker_';
 
-    const LAST_LOGIN = self::META_PREFIX . 'user_last_login';
-    const LAST_LOGIN_IP_META_KEY = self::LAST_LOGIN . '_ip';
-    const LAST_LOGIN_TIME_META_KEY = self::LAST_LOGIN . '_time';
+    public const HOOK_PREFIX = 'login_locker/';
+    public const META_PREFIX = 'login_locker_';
 
-    const USER_EMAIL = self::META_PREFIX . 'user_email';
-    const USER_EMAIL_META_KEY = self::USER_EMAIL . '_notification';
+    public const LAST_LOGIN = self::META_PREFIX . 'user_last_login';
+    public const LAST_LOGIN_IP_META_KEY = self::LAST_LOGIN . '_ip';
+    public const LAST_LOGIN_TIME_META_KEY = self::LAST_LOGIN . '_time';
 
-    const CONTAINER_REQUEST = 'request';
+    public const USER_EMAIL = self::META_PREFIX . 'user_email';
+    public const USER_EMAIL_META_KEY = self::USER_EMAIL . '_notification';
+
+    public const CONTAINER_REQUEST = 'request';
+    public const WP_LOGIN = 'WpLogin';
 }

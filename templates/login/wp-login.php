@@ -5,8 +5,7 @@ login_header(__('Log In'), '', '');
 <p class="message"><?php
     echo apply_filters(\Dwnload\WpLoginLocker\LoginLocker::HOOK_PREFIX . 'wp-login/message',
         esc_html__('Login without a key has been disabled.', 'wp-login-locker'));
-    ?>
-</p>
+    ?></p>
 </div>
 <div class="clear"></div>
 </body>

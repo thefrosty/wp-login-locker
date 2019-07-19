@@ -2,15 +2,17 @@
 
 namespace Dwnload\WpLoginLocker\Utilities;
 
-use Dwnload\WpLoginLocker\RequestsTrait;
+use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 
 /**
  * Class GeoUtil
+ *
  * @package Dwnload\WpLoginLocker\Utilities
  */
 trait GeoUtilTrait
 {
-    use RequestsTrait;
+
+    use HttpFoundationRequestTrait;
 
     /**
      * Get IP Address of user.w
