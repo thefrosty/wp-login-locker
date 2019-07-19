@@ -14,6 +14,7 @@ use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
  */
 class WpMail implements PluginAwareInterface
 {
+
     use HooksTrait, PluginAwareTrait;
 
     const CONTENT_TYPE_HTML = 'text/html';
@@ -274,10 +275,10 @@ class WpMail implements PluginAwareInterface
     /**
      * Send the email
      *
-     * @param  string $to The To address to send to.
-     * @param  string $subject The subject line of the email to send.
-     * @param  string $message The body of the email to send.
-     * @param  string|array $attachments Attachments to the email in a format supported by wp_mail()
+     * @param string $to The To address to send to.
+     * @param string $subject The subject line of the email to send.
+     * @param string $message The body of the email to send.
+     * @param string|array $attachments Attachments to the email in a format supported by wp_mail()
      *
      * @return bool
      */

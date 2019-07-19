@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class TestWpRestApiCache
+ *
  * @package Dwnload\WpRestApi\Tests
  */
 class LoginLockerTest extends TestCase
 {
+
     /**
      * @var LoginLocker $login_locker
      */
@@ -43,10 +45,11 @@ class LoginLockerTest extends TestCase
             LoginLocker::USER_EMAIL,
             LoginLocker::USER_EMAIL_META_KEY,
             LoginLocker::CONTAINER_REQUEST,
+            LoginLocker::WP_LOGIN,
         ];
         $constants = $this->getReflection()->getConstants();
         $this->assertNotEmpty($constants);
-        $this->assertSame($expected, array_values($constants));
+        $this->assertSame($expected, \array_values($constants));
     }
 
     /**

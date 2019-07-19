@@ -6,18 +6,19 @@ use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\LoginLocker;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
+use Dwnload\WpLoginLocker\Utilities\UserMetaCleanup;
 use Dwnload\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
 /**
  * Class Login
+ *
  * @package Dwnload\WpLoginLocker\Actions
  */
 class Login extends AbstractLoginLocker
 {
-    use GeoUtilTrait, HooksTrait;
 
-    const SUBJECT = 'New login to %1$s account';
+    use GeoUtilTrait, HooksTrait;
 
     /**
      * @var WpMail $wp_mail
@@ -29,8 +30,8 @@ class Login extends AbstractLoginLocker
      */
     public function addHooks()
     {
-        $this->setRequest();
         $this->addAction('wp_login', [$this, 'wpLoginAction'], 10, 2);
+        $this->addAction('login_locker_cleanup_last_login_meta', [$this, 'postMetaCleanup']);
         $this->addFilter('is_protected_meta', [$this, 'setProtectedMeta'], 10, 2);
     }
 
@@ -57,7 +58,7 @@ class Login extends AbstractLoginLocker
             $this->wp_mail->__set('pretext', $this->getEmailPretext());
             $this->wp_mail->send(
                 $user->user_email,
-                \sprintf(self::SUBJECT, $this->getHomeUrl()),
+                \sprintf(\esc_html__('New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
                 $this->getEmailMessage($user)
             );
         }
@@ -78,15 +79,27 @@ class Login extends AbstractLoginLocker
         \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, false);
         \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
         unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
+        \wp_schedule_single_event(\time() + MINUTE_IN_SECONDS, 'login_locker_cleanup_last_login_meta', [$user->ID]);
+    }
+
+    /**
+     * Trigger on a cron to cleanup old user meta.
+     *
+     * @param int $user_id
+     */
+    protected function postMetaCleanup(int $user_id): void
+    {
+        (new UserMetaCleanup($user_id))->cleanup();
     }
 
     /**
      * Filters whether a meta key is protected.
      *
-     * @uses is_protected_meta()
      * @param bool $protected
      * @param string $meta_key
+     *
      * @return bool
+     * @uses is_protected_meta()
      */
     protected function setProtectedMeta($protected, $meta_key): bool
     {

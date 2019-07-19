@@ -4,45 +4,49 @@
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires at least: 4.9
- * Tested up to: 4.9
- * Requires PHP: 7.0
+ * Tested up to: 5.1
+ * Requires PHP: 7.2
  * Plugin URI: https://github.com/dwnload/wp-login-locker
  */
 
-defined('ABSPATH') || exit;
+namespace Dwnload\WpLoginLocker;
 
-use Dwnload\WpLoginLocker\Actions\Login;
-use Dwnload\WpLoginLocker\Actions\NewUser;
-use Dwnload\WpLoginLocker\Login\LastLoginColumns;
-use Dwnload\WpLoginLocker\Login\WpLogin;
-use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\UserProfile\EmailNotificationSetting;
-use Dwnload\WpLoginLocker\UserProfile\LastLogin;
-use Dwnload\WpLoginLocker\WpCore\WpSignup;
+\defined('ABSPATH') || exit;
+
+use Dwnload\WpLoginLocker\Utilities\UserMetaCleanup;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 
+if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
+}
+
 $plugin = PluginFactory::create('login-locker');
-$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = function () {
+$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = static function () {
     return Request::createFromGlobals();
 };
+
 $plugin
-    ->add(new Login())
-    ->add(new NewUser())
-    ->add(new WpLogin())
-    ->add(new WpSignup())
-    ->addOnHook(LastLogin::class, 'admin_init', 10, true)
-    ->addOnHook(EmailNotificationSetting::class, 'admin_init', 10, true)
-    ->addOnHook(LastLoginColumns::class, 'admin_init', 10, true)
+    ->add(new Actions\Login())
+    ->add(new Actions\NewUser())
+    ->add(new Login\WpLogin())
+    ->add(new WpCore\WpSignup())
+    ->addOnHook(UserProfile\LastLogin::class, 'admin_init', 10, true)
+    ->addOnHook(UserProfile\EmailNotificationSetting::class, 'admin_init', 10, true)
+    ->addOnHook(Login\LastLoginColumns::class, 'admin_init', 10, true)
     ->initialize();
 
-call_user_func_array(
+\register_activation_hook(__FILE__, static function () {
+    (new Login\WpLogin())->activate();
+});
+
+\call_user_func_array(
     function ($filter) {
-        add_filter($filter, function ($value) use ($filter) {
-            if (!empty($value->response) && array_key_exists(plugin_basename(__FILE__), $value->response)) {
-                unset($value->response[plugin_basename(__FILE__)]);
+        \add_filter($filter, function ($value) use ($filter) {
+            if (!empty($value->response) && \array_key_exists(\plugin_basename(__FILE__), $value->response)) {
+                unset($value->response[\plugin_basename(__FILE__)]);
             }
 
             return $value;

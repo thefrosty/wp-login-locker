@@ -3,11 +3,11 @@
 namespace Dwnload\WpLoginLocker\WpCore;
 
 use function Dwnload\WpLoginLocker\Helpers\terminate;
-use Dwnload\WpLoginLocker\RequestsInterface;
-use Dwnload\WpLoginLocker\RequestsTrait;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
+use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
+use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
@@ -15,18 +15,16 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  *
  * @package Dwnload\WpLoginLocker\WpCore
  */
-class WpSignup extends AbstractHookProvider implements RequestsInterface, WpHooksInterface
+class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInterface, WpHooksInterface
 {
-    use HooksTrait, RequestsTrait;
 
-    const MAGIC_WORD = 'Ah ah ah, you didn\'t say the magic word.';
+    use HttpFoundationRequestTrait, HooksTrait;
 
     /**
      * Add class hooks.
      */
     public function addHooks()
     {
-        $this->setRequest();
         $this->addAction('before_signup_header', [$this, 'redirectWpSignup']);
     }
 
@@ -37,7 +35,7 @@ class WpSignup extends AbstractHookProvider implements RequestsInterface, WpHook
     {
         // Don't allow POST requests to the wp-signup.php page
         if (!empty($this->getRequest()->request->all())) {
-            \wp_die(self::MAGIC_WORD, 'Access Denied');
+            \wp_die(\esc_html__('Ah ah ah, you didn\'t say the magic word.', 'wp-login-locker'), 'Access Denied');
         }
         \wp_safe_redirect(\network_home_url(), Response::HTTP_PERMANENTLY_REDIRECT);
         terminate();

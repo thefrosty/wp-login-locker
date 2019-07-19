@@ -20,7 +20,6 @@ class NewUser extends AbstractLoginLocker
      */
     public function addHooks()
     {
-        $this->setRequest();
         $this->addAction('user_register', [$this, 'userRegisterAction']);
     }
 
