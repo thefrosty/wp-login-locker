@@ -6,6 +6,6 @@ namespace Dwnload\WpLoginLocker\Helpers;
  * Close the current session and terminate all scripts.
  */
 function terminate() {
-    session_write_close();
+    \session_write_close();
     exit;
 }
