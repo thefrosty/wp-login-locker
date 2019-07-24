@@ -8,7 +8,7 @@
  * Requires at least: 4.9
  * Tested up to: 5.1
  * Requires PHP: 7.2
- * Plugin URI: https://github.com/dwnload/wp-login-locker
+ * Plugin URI: https://github.com/thefrosty/wp-login-locker
  */
 
 namespace Dwnload\WpLoginLocker;
