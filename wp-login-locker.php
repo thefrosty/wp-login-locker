@@ -4,18 +4,17 @@
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.1.0
+ * Version: 1.1.1
  * Requires at least: 4.9
  * Tested up to: 5.1
  * Requires PHP: 7.2
- * Plugin URI: https://github.com/dwnload/wp-login-locker
+ * Plugin URI: https://github.com/thefrosty/wp-login-locker
  */
 
 namespace Dwnload\WpLoginLocker;
 
 \defined('ABSPATH') || exit;
 
-use Dwnload\WpLoginLocker\Utilities\UserMetaCleanup;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 
