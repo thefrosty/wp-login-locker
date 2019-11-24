@@ -3,6 +3,8 @@
 namespace Dwnload\WpLoginLocker\Login;
 
 use Dwnload\WpLoginLocker\AbstractLoginLocker;
+use Dwnload\WpLoginLocker\Actions\NewUser;
+use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use function Dwnload\WpLoginLocker\Helpers\terminate;
 use Dwnload\WpLoginLocker\LoginLocker;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,9 +19,8 @@ use TheFrosty\WpUtilities\Plugin\HooksTrait;
 class WpLogin extends AbstractLoginLocker
 {
 
-    use HooksTrait;
+    use GeoUtilTrait, HooksTrait;
 
-    public const ASSETS_VERSION = '20180605';
     public const AUTH_CHECK_KEY = 'auth_check';
     public const COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const COOKIE_VALUE_S = 'OK|%s';
@@ -32,7 +33,7 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Add class hooks.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         $this->addAction('login_init', [$this, 'loginAuthCheck']);
         $this->addFilter('login_message', [$this, 'lostPasswordMessage'], 11);
@@ -45,6 +46,7 @@ class WpLogin extends AbstractLoginLocker
     {
         if (\is_user_logged_in()) {
             $this->setLoginCookie(\wp_get_current_user(), 'user_email');
+            $this->addDefaultUserMeta();
         }
     }
 
@@ -56,7 +58,7 @@ class WpLogin extends AbstractLoginLocker
      * is a valid user on the site, set a cookie and allow them access to the login
      * form. Otherwise send them a fake html without the login form.
      */
-    protected function loginAuthCheck()
+    protected function loginAuthCheck(): void
     {
         // Make sure the current action of logout is allowed (if a user changes their login name or email).
         if ($this->getRequest()->query->has('action') &&
@@ -248,5 +250,13 @@ class WpLogin extends AbstractLoginLocker
         $iv = \substr(\hash('sha256', \sprintf('%s_iv', $encryption_key)), 0, 16);
 
         return \openssl_decrypt(\base64_decode($data), self::ENCRYPTION_METHOD, $key, 0, $iv);
+    }
+
+    /**
+     * Activation method to add the meta data to the current user.
+     */
+    private function addDefaultUserMeta(): void
+    {
+        NewUser::addLoginUserMeta(\get_current_user_id(), $this->getIp());
     }
 }

@@ -33,7 +33,7 @@ trait GeoUtilTrait
             $ip_address = $this->getRequest()->server->get('REMOTE_ADDR');
         }
 
-        return $ip_address;
+        return \strval($ip_address);
     }
 
     /**

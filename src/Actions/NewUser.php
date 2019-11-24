@@ -24,13 +24,24 @@ class NewUser extends AbstractLoginLocker
     }
 
     /**
+     * Add default user meta on activation.
+     *
+     * @param int $user_id
+     * @param string $ip_address
+     */
+    public static function addLoginUserMeta(int $user_id, string $ip_address): void
+    {
+        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $ip_address, false);
+        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
+    }
+
+    /**
      * On user registration, add their first unique meta of their IP address and login time.
      *
      * @param int $user_id The new users ID.
      */
-    protected function userRegisterAction(int $user_id)
+    protected function userRegisterAction(int $user_id): void
     {
-        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $this->getIP(), false);
-        \add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
+        self::addLoginUserMeta($user_id, $this->getIP());
     }
 }

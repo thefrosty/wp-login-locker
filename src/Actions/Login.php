@@ -28,7 +28,7 @@ class Login extends AbstractLoginLocker
     /**
      * Add class hooks.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         $this->addAction('wp_login', [$this, 'wpLoginAction'], 10, 2);
         $this->addAction('login_locker_cleanup_last_login_meta', [$this, 'postMetaCleanup']);
@@ -42,7 +42,7 @@ class Login extends AbstractLoginLocker
      * @param string $user_login
      * @param \WP_User $user
      */
-    protected function wpLoginAction(string $user_login, \WP_User $user)
+    protected function wpLoginAction(string $user_login, \WP_User $user): void
     {
         $current_ip = $this->getIP();
         $last_login_ip = \get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
@@ -105,8 +105,6 @@ class Login extends AbstractLoginLocker
     {
         switch ($meta_key) {
             case LoginLocker::LAST_LOGIN_IP_META_KEY:
-                $protected = true;
-                break;
             case LoginLocker::LAST_LOGIN_TIME_META_KEY:
                 $protected = true;
                 break;
@@ -203,6 +201,6 @@ class Login extends AbstractLoginLocker
      */
     private function getHomeUrl(): string
     {
-        return \parse_url(\home_url(), PHP_URL_HOST);
+        return \parse_url(\home_url(), \PHP_URL_HOST);
     }
 }
