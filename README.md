@@ -1,5 +1,7 @@
 # WordPress Login Locker
 
+![Login Locker](.github/wp-login-locker.jpg?raw=true "WordPress Login Locker")
+
 [![PHP from Packagist](https://img.shields.io/packagist/php-v/thefrosty/wp-login-locker.svg)]()
 [![Latest Stable Version](https://img.shields.io/packagist/v/thefrosty/wp-login-locker.svg)](https://packagist.org/packages/thefrosty/wp-login-locker)
 [![Total Downloads](https://img.shields.io/packagist/dt/thefrosty/wp-login-locker.svg)](https://packagist.org/packages/thefrosty/wp-login-locker)
