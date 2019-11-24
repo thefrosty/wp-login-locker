@@ -11,7 +11,7 @@ Disable direct access to your sites /wp-login.php script plus user notifications
 ## Package Installation (via Composer)
 
 To install this package, edit your `composer.json` file:
-```js
+```json
 {
     "require": {
         "thefrosty/wp-login-locker": "^1.0.0"
