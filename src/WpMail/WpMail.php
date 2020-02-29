@@ -267,7 +267,7 @@ class WpMail implements PluginAwareInterface
         \do_action(LoginLocker::HOOK_PREFIX . 'email_footer', $this);
 
         $body = \ob_get_clean();
-        $message = \str_replace(['{pretext}', '{email}'], [$this->pretext, $message], $body);
+        $message = \str_replace(['{pretext}', '{message}'], [$this->pretext, $message], $body);
 
         return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', $message, $this);
     }

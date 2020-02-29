@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
     <meta name="x-apple-disable-message-reformatting">  <!-- Disable auto-scale in iOS 10 Mail entirely -->
+    <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no"> <!-- Tell iOS not to automatically link certain text strings. -->
     <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
 
     <!-- Web Font / @font-face : BEGIN -->
@@ -51,6 +52,11 @@
             margin: 0 !important;
         }
 
+        /* What it does: forces Samsung Android mail clients to use the entire viewport */
+        #MessageViewBody, #MessageWebViewDiv{
+            width: 100% !important;
+        }
+
         /* What it does: Stops Outlook from adding extra spacing to tables. */
         table,
         td {
@@ -58,15 +64,12 @@
             mso-table-rspace: 0pt !important;
         }
 
-        /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+        /* What it does: Fixes webkit padding issue. */
         table {
             border-spacing: 0 !important;
             border-collapse: collapse !important;
             table-layout: fixed !important;
             margin: 0 auto !important;
-        }
-        table table table {
-            table-layout: auto;
         }
 
         /* What it does: Uses a better rendering method when resizing images in IE. */
@@ -80,8 +83,8 @@
         }
 
         /* What it does: A work-around for email clients meddling in triggered links. */
-        *[x-apple-data-detectors],  /* iOS */
-        .unstyle-auto-detected-links *,
+        a[x-apple-data-detectors],  /* iOS */
+        .unstyle-auto-detected-links a,
         .aBn {
             border-bottom: 0 !important;
             cursor: default !important;
@@ -98,6 +101,12 @@
             display: none !important;
             opacity: 0.01 !important;
         }
+
+        /* What it does: Prevents Gmail from changing the text color in conversation threads. */
+        .im {
+            color: inherit !important;
+        }
+
         /* If the above doesn't work, add a .g-img class to any image in question. */
         img.g-img + div {
             display: none !important;
@@ -108,43 +117,36 @@
 
         /* iPhone 4, 4S, 5, 5S, 5C, and 5SE */
         @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
-            .email-container {
+            u ~ div .email-container {
                 min-width: 320px !important;
             }
         }
         /* iPhone 6, 6S, 7, 8, and X */
         @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
-            .email-container {
+            u ~ div .email-container {
                 min-width: 375px !important;
             }
         }
         /* iPhone 6+, 7+, and 8+ */
         @media only screen and (min-device-width: 414px) {
-            .email-container {
+            u ~ div .email-container {
                 min-width: 414px !important;
             }
         }
 
     </style>
-    <!-- CSS Reset : END -->
-    <!-- Reset list spacing because Outlook ignores much of our inline CSS. -->
-    <!--[if mso]>
-    <style type="text/css">
-        ul,
-        ol {
-            margin: 0 !important;
-        }
-        li {
-            margin-left: 30px !important;
-        }
-        li.list-item-first {
-            margin-top: 0 !important;
-        }
-        li.list-item-last {
-            margin-bottom: 10px !important;
-        }
-    </style>
+
+    <!-- What it does: Makes background images in 72ppi Outlook render at correct size. -->
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
     <![endif]-->
+
+    <!-- CSS Reset : END -->
 
     <!-- Progressive Enhancements : BEGIN -->
     <style>
@@ -172,16 +174,6 @@
 
     </style>
     <!-- Progressive Enhancements : END -->
-
-    <!-- What it does: Makes background images in 72ppi Outlook render at correct size. -->
-    <!--[if gte mso 9]>
-    <xml>
-        <o:OfficeDocumentSettings>
-            <o:AllowPNG/>
-            <o:PixelsPerInch>96</o:PixelsPerInch>
-        </o:OfficeDocumentSettings>
-    </xml>
-    <![endif]-->
 
 </head>
 <!--
