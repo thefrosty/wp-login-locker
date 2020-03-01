@@ -5,9 +5,11 @@ namespace Dwnload\WpLoginLocker\Actions;
 use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpLoginLocker\Login\WpLogin;
 use Dwnload\WpLoginLocker\LoginLocker;
+use Dwnload\WpLoginLocker\Settings\Settings;
 use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
 use Dwnload\WpLoginLocker\Utilities\UserMetaCleanup;
 use Dwnload\WpLoginLocker\WpMail\WpMail;
+use Dwnload\WpSettingsApi\Api\Options;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
 /**
@@ -120,9 +122,16 @@ class Login extends AbstractLoginLocker
      */
     private function getEmailPretext(): string
     {
-        \ob_start();
-        include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-pretext.php';
-        $content = \ob_get_clean();
+        $content = Options::getOption(
+            Settings::EMAIL_SETTING_PRETEXT,
+            Settings::EMAIL_SETTINGS,
+            null
+        );
+        if (empty($content)) {
+            \ob_start();
+            include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-pretext.php';
+            $content = \ob_get_clean();
+        }
 
         /**
          * %1$s Site name
@@ -139,9 +148,16 @@ class Login extends AbstractLoginLocker
      */
     private function getEmailMessage(\WP_User $user): string
     {
-        \ob_start();
-        include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-notice.php';
-        $content = \ob_get_clean();
+        $content = Options::getOption(
+            Settings::EMAIL_SETTING_MESSAGE,
+            Settings::EMAIL_SETTINGS,
+            null
+        );
+        if (empty($content)) {
+            \ob_start();
+            include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-notice.php';
+            $content = \ob_get_clean();
+        }
 
         /**
          * Add our auth check key and the users email so they can access the
