@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.3.0 - 2020-03-01
+- Add setting page.
+    - Add login logo setting.
+    - Add email pretext & message setting.
+
 ## 1.2.0 - 2020-02-29
 - Update the email template, which should now not be so ipsum.
 
