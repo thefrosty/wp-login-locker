@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker;
+namespace TheFrosty\WpLoginLocker;
 
 /**
- * Class LoginLocker
- *
- * @package Dwnload\WpLoginLocker
+ * Interface LoginLocker
+ * @package TheFrosty\WpLoginLocker
  */
-final class LoginLocker
+interface LoginLocker
 {
 
     public const HOOK_PREFIX = 'login_locker/';
@@ -22,4 +21,6 @@ final class LoginLocker
 
     public const CONTAINER_REQUEST = 'request';
     public const WP_LOGIN = 'WpLogin';
+
+    public const CONTAINER_GITHUB_ARGS = 'github.config';
 }

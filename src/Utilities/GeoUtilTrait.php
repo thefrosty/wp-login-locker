@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Utilities;
+namespace TheFrosty\WpLoginLocker\Utilities;
 
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 
 /**
  * Class GeoUtil
- *
- * @package Dwnload\WpLoginLocker\Utilities
+ * @package TheFrosty\WpLoginLocker\Utilities
  */
 trait GeoUtilTrait
 {
@@ -16,7 +15,6 @@ trait GeoUtilTrait
 
     /**
      * Get IP Address of user.w
-     *
      * @return string
      */
     public function getIP(): string
@@ -38,7 +36,6 @@ trait GeoUtilTrait
 
     /**
      * Get browser name.
-     *
      * @return string
      */
     public function getUserAgent(): string

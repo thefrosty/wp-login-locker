@@ -1,6 +1,6 @@
 <?php
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 
 ?>
 <h4><?php esc_html_e('Your new login notification setting', 'wp-login-locker'); ?></h4>

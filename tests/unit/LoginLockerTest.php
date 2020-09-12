@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpRestApi\Tests;
+namespace TheFrosty\Tests\WpLoginLocker;
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Class TestWpRestApiCache
- *
- * @package Dwnload\WpRestApi\Tests
+ * Class LoginLockerTest
+ * @package TheFrosty\Tests\WpLoginLocker
  */
 class LoginLockerTest extends TestCase
 {
@@ -23,7 +22,8 @@ class LoginLockerTest extends TestCase
      */
     public function setUp()
     {
-        $this->login_locker = new LoginLocker();
+        $this->login_locker = new class implements LoginLocker {
+        };
     }
 
     public function tearDown()
@@ -46,6 +46,7 @@ class LoginLockerTest extends TestCase
             LoginLocker::USER_EMAIL_META_KEY,
             LoginLocker::CONTAINER_REQUEST,
             LoginLocker::WP_LOGIN,
+            LoginLocker::CONTAINER_GITHUB_ARGS,
         ];
         $constants = $this->getReflection()->getConstants();
         $this->assertNotEmpty($constants);

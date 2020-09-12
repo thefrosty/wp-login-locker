@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker;
+namespace TheFrosty\WpLoginLocker;
 
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
@@ -13,7 +13,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 /**
  * Class AbstractLoginLocker
  *
- * @package Dwnload\WpLoginLocker
+ * @package TheFrosty\WpLoginLocker
  */
 abstract class AbstractLoginLocker extends AbstractHookProvider implements
     HttpFoundationRequestInterface,

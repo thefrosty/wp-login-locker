@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\WpCore;
+namespace TheFrosty\WpLoginLocker\WpCore;
 
-use function Dwnload\WpLoginLocker\Helpers\terminate;
+use function TheFrosty\WpLoginLocker\Helpers\terminate;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
@@ -12,8 +12,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class WpSignup
- *
- * @package Dwnload\WpLoginLocker\WpCore
+ * @package TheFrosty\WpLoginLocker\WpCore
  */
 class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInterface, WpHooksInterface
 {
@@ -23,7 +22,7 @@ class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInte
     /**
      * Add class hooks.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         $this->addAction('before_signup_header', [$this, 'redirectWpSignup']);
     }
@@ -31,7 +30,7 @@ class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInte
     /**
      * Redirect all requests to the 'wp-signup.php' page back to the network home URL.
      */
-    protected function redirectWpSignup()
+    protected function redirectWpSignup(): void
     {
         // Don't allow POST requests to the wp-signup.php page
         if (!empty($this->getRequest()->request->all())) {

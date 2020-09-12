@@ -1,6 +1,6 @@
 <?php
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 
 ?>
     <table class="form-table">

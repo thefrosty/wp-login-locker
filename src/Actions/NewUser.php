@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Actions;
+namespace TheFrosty\WpLoginLocker\Actions;
 
-use Dwnload\WpLoginLocker\AbstractLoginLocker;
-use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
+use TheFrosty\WpLoginLocker\AbstractLoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
 /**
  * Class NewUser
- * @package Dwnload\WpLoginLocker\Actions
+ * @package TheFrosty\WpLoginLocker\Actions
  */
 class NewUser extends AbstractLoginLocker
 {
@@ -18,7 +18,7 @@ class NewUser extends AbstractLoginLocker
     /**
      * Add class hooks.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         $this->addAction('user_register', [$this, 'userRegisterAction']);
     }
