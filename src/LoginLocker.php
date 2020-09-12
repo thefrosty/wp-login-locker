@@ -3,11 +3,10 @@
 namespace TheFrosty\WpLoginLocker;
 
 /**
- * Class LoginLocker
- *
+ * Interface LoginLocker
  * @package TheFrosty\WpLoginLocker
  */
-final class LoginLocker
+interface LoginLocker
 {
 
     public const HOOK_PREFIX = 'login_locker/';
