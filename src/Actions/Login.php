@@ -1,21 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Actions;
+namespace TheFrosty\WpLoginLocker\Actions;
 
-use Dwnload\WpLoginLocker\AbstractLoginLocker;
-use Dwnload\WpLoginLocker\Login\WpLogin;
-use Dwnload\WpLoginLocker\LoginLocker;
-use Dwnload\WpLoginLocker\Settings\Settings;
-use Dwnload\WpLoginLocker\Utilities\GeoUtilTrait;
-use Dwnload\WpLoginLocker\Utilities\UserMetaCleanup;
-use Dwnload\WpLoginLocker\WpMail\WpMail;
 use Dwnload\WpSettingsApi\Api\Options;
+use TheFrosty\WpLoginLocker\AbstractLoginLocker;
+use TheFrosty\WpLoginLocker\Login\WpLogin;
+use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Settings\Settings;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
+use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
+use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
 /**
  * Class Login
- *
- * @package Dwnload\WpLoginLocker\Actions
+ * @package TheFrosty\WpLoginLocker\Actions
  */
 class Login extends AbstractLoginLocker
 {
@@ -86,7 +85,6 @@ class Login extends AbstractLoginLocker
 
     /**
      * Trigger on a cron to cleanup old user meta.
-     *
      * @param int $user_id
      */
     protected function postMetaCleanup(int $user_id): void
@@ -99,7 +97,6 @@ class Login extends AbstractLoginLocker
      *
      * @param bool $protected
      * @param string $meta_key
-     *
      * @return bool
      * @uses is_protected_meta()
      */
@@ -141,9 +138,7 @@ class Login extends AbstractLoginLocker
 
     /**
      * Get our notification message from our messages templates.
-     *
      * @param \WP_User $user
-     *
      * @return string
      */
     private function getEmailMessage(\WP_User $user): string
@@ -194,9 +189,7 @@ class Login extends AbstractLoginLocker
      * Return a user name based on the current WP_User. Checks whether they
      * have setup their first name\ or, display name before using their login
      * user name.
-     *
      * @param \WP_User $user
-     *
      * @return string
      */
     private function getUserName(\WP_User $user): string
@@ -212,7 +205,6 @@ class Login extends AbstractLoginLocker
 
     /**
      * Returns the site url host.
-     *
      * @return string
      */
     private function getHomeUrl(): string

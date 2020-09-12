@@ -6,18 +6,18 @@
  * Author URI: https://github.com/thefrosty
  * Version: 1.3.1
  * Requires at least: 5.0
- * Tested up to: 5.3
- * Requires PHP: 7.2
+ * Tested up to: 5.5
+ * Requires PHP: 7.3
  * Plugin URI: https://github.com/thefrosty/wp-login-locker
  */
 
-namespace Dwnload\WpLoginLocker;
+namespace TheFrosty\WpLoginLocker;
 
 \defined('ABSPATH') || exit;
 
-use Dwnload\WpLoginLocker\Settings\Settings;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Symfony\Component\HttpFoundation\Request;
+use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
 
@@ -26,7 +26,7 @@ if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
 }
 
 $plugin = PluginFactory::create('login-locker');
-$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = static function () {
+$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = static function (): Request {
     return Request::createFromGlobals();
 };
 

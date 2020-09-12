@@ -1,5 +1,5 @@
 <?php
-/** @var \Dwnload\WpLoginLocker\UserProfile\LastLogin $this */
+/** @var TheFrosty\WpLoginLocker\UserProfile\LastLogin $this */
 
 $last_login_ip = $this->getLastLoginIp($user->ID);
 $current_login_ip = $this->getCurrentLoginIp($user->ID);

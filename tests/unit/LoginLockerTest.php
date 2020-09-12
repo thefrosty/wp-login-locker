@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpRestApi\Tests;
+namespace TheFrosty\Tests\WpLoginLocker;
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class TestWpRestApiCache
- *
- * @package Dwnload\WpRestApi\Tests
+ * @package TheFrosty\Tests\WpLoginLocker
  */
 class LoginLockerTest extends TestCase
 {

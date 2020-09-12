@@ -1,16 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\WpMail;
+namespace TheFrosty\WpLoginLocker\WpMail;
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 
 /**
  * Class WpMail
- *
- * @package Dwnload\WpMail
+ * @package TheFrosty\WpLoginLocker\WpMail
  */
 class WpMail implements PluginAwareInterface
 {

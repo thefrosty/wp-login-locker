@@ -12,16 +12,15 @@
     }
   ],
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.3",
     "ext-openssl": "*",
     "composer/installers": "~1.0",
     "dwnload/wp-settings-api": "^3",
     "pimple/pimple": "~3.0",
-    "symfony/http-foundation": "^4.4.7|^5.0.7",
-    "thefrosty/wp-utilities": "^1.7"
+    "symfony/http-foundation": "^5.0.7",
+    "thefrosty/wp-utilities": "^1.10"
   },
   "require-dev": {
-    "10up/wp_mock": "0.4.2",
     "phpunit/phpunit": "^7",
     "roave/security-advisories": "dev-master",
     "slevomat/coding-standard": "~4.0",
@@ -35,7 +34,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Dwnload\\WpLoginLocker\\": "src"
+      "TheFrosty\\WpLoginLocker\\": "src"
     },
     "files": [
       "helpers.php"
@@ -43,7 +42,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Dwnload\\WpLoginLocker\\Tests\\": "tests/unit"
+      "TheFrosty\\Tests\\WpLoginLocker\\": "tests/unit"
     }
   },
   "scripts": {
