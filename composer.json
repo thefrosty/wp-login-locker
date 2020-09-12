@@ -21,10 +21,14 @@
     "thefrosty/wp-utilities": "^2.0"
   },
   "require-dev": {
+    "ext-simplexml": "*",
     "phpunit/phpunit": "^7",
+    "phpunit/php-code-coverage": "^6",
     "roave/security-advisories": "dev-master",
+    "roots/wordpress": "^5.5.1",
     "slevomat/coding-standard": "~4.0",
-    "squizlabs/php_codesniffer": "^3.2"
+    "squizlabs/php_codesniffer": "^3.2",
+    "wp-phpunit/wp-phpunit": "^5.5.1"
   },
   "config": {
     "optimize-autoloader": true,
@@ -46,8 +50,22 @@
     }
   },
   "scripts": {
-    "export-coverage": "test-reporter",
-    "phpcs": "./vendor/bin/phpcs --standard=PSR2 --extensions=php src",
-    "test": "./vendor/bin/phpunit --colors"
+    "install-codestandards": [
+      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
+    ],
+    "phpcs": [
+      "bash ./bin/phpcs.sh"
+    ],
+    "phpmd": [
+      "bash ./bin/phpmd.sh"
+    ],
+    "phpunit": [
+      "./vendor/bin/phpunit --colors --verbose --coverage-html ./coverage && php ./tests/clover-results.php ./tests/clover.xml 0"
+    ],
+    "tests": [
+      "@phpcs",
+      "@phpmd",
+      "@phpunit"
+    ]
   }
 }
