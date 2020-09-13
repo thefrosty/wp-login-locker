@@ -21,8 +21,10 @@
     "thefrosty/wp-utilities": "^2.0"
   },
   "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
     "ext-simplexml": "*",
     "phpunit/php-code-coverage": "^6",
+    "phpcompatibility/php-compatibility": "*",
     "phpunit/phpunit": "^7",
     "roave/security-advisories": "dev-master",
     "roots/wordpress": "^5.5.1",
