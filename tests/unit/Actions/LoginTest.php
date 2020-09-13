@@ -11,6 +11,7 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
+ * @group actions
  */
 class LoginTest extends TestCase
 {
