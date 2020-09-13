@@ -12,6 +12,8 @@ use TheFrosty\WpUtilities\Plugin\PluginFactory;
 class TestCase extends \WP_UnitTestCase
 {
 
+    public const METHOD_ADD_FILTER = 'addFilter';
+
     /** @var \TheFrosty\WpUtilities\Plugin\Container $container */
     protected $container;
 
@@ -58,5 +60,17 @@ class TestCase extends \WP_UnitTestCase
         }
 
         return $reflector[\get_class($argument)];
+    }
+
+    /**
+     * Get a Mock Provider.
+     * @param string $className
+     * @return \PHPUnit\Framework\MockObject\MockObject
+     */
+    protected function getMockProvider(string $className): \PHPUnit\Framework\MockObject\MockObject
+    {
+        return $this->getMockBuilder($className)
+            ->setMethods([self::METHOD_ADD_FILTER])
+            ->getMock();
     }
 }
