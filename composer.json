@@ -15,15 +15,15 @@
     "php": ">=7.3",
     "ext-openssl": "*",
     "composer/installers": "~1.0",
-    "dwnload/wp-settings-api": "^3.1",
+    "dwnload/wp-settings-api": "^3.1.1",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^5.0.7",
     "thefrosty/wp-utilities": "^2.0"
   },
   "require-dev": {
     "ext-simplexml": "*",
-    "phpunit/phpunit": "^7",
     "phpunit/php-code-coverage": "^6",
+    "phpunit/phpunit": "^7",
     "roave/security-advisories": "dev-master",
     "roots/wordpress": "^5.5.1",
     "slevomat/coding-standard": "~4.0",
@@ -60,7 +60,7 @@
       "bash ./bin/phpmd.sh"
     ],
     "phpunit": [
-      "./vendor/bin/phpunit --colors --verbose --coverage-html ./coverage && php ./tests/clover-results.php ./tests/clover.xml 0"
+      "./vendor/bin/phpunit --colors --verbose --coverage-html ./coverage && php ./tests/clover-results.php ./tests/clover.xml 36"
     ],
     "tests": [
       "@phpcs",
