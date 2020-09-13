@@ -213,7 +213,8 @@ class Settings extends AbstractLoginLocker
     {
         \array_unshift(
             $actions,
-            \sprintf('<a href="%s" aria-label="%s">%s</a>',
+            \sprintf(
+                '<a href="%s" aria-label="%s">%s</a>',
                 \menu_page_url(self::MENU_SLUG, false),
                 \esc_attr__('Settings for Login Locker', 'wp-login-locker'),
                 \esc_html__('Settings', 'default')
