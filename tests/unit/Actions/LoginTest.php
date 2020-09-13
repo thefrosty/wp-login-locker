@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
 /**
  * Class Login
@@ -26,6 +27,7 @@ class LoginTest extends TestCase
     {
         parent::setUp();
         $this->login = new Login();
+        $this->login->setPlugin($this->plugin);
         $this->login->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->login);
     }
@@ -54,15 +56,142 @@ class LoginTest extends TestCase
         try {
             $wpLoginAction = $this->reflection->getMethod('wpLoginAction');
             $wpLoginAction->setAccessible(true);
-            $WP_User = $this->getMockBuilder('WP_User')
-                ->disableOriginalConstructor()
-                ->getMock();
-            $WP_User->ID = 0;
-            \WP_Mock::passthruFunction('add_user_meta');
-            \WP_Mock::passthruFunction('get_user_meta');
-            \WP_Mock::passthruFunction('wp_schedule_single_event');
-            $wpLoginAction->invoke($this->login, 'user_1', $WP_User);
-            $this->assertTrue(\did_action(LoginLocker::HOOK_PREFIX . 'wp_login'));
+            $WP_User = new \WP_User();
+            $wpLoginAction->invoke($this->login, $WP_User->user_login, $WP_User);
+            $this->assertEquals(1, \did_action(LoginLocker::HOOK_PREFIX . 'wp_login'));
+            $this->assertNull($this->reflection->getDefaultProperties()['wp_mail']);
+
+            // Test with a valid user and user meta
+            $WP_User = self::factory()->user->create_and_get();
+            \add_user_meta($WP_User->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, '192.168.1.256');
+            $wpLoginAction->invoke($this->login, $WP_User->user_login, $WP_User);
+            $this->assertEquals(2, \did_action(LoginLocker::HOOK_PREFIX . 'wp_login'));
+            \delete_user_meta($WP_User->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test postMetaCleanup().
+     */
+    public function testPostMetaCleanup(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'postMetaCleanup'));
+        try {
+            $postMetaCleanup = $this->reflection->getMethod('postMetaCleanup');
+            $postMetaCleanup->setAccessible(true);
+            $WP_User = new \WP_User();
+            $this->assertNull($postMetaCleanup->invoke($this->login, $WP_User->ID));
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test setProtectedMeta().
+     */
+    public function testSetProtectedMeta(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'setProtectedMeta'));
+        try {
+            $setProtectedMeta = $this->reflection->getMethod('setProtectedMeta');
+            $setProtectedMeta->setAccessible(true);
+            $actual = $setProtectedMeta->invoke($this->login, false, 'bad_key');
+            $this->assertFalse($actual);
+            foreach ([LoginLocker::LAST_LOGIN_IP_META_KEY, LoginLocker::LAST_LOGIN_TIME_META_KEY] as $key) {
+                $actual = $setProtectedMeta->invoke($this->login, false, $key);
+                $this->assertTrue($actual);
+            }
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test getEmailPretext().
+     */
+    public function testGetEmailPretext(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'getEmailPretext'));
+        try {
+            $wp_mail = $this->reflection->getProperty('wp_mail');
+            $wp_mail->setAccessible(true);
+            $wp_mail->setValue($this->login, new WpMail());
+            $getEmailPretext = $this->reflection->getMethod('getEmailPretext');
+            $getEmailPretext->setAccessible(true);
+            $actual = $getEmailPretext->invoke($this->login);
+            $this->assertIsString($actual);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test getEmailMessage().
+     */
+    public function testGetEmailMessage(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'getEmailMessage'));
+        try {
+            $getEmailMessage = $this->reflection->getMethod('getEmailMessage');
+            $WP_User = new \WP_User();
+            $actual = $getEmailMessage->invoke($this->login, $WP_User);
+            $this->assertIsString($actual);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test getUserName().
+     */
+    public function testGetUserName(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'getUserName'));
+        try {
+            $getUserName = $this->reflection->getMethod('getUserName');
+            $getUserName->setAccessible(true);
+            foreach (
+                [
+                    'first_name' => 'First Name',
+                    'display_name' => 'Mr. First Name',
+                    'user_login' => 'mr_first'
+                ] as $key => $val) {
+
+                $user = self::factory()->user->create_and_get([$key => $val]);
+                $actual = $getUserName->invoke($this->login, $user);
+                $this->assertTrue(
+                    \in_array($actual, [$user->first_name, $user->display_name, $user->user_login], true)
+                );
+            }
+            $user = self::factory()->user->create_and_get();
+            $user->first_name = '';
+            $user->display_name = '';
+            $actual = $getUserName->invoke($this->login, $user);
+            $this->assertSame($user->user_login, $actual);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test getHomeUrl().
+     */
+    public function testGetHomeUrl(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'getHomeUrl'));
+        try {
+            $getHomeUrl = $this->reflection->getMethod('getHomeUrl');
+            $getHomeUrl->setAccessible(true);
+            $actual = $getHomeUrl->invoke($this->login);
+            $this->assertIsString($actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();
