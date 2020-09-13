@@ -41,7 +41,6 @@ install:
     else
       echo "xdebug.ini does not exist"
     fi
-  - composer require --dev --no-update roots/wordpress:${WP_VERSION} wp-phpunit/wp-phpunit:${WP_VERSION}
   - composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
 before_script:
