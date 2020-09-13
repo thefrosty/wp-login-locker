@@ -13,8 +13,11 @@ php:
 
 branches:
   only:
-    - master
     - develop
+    - "/^.*[Ff]eature\\/.*$/"
+    - "/^.*[rR]elease\\/.*$/"
+    - "/^.*[bB]ug\\/.*$/"
+    - "/^.*[Hh]otfix\\/.*$/"
 
 jobs:
   fast_finish: true
