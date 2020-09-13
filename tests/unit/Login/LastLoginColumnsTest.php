@@ -5,7 +5,6 @@ namespace TheFrosty\Tests\WpLoginLocker\Login;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\LastLoginColumns;
 use TheFrosty\WpLoginLocker\LoginLocker;
-use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
 /**
  * Class Login
@@ -37,13 +36,32 @@ class LastLoginColumnsTest extends TestCase
     }
 
     /**
-     * Test addHooks().
+     * Test addHooks(). With user cap
      */
     public function testAddHooks(): void
     {
-        \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
         $this->assertTrue(\method_exists($this->lastLoginColumns, 'addHooks'));
-        $this->lastLoginColumns->addHooks();
+        \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+        $provider = $this->getMockProvider(LastLoginColumns::class);
+        $provider->expects($this->exactly(7))
+            ->method(self::METHOD_ADD_FILTER)
+            ->willReturn(true);
+        /** @var LastLoginColumns $provider */
+        $provider->addHooks();
+    }
+
+    /**
+     * Test addHooks(). No user cap
+     */
+    public function testAddHooksNoCapability(): void
+    {
+        $this->assertTrue(\method_exists($this->lastLoginColumns, 'addHooks'));
+        $provider = $this->getMockProvider(LastLoginColumns::class);
+        $provider->expects($this->exactly(0))
+            ->method(self::METHOD_ADD_FILTER)
+            ->willReturn(true);
+        /** @var LastLoginColumns $provider */
+        $provider->addHooks();
     }
 
     /**
