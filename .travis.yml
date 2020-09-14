@@ -34,13 +34,6 @@ install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - export DEV_BIN_PATH=bin
   - source $DEV_BIN_PATH/create-all-branches.sh
-  - |
-    # Remove Xdebug for a huge performance increase:
-    if [ -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ]; then
-      phpenv config-rm xdebug.ini
-    else
-      echo "xdebug.ini does not exist"
-    fi
   - composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
 before_script:
