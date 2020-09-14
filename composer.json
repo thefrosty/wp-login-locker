@@ -62,7 +62,7 @@
       "bash ./bin/phpmd.sh"
     ],
     "phpunit": [
-      "./vendor/bin/phpunit --colors --verbose --coverage-html ./coverage && php ./tests/clover-results.php ./tests/clover.xml 36"
+      "./vendor/bin/phpunit --colors --verbose --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 36"
     ],
     "eslint": [
       "npm run eslint"

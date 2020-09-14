@@ -1,6 +1,6 @@
 .DS_Store
 /.idea
-coverage/
+tests/results/
 node_modules/
 tests/clover.xml
 /wordpress
