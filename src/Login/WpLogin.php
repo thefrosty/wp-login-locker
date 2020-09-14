@@ -72,7 +72,7 @@ class WpLogin extends AbstractLoginLocker
         if ($this->getRequest()->query->has(self::AUTH_CHECK_KEY) &&
             !empty($this->getRequest()->query->get(self::AUTH_CHECK_KEY))
         ) {
-            list($user, $field) = \array_values(
+            [$user, $field] = \array_values(
                 $this->getUserBy(
                     \sanitize_text_field(
                         \wp_unslash($this->getRequest()->query->get(self::AUTH_CHECK_KEY))
@@ -91,9 +91,9 @@ class WpLogin extends AbstractLoginLocker
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
             // Validate the cookie
             $cookie = $this->decrypt($this->getRequest()->cookies->get(self::COOKIE_NAME), self::ENCRYPTION_KEY);
-            list(, $cookie_value) = \explode(self::ENCRYPTION_DELIMITER, $cookie);
+            [, $cookie_value] = \explode(self::ENCRYPTION_DELIMITER, $cookie);
             if (!empty($cookie_value)) {
-                list($user) = \array_values(
+                [$user] = \array_values(
                     $this->getUserBy($cookie_value)
                 );
                 if ($user instanceof \WP_User) {
@@ -101,7 +101,9 @@ class WpLogin extends AbstractLoginLocker
                 } else {
                     // Maybe the user changed their login name or email, delete the cookie.
                     unset($_COOKIE[self::COOKIE_NAME]);
-                    \setcookie(self::COOKIE_NAME, '', \time() - \HOUR_IN_SECONDS);
+                    if (!\headers_sent()) {
+                        \setcookie(self::COOKIE_NAME, '', \time() - \HOUR_IN_SECONDS);
+                    }
                 }
             }
         }
@@ -204,19 +206,20 @@ class WpLogin extends AbstractLoginLocker
     private function setLoginCookie(\WP_User $user, string $field): void
     {
         /**
-         * Dev note, you can't use Symfony's
-         * Response()->headers->setCookie( new Cookie( 'name', 'value' ) ) because it
-         * sends the headers, which then makes the login page throw a message notice
+         * Dev note, you can't use Symfony's Response()->headers->setCookie( new Cookie( 'name', 'value' ) )
+         * because it sends the headers, which then makes the login page throw a message notice
          * that the headers have already been sent. So, default `setcookie` is used.
          */
-        \setcookie(
-            self::COOKIE_NAME,
-            $this->getCookieValue($user->$field),
-            \strtotime(self::COOKIE_EXPIRE),
-            \COOKIEPATH,
-            \is_string(\COOKIE_DOMAIN) ? \COOKIE_DOMAIN : \parse_url(\home_url(), PHP_URL_HOST),
-            ('https' === \parse_url(\wp_login_url(), \PHP_URL_SCHEME))
-        );
+        if (!\headers_sent()) {
+            \setcookie(
+                self::COOKIE_NAME,
+                $this->getCookieValue($user->$field),
+                \strtotime(self::COOKIE_EXPIRE),
+                \COOKIEPATH,
+                \is_string(\COOKIE_DOMAIN) ? \COOKIE_DOMAIN : \parse_url(\home_url(), PHP_URL_HOST),
+                ('https' === \parse_url(\wp_login_url(), \PHP_URL_SCHEME))
+            );
+        }
     }
 
     /**
