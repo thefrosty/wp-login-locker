@@ -7,8 +7,6 @@ namespace TheFrosty\WpLoginLocker\Helpers;
  */
 function terminate(): void
 {
-//    $function = \apply_filters('thefrosty/wp-login-locker/exit_handler', 'exit');
-//    \call_user_func($function);
     \session_write_close();
-    exit;
+    \wp_die();
 }
