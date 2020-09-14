@@ -16,6 +16,9 @@ if (!file_exists($_tests_dir . '/includes/functions.php')) {
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
 tests_add_filter('muplugins_loaded', function () {
+    add_filter('wp_die_handler', static function (): void {
+        throw new WPDieException();
+    });
     require dirname(__DIR__) . '/wp-login-locker.php';
 });
 

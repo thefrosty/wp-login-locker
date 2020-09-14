@@ -1,5 +1,5 @@
 <?php
-function_exists('login_header') || exit;
+function_exists('login_header') || wp_die();
 login_header(__('Log In'), '', '');
 ?>
 <p class="message"><?php
