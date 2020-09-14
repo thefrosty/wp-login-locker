@@ -6,7 +6,6 @@ use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
-use TheFrosty\WpLoginLocker\Settings\Settings;
 
 /**
  * Class WpLoginTest
