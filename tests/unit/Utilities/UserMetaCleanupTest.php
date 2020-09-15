@@ -33,9 +33,9 @@ class UserMetaCleanupTest extends TestCase
         parent::setUp();
         $this->user_id = self::factory()->user->create();
         foreach (\range(1, 15) as $i) {
-            \update_user_meta($this->user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, \sprintf('10.0.0.%d', $i));
+            \add_user_meta($this->user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, \sprintf('10.0.0.%d', $i), false);
         }
-        $this->userMetaCleanup = new UserMetaCleanup( $this->user_id);
+        $this->userMetaCleanup = new UserMetaCleanup($this->user_id);
     }
 
     public function tearDown(): void
