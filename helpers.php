@@ -8,5 +8,5 @@ namespace TheFrosty\WpLoginLocker\Helpers;
 function terminate(): void
 {
     \session_write_close();
-    exit;
+    \wp_die();
 }

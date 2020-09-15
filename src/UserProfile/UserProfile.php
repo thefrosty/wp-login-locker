@@ -51,12 +51,13 @@ abstract class UserProfile extends AbstractLoginLocker
     }
 
     /**
-     * If the inherited class set's fields, save them.
+     * If the inherited class set's fields, save them. Set to current users who can `read` meaning log in
+     * to the admin.
      * @param int $user_id The current users ID.
      */
     protected function saveExtraProfileFields($user_id): void
     {
-        if (empty($this->fields) || !current_user_can('edit_user', $user_id)) {
+        if (empty($this->fields) || !\current_user_can('read')) {
             return;
         }
 

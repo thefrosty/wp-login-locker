@@ -104,7 +104,10 @@ class UserMetaCleanup
     {
         global $wpdb;
         $table = \_get_meta_table('user');
-        $query = "DELETE FROM $table WHERE umeta_id IN( " . \implode(',', $meta_ids) . ' )';
+        $query = $wpdb->prepare(
+            "DELETE FROM $table WHERE umeta_id IN(%s)",
+            \implode(',', \array_map('\trim', $meta_ids))
+        );
 
         $wpdb->query($query);
     }

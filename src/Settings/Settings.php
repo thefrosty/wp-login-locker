@@ -56,6 +56,7 @@ class Settings extends AbstractLoginLocker
         $this->addAction(WpSettingsApi::ACTION_PREFIX . 'init', [$this, 'init'], 10, 3);
         $this->addFilter(WpSettingsApi::FILTER_PREFIX . 'admin_scripts', [$this, 'adminScripts']);
         $this->addFilter(WpSettingsApi::FILTER_PREFIX . 'admin_styles', [$this, 'adminStyles']);
+        $this->addFilter('plugin_action_links_' . $this->getPlugin()->getBasename(), [$this, 'addSettingsLink']);
     }
 
     /**
@@ -201,6 +202,26 @@ class Settings extends AbstractLoginLocker
         });
 
         return $styles;
+    }
+
+    /**
+     * Add settings page link to the plugins page.
+     * @param array $actions
+     * @return array
+     */
+    protected function addSettingsLink(array $actions): array
+    {
+        \array_unshift(
+            $actions,
+            \sprintf(
+                '<a href="%s" aria-label="%s">%s</a>',
+                \menu_page_url(self::MENU_SLUG, false),
+                \esc_attr__('Settings for Login Locker', 'wp-login-locker'),
+                \esc_html__('Settings', 'default')
+            )
+        );
+
+        return $actions;
     }
 
     /**
