@@ -12,6 +12,7 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\SettingsApiFactory;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
+use TheFrosty\WpLoginLocker\UserProfile\UserProfile;
 
 /**
  * Class Settings
@@ -218,6 +219,12 @@ class Settings extends AbstractLoginLocker
                 \menu_page_url(self::MENU_SLUG, false),
                 \esc_attr__('Settings for Login Locker', 'wp-login-locker'),
                 \esc_html__('Settings', 'default')
+            ),
+            \sprintf(
+                '<a href="%s" aria-label="%s">%s</a>',
+                \admin_url(\sprintf('profile.php#%s', UserProfile::USER_PROFILE_ID)),
+                \esc_attr__('Login Locker user email notifications settings', 'wp-login-locker'),
+                \esc_html__('Emails', 'default')
             )
         );
 

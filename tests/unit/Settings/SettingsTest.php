@@ -176,7 +176,7 @@ class SettingsTest extends TestCase
             $addSettingsLink->setAccessible(true);
             $actual = $addSettingsLink->invoke($this->settings, []);
             $this->assertIsArray($actual);
-            $this->assertCount(1, $actual);
+            $this->assertCount(2, $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();

@@ -17,6 +17,7 @@ abstract class UserProfile extends AbstractLoginLocker
 {
     use ContainerAwareTrait, HooksTrait, PluginAwareTrait;
 
+    public const USER_PROFILE_ID = 'login-locker-settings';
     public const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
 
     /**
@@ -45,7 +46,11 @@ abstract class UserProfile extends AbstractLoginLocker
     protected function doUserProfileAction(\WP_User $user = null): void
     {
         if (!\did_action(self::USER_PROFILE_HOOK)) {
-            \printf('<h2>%s</h2>', \esc_html__('Login Locker Settings', 'wp-login-locker'));
+            \printf(
+                '<h2 id="%s">%s</h2>',
+                \esc_attr(self::USER_PROFILE_ID),
+                \esc_html__('Login Locker Settings', 'wp-login-locker')
+            );
             \do_action(self::USER_PROFILE_HOOK, $user);
         }
     }
