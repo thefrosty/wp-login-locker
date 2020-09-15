@@ -34,7 +34,7 @@ jobs:
       - name: Create artifact
         uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -X -r build/wp-login-locker.zip . -x *.git* node_modules/\* .* "*/\.*" "*/\.xml" coverage** composer.* build**
+          args: zip -X -r build/wp-login-locker.zip . -x *.git* node_modules/\* .* "*/\.*" \*.xml tests/\* \*.json build**
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
