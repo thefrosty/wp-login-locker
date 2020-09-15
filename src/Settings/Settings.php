@@ -42,7 +42,7 @@ class Settings extends AbstractLoginLocker
             'menu-title' => 'Login Locker', // Title found in menu
             'page-title' => 'Login Locker Settings', // Title output at top of settings page
             'prefix' => self::PREFIX,
-            'version' => '1.3.0',
+            'version' => '2.0.0',
         ]);
     }
 
