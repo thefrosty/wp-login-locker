@@ -7,6 +7,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/thefrosty/wp-login-locker.svg)](https://packagist.org/packages/thefrosty/wp-login-locker)
 [![License](https://img.shields.io/packagist/l/thefrosty/wp-login-locker.svg)](https://packagist.org/thefrosty/thefrosty/wp-login-locker)
 [![Build Status](https://travis-ci.org/thefrosty/wp-login-locker.svg?branch=master)](https://travis-ci.org/thefrosty/wp-login-locker)
+[![codecov](https://codecov.io/gh/thefrosty/wp-login-locker/branch/develop/graph/badge.svg)](https://codecov.io/gh/thefrosty/wp-login-locker)
 
 Disable direct access to your sites /wp-login.php script plus user notifications based on actions.
 
@@ -16,7 +17,7 @@ To install this package, edit your `composer.json` file:
 ```json
 {
     "require": {
-        "thefrosty/wp-login-locker": "^1.0.0"
+        "thefrosty/wp-login-locker": "^2.0.0"
     }
 }
 ```
@@ -26,7 +27,7 @@ Then run:
 
 Or, run:
 
-`$ composer require thefrosty/wp-login-locker:^1.0`
+`$ composer require thefrosty/wp-login-locker:^2.0`
 
 -----
 

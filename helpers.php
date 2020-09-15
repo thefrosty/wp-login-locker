@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Helpers;
+namespace TheFrosty\WpLoginLocker\Helpers;
 
 /**
  * Close the current session and terminate all scripts.
@@ -8,5 +8,5 @@ namespace Dwnload\WpLoginLocker\Helpers;
 function terminate(): void
 {
     \session_write_close();
-    exit;
+    \wp_die();
 }

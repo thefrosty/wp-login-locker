@@ -1,6 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
+
+if (!isset($user) || !($user instanceof WP_User)) {
+    return;
+}
 
 ?>
 <h4><?php esc_html_e('Your new login notification setting', 'wp-login-locker'); ?></h4>

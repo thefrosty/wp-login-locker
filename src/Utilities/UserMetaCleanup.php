@@ -1,13 +1,12 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Utilities;
+namespace TheFrosty\WpLoginLocker\Utilities;
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 
 /**
  * Class UserMetaCleanup
- *
- * @package Dwnload\WpLoginLocker\Utilities
+ * @package TheFrosty\WpLoginLocker\Utilities
  */
 class UserMetaCleanup
 {
@@ -34,7 +33,7 @@ class UserMetaCleanup
     /**
      * Initiated the user meta cleaning.
      */
-    public function cleanup()
+    public function cleanup(): void
     {
         $this->cleanupIp();
         $this->cleanupTime();
@@ -43,7 +42,7 @@ class UserMetaCleanup
     /**
      * Clean old IP meta.
      */
-    private function cleanupIp()
+    private function cleanupIp(): void
     {
         $meta_ids = $this->query(LoginLocker::LAST_LOGIN_IP_META_KEY);
 
@@ -57,7 +56,7 @@ class UserMetaCleanup
     /**
      * Clean old time meta.
      */
-    private function cleanupTime()
+    private function cleanupTime(): void
     {
         $meta_ids = $this->query(LoginLocker::LAST_LOGIN_TIME_META_KEY);
 
@@ -70,9 +69,7 @@ class UserMetaCleanup
 
     /**
      * Get the last X of the meta_id array.
-     *
      * @param array $meta_ids
-     *
      * @return array
      */
     private function getSlice(array $meta_ids): array
@@ -82,9 +79,7 @@ class UserMetaCleanup
 
     /**
      * Get the meta array from users.
-     *
      * @param string $meta_key
-     *
      * @return array
      */
     private function query(string $meta_key): array
@@ -109,7 +104,10 @@ class UserMetaCleanup
     {
         global $wpdb;
         $table = \_get_meta_table('user');
-        $query = "DELETE FROM $table WHERE umeta_id IN( " . \implode(',', $meta_ids) . ' )';
+        $query = $wpdb->prepare(
+            "DELETE FROM $table WHERE umeta_id IN(%s)",
+            \implode(',', \array_map('\trim', $meta_ids))
+        );
 
         $wpdb->query($query);
     }

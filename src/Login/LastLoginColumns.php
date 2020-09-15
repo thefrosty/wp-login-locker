@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Login;
+namespace TheFrosty\WpLoginLocker\Login;
 
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
@@ -12,7 +12,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
  *
  * @link https://wordpress.org/plugins/wp-last-login/
  *
- * @package Dwnload\WpLoginLocker\Login
+ * @package TheFrosty\WpLoginLocker\Login
  */
 class LastLoginColumns implements WpHooksInterface
 {
@@ -21,7 +21,7 @@ class LastLoginColumns implements WpHooksInterface
     /**
      * Add class hooks.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         // Make sure only 'Admins' who can `list_users` see the new columns.
         if (\current_user_can('list_users')) {
@@ -37,9 +37,7 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Adds the last login column to the network admin user list.
-     *
      * @param  array $cols The default columns.
-     *
      * @return array
      */
     protected function addColumn(array $cols): array
@@ -52,11 +50,9 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Adds the last login column to the network admin user list.
-     *
      * @param string $value Value of the custom column.
      * @param string $column_name The name of the column.
      * @param int $user_id The user's id.
-     *
      * @return string
      */
     protected function manageUsersCustomColumn(string $value, string $column_name, int $user_id): string
@@ -76,9 +72,7 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Register the column as sortable.
-     *
      * @param array $columns
-     *
      * @return array
      */
     protected function addSortable(array $columns): array
@@ -91,9 +85,7 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Handle ordering by last login.
-     *
      * @param \WP_User_Query $user_query Request arguments.
-     *
      * @return \WP_User_Query
      */
     protected function preGetUsers(\WP_User_Query $user_query): \WP_User_Query

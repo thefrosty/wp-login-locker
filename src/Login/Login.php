@@ -1,14 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Login;
+namespace TheFrosty\WpLoginLocker\Login;
 
-use Dwnload\WpLoginLocker\AbstractLoginLocker;
-use Dwnload\WpLoginLocker\Settings\Settings;
 use Dwnload\WpSettingsApi\Api\Options;
+use TheFrosty\WpLoginLocker\AbstractLoginLocker;
+use TheFrosty\WpLoginLocker\Settings\Settings;
 
 /**
  * Class Login
- *
  * @package BeachbodyOnDemand\WpLogin
  */
 class Login extends AbstractLoginLocker
@@ -17,7 +16,7 @@ class Login extends AbstractLoginLocker
      * Settings array.
      * @var array $settings
      */
-    private $settings = [];
+    private $settings;
 
     /**
      * Login constructor.
@@ -37,8 +36,7 @@ class Login extends AbstractLoginLocker
         }
         $this->addAction('login_enqueue_scripts', [$this, 'wpAddInlineLoginStyle']);
         $this->addFilter('login_headerurl', [$this, 'loginHeaderUrl']);
-        $hook = \version_compare($GLOBALS['wp_version'], '5.2', '>=') ? 'login_headertext' : 'login_headertitle';
-        $this->addFilter($hook, [$this, 'loginHeaderTitle']);
+        $this->addFilter('login_headertext', [$this, 'loginHeaderTitle']);
     }
 
     /**

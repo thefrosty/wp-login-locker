@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\Settings;
+namespace TheFrosty\WpLoginLocker\Settings;
 
-use Dwnload\WpLoginLocker\AbstractLoginLocker;
 use Dwnload\WpSettingsApi\Api\Script;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Api\SettingSection;
@@ -12,10 +11,11 @@ use Dwnload\WpSettingsApi\Settings\FieldTypes;
 use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\SettingsApiFactory;
 use Dwnload\WpSettingsApi\WpSettingsApi;
+use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 
 /**
  * Class Settings
- * @package Dwnload\WpLoginLocker\Settings
+ * @package TheFrosty\WpLoginLocker\Settings
  */
 class Settings extends AbstractLoginLocker
 {
@@ -42,7 +42,7 @@ class Settings extends AbstractLoginLocker
             'menu-title' => 'Login Locker', // Title found in menu
             'page-title' => 'Login Locker Settings', // Title output at top of settings page
             'prefix' => self::PREFIX,
-            'version' => '1.3.0',
+            'version' => '2.0.0',
         ]);
     }
 
@@ -51,11 +51,12 @@ class Settings extends AbstractLoginLocker
      * `WpSettingsApi::ACTION_PREFIX . 'init'`. This custom action passes three parameters (two prior to version 2.7)
      * so you have to register a priority and the parameter count.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         $this->addAction(WpSettingsApi::ACTION_PREFIX . 'init', [$this, 'init'], 10, 3);
         $this->addFilter(WpSettingsApi::FILTER_PREFIX . 'admin_scripts', [$this, 'adminScripts']);
         $this->addFilter(WpSettingsApi::FILTER_PREFIX . 'admin_styles', [$this, 'adminStyles']);
+        $this->addFilter('plugin_action_links_' . $this->getPlugin()->getBasename(), [$this, 'addSettingsLink']);
     }
 
     /**
@@ -201,6 +202,26 @@ class Settings extends AbstractLoginLocker
         });
 
         return $styles;
+    }
+
+    /**
+     * Add settings page link to the plugins page.
+     * @param array $actions
+     * @return array
+     */
+    protected function addSettingsLink(array $actions): array
+    {
+        \array_unshift(
+            $actions,
+            \sprintf(
+                '<a href="%s" aria-label="%s">%s</a>',
+                \menu_page_url(self::MENU_SLUG, false),
+                \esc_attr__('Settings for Login Locker', 'wp-login-locker'),
+                \esc_html__('Settings', 'default')
+            )
+        );
+
+        return $actions;
     }
 
     /**

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Dwnload\WpLoginLocker\UserProfile;
+namespace TheFrosty\WpLoginLocker\UserProfile;
 
-use Dwnload\WpLoginLocker\AbstractLoginLocker;
-use Dwnload\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\AbstractLoginLocker;
+use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\ContainerAwareTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
@@ -11,13 +11,13 @@ use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 /**
  * Class UserProfile
  *
- * @package Dwnload\WpLoginLocker\UserProfile
+ * @package TheFrosty\WpLoginLocker\UserProfile
  */
 abstract class UserProfile extends AbstractLoginLocker
 {
     use ContainerAwareTrait, HooksTrait, PluginAwareTrait;
 
-    const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
+    public const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
 
     /**
      * User meta fields to save.
@@ -29,7 +29,7 @@ abstract class UserProfile extends AbstractLoginLocker
     /**
      * Add class hooks.
      */
-    public function addHooks()
+    public function addHooks(): void
     {
         $this->addAction('show_user_profile', [$this, 'doUserProfileAction'], 19);
         $this->addAction('edit_user_profile', [$this, 'doUserProfileAction'], 19);
@@ -38,10 +38,11 @@ abstract class UserProfile extends AbstractLoginLocker
     }
 
     /**
+     * Add our custom hook.
      * @param \WP_User|null $user
      * @return void
      */
-    protected function doUserProfileAction(\WP_User $user = null)
+    protected function doUserProfileAction(\WP_User $user = null): void
     {
         if (!\did_action(self::USER_PROFILE_HOOK)) {
             \printf('<h2>%s</h2>', \esc_html__('Login Locker Settings', 'wp-login-locker'));
@@ -50,13 +51,13 @@ abstract class UserProfile extends AbstractLoginLocker
     }
 
     /**
-     * If the inherited class set's fields, save them.
-     *
+     * If the inherited class set's fields, save them. Set to current users who can `read` meaning log in
+     * to the admin.
      * @param int $user_id The current users ID.
      */
-    protected function saveExtraProfileFields($user_id)
+    protected function saveExtraProfileFields($user_id): void
     {
-        if (empty($this->fields) || !current_user_can('edit_user', $user_id)) {
+        if (empty($this->fields) || !\current_user_can('read')) {
             return;
         }
 
@@ -71,13 +72,12 @@ abstract class UserProfile extends AbstractLoginLocker
 
     /**
      * Helper to get the user meta as an array.
-     *
      * @param int $user_id
      * @param string $key
      * @return array
      */
     protected function getUserMeta(int $user_id, string $key): array
     {
-        return \get_user_meta($user_id, $key, false);
+        return (array)\get_user_meta($user_id, $key, false);
     }
 }
