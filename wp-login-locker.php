@@ -4,7 +4,7 @@
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.3.1
+ * Version: 2.0.0
  * Requires at least: 5.0
  * Tested up to: 5.5
  * Requires PHP: 7.3
@@ -44,6 +44,7 @@ $plugin
     ->addOnHook(UserProfile\EmailNotificationSetting::class, 'admin_init', 10, true)
     ->initialize();
 
+require_once 'helpers.php';
 \register_activation_hook(__FILE__, static function () {
     (new Login\WpLogin())->activate();
 });

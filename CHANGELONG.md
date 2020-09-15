@@ -4,10 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 2.0.0- 2020-09-12
--
+## 2.0.0 - 2020-09-15
+- Adding unit tests and code coverage.
+- Bump PHP minimum requirement to >= 7.3.
+- For full changes see [#14](https://github.com/thefrosty/wp-login-locker/pull/14) & 
+[#15](https://github.com/thefrosty/wp-login-locker/pull/15)
+- Remove helpers from composer autoload as `exit` was changed to `wp_die()` (and may not be available yet).
+- Update all composer dependencies, including those from Dependabot.
 
-## 1.3.1- 2020-04-21
+## 1.3.1 - 2020-04-21
 - Update Symfony HTTP Foundation
 
 ## 1.3.0 - 2020-03-01
