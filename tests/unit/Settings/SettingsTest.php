@@ -62,7 +62,7 @@ class SettingsTest extends TestCase
         $provider->expects($this->once())
             ->method('getPlugin')
             ->willReturn($this->plugin);
-        $provider->expects($this->exactly(4))
+        $provider->expects($this->exactly(5))
             ->method(self::METHOD_ADD_FILTER)
             ->willReturn(true);
         /** @var LastLogin $provider */
@@ -99,6 +99,7 @@ class SettingsTest extends TestCase
      */
     public function testInit(): void
     {
+        $this->assertTrue(\method_exists($this->settings, 'init'));
         try {
             \set_current_screen('dashboard');
             $this->assertTrue(\is_admin());
@@ -120,6 +121,33 @@ class SettingsTest extends TestCase
                 }
             }
             unset($getFields);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test sidebar().
+     */
+    public function testSidebar(): void
+    {
+        $this->assertTrue(\method_exists($this->settings, 'sidebar'));
+        try {
+            \set_current_screen('dashboard');
+            $this->assertTrue(\is_admin());
+            $sidebar = $this->reflection->getMethod('sidebar');
+            $sidebar->setAccessible(true);
+            \ob_start();
+            $sidebar->invoke($this->settings);
+            $actual = \ob_get_clean();
+            $this->assertStringNotContainsString('Success - test email sent.', $actual);
+            $_GET['success'] = true;
+            $this->settings->getRequest()->query->set('success', true);
+            \ob_start();
+            $sidebar->invoke($this->settings);
+            $actual = \ob_get_clean();
+            $this->assertStringNotContainsString('Success - test email sent.', $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();
