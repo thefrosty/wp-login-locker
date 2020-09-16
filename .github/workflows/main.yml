@@ -47,7 +47,9 @@ jobs:
           path: build/wp-login-locker.zip
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
+          env:
+            VERSION: RegExReplace( ${{ github.event.release.tag_name }} , "(\\D)", ""); # ${{ steps.get_tag.outputs.VERSION }}
         with:
-          args: build/wp-login-locker.zip application/zip
+          args: build/wp-login-locker-$VERSION.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
