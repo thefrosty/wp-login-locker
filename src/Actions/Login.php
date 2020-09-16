@@ -95,11 +95,17 @@ class Login extends AbstractLoginLocker
     protected function sendTestEmail(): void
     {
         $user = \wp_get_current_user();
-        if (!\wp_verify_nonce($this->getRequest()->query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL)
-            || $user->ID === 0
+        $query = $this->getRequest()->query;
+        if (!($user instanceof \WP_User) ||
+            !$query->has(self::ADMIN_ACTION_NONCE) ||
+            \check_admin_referer(self::ADMIN_ACTION_SEND_EMAIL, self::ADMIN_ACTION_NONCE) !== 1 ||
+            $user->ID === 0
         ) {
-            \status_header(Response::HTTP_FORBIDDEN);
-            \wp_die();
+            \wp_die(
+                \esc_html__('Couldn\'t send test email.', 'wp-login-locker'),
+                '',
+                ['response' => Response::HTTP_NOT_ACCEPTABLE]
+            );
         }
         $this->wp_mail = new WpMail();
         $this->wp_mail->setPlugin($this->getPlugin());
@@ -248,6 +254,6 @@ class Login extends AbstractLoginLocker
     private function safeRedirect(bool $sent): void
     {
         \wp_safe_redirect(\add_query_arg('sent', $sent, \wp_get_referer()));
-        terminate();
+        exit;
     }
 }
