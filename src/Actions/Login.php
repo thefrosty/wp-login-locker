@@ -95,11 +95,8 @@ class Login extends AbstractLoginLocker
     protected function sendTestEmail(): void
     {
         $user = \wp_get_current_user();
-        if (!\wp_verify_nonce(
-                $this->getRequest()->query->get(self::ADMIN_ACTION_NONCE),
-                self::ADMIN_ACTION_SEND_EMAIL
-            ) ||
-            $user->ID === 0
+        if (!\wp_verify_nonce($this->getRequest()->query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL)
+            || $user->ID === 0
         ) {
             \status_header(Response::HTTP_FORBIDDEN);
             \wp_die();
