@@ -98,7 +98,7 @@ class Login extends AbstractLoginLocker
         $query = $this->getRequest()->query;
         if (!($user instanceof \WP_User) ||
             !$query->has(self::ADMIN_ACTION_NONCE) ||
-            \check_admin_referer(self::ADMIN_ACTION_SEND_EMAIL, self::ADMIN_ACTION_NONCE) !== 1 ||
+            \wp_verify_nonce($query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL) !== 1 ||
             $user->ID === 0
         ) {
             \wp_die(
