@@ -2,7 +2,6 @@
 
 namespace TheFrosty\Tests\WpLoginLocker\Settings;
 
-use Dwnload\WpSettingsApi\Api\Script;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Settings\FieldManager;
 use Dwnload\WpSettingsApi\Settings\FieldTypes;
@@ -10,7 +9,6 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
-use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
 
@@ -79,7 +77,7 @@ class SettingsTest extends TestCase
             $init = $this->reflection->getMethod('init');
             $init->setAccessible(true);
             $WpSettingsApi = $this->getMockBuilder(WpSettingsApi::class)
-                ->setConstructorArgs([Settings::factory()])
+                ->setConstructorArgs([Settings::factory('2')])
                 ->getMock();
             $SectionManager = $this->getMockBuilder(SectionManager::class)
                 ->setConstructorArgs([$WpSettingsApi])
@@ -105,7 +103,7 @@ class SettingsTest extends TestCase
             $this->assertTrue(\is_admin());
             $init = $this->reflection->getMethod('init');
             $init->setAccessible(true);
-            $WpSettingsApi = new WpSettingsApi(Settings::factory());
+            $WpSettingsApi = new WpSettingsApi(Settings::factory('2'));
             $init->invoke($this->settings, new SectionManager($WpSettingsApi), new FieldManager(), $WpSettingsApi);
             $getFields = FieldManager::getFields();
             $this->assertArrayHasKey(Settings::LOGIN_SETTINGS, $getFields);

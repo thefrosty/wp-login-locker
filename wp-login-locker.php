@@ -37,7 +37,7 @@ $plugin
     ->add(new Login\WpLogin())
     ->add(new Settings())
     ->add(new WpCore\WpSignup())
-    ->add(new WpSettingsApi(Settings::factory()))
+    ->add(new WpSettingsApi(Settings::factory('2.1.0')))
     ->addOnHook(Login\Login::class, 'login_init', 5)
     ->addOnHook(Login\LastLoginColumns::class, 'admin_init', 10, true)
     ->addOnHook(UserProfile\LastLogin::class, 'admin_init', 10, true)

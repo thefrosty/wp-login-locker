@@ -39,9 +39,10 @@ class Settings extends AbstractLoginLocker
 
     /**
      * Creat the PluginSettings object.
+     * @param string $version
      * @return \Dwnload\WpSettingsApi\Api\PluginSettings
      */
-    public static function factory(): \Dwnload\WpSettingsApi\Api\PluginSettings
+    public static function factory(string $version): \Dwnload\WpSettingsApi\Api\PluginSettings
     {
         return SettingsApiFactory::create([
             'domain' => self::DOMAIN,
@@ -50,7 +51,7 @@ class Settings extends AbstractLoginLocker
             'menu-title' => 'Login Locker', // Title found in menu
             'page-title' => 'Login Locker Settings', // Title output at top of settings page
             'prefix' => self::PREFIX,
-            'version' => '2.0.0',
+            'version' => $version,
         ]);
     }
 

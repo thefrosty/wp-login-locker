@@ -2,7 +2,7 @@
   "name": "thefrosty/wp-login-locker",
   "type": "wordpress-plugin",
   "description": "Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "authors": [
     {

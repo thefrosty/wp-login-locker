@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 2.1.0 - 2020-09-15
 - More settings to build complete email (with design).
 - Add send test email.
-- Bump WpSettingsApi to version `^3.2.1`
+- Bump WpSettingsApi to version `^3.2.2`
 
 ## 2.0.0 - 2020-09-15
 - Adding unit tests and code coverage.
