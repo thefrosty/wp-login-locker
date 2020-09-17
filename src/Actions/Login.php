@@ -12,7 +12,6 @@ use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
-use function TheFrosty\WpLoginLocker\Helpers\terminate;
 
 /**
  * Class Login
