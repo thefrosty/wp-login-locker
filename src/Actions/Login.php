@@ -3,6 +3,7 @@
 namespace TheFrosty\WpLoginLocker\Actions;
 
 use Dwnload\WpSettingsApi\Api\Options;
+use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
@@ -21,6 +22,9 @@ class Login extends AbstractLoginLocker
 
     use GeoUtilTrait, HooksTrait;
 
+    public const ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
+    public const ADMIN_ACTION_NONCE = '_lockerNonce';
+
     /**
      * @var WpMail $wp_mail
      */
@@ -32,6 +36,7 @@ class Login extends AbstractLoginLocker
     public function addHooks(): void
     {
         $this->addAction('wp_login', [$this, 'wpLoginAction'], 10, 2);
+        $this->addAction('admin_post_' . self::ADMIN_ACTION_SEND_EMAIL, [$this, 'sendTestEmail']);
         $this->addAction('login_locker_cleanup_last_login_meta', [$this, 'postMetaCleanup']);
         $this->addFilter('is_protected_meta', [$this, 'setProtectedMeta'], 10, 2);
     }
@@ -81,6 +86,35 @@ class Login extends AbstractLoginLocker
         \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
         unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
         \wp_schedule_single_event(\time() + MINUTE_IN_SECONDS, 'login_locker_cleanup_last_login_meta', [$user->ID]);
+    }
+
+    /**
+     * Action to send a test email. Triggered via 'admin-post.php?action=`self::ADMIN_ACTION_SEND_EMAIL`'.
+     */
+    protected function sendTestEmail(): void
+    {
+        $user = \wp_get_current_user();
+        $query = $this->getRequest()->query;
+        if (!($user instanceof \WP_User) ||
+            !$query->has(self::ADMIN_ACTION_NONCE) ||
+            \wp_verify_nonce($query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL) !== 1 ||
+            $user->ID === 0
+        ) {
+            \wp_die(
+                \esc_html__('Couldn\'t send test email.', 'wp-login-locker'),
+                '',
+                ['response' => Response::HTTP_NOT_ACCEPTABLE]
+            );
+        }
+        $this->wp_mail = new WpMail();
+        $this->wp_mail->setPlugin($this->getPlugin());
+        $this->wp_mail->__set('pretext', $this->getEmailPretext());
+        $sent = $this->wp_mail->send(
+            $user->user_email,
+            \sprintf(\esc_html__('[TEST] New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
+            $this->getEmailMessage($user)
+        );
+        $this->safeRedirect($sent);
     }
 
     /**
@@ -210,5 +244,15 @@ class Login extends AbstractLoginLocker
     private function getHomeUrl(): string
     {
         return \parse_url(\home_url(), \PHP_URL_HOST);
+    }
+
+    /**
+     * Safe redirect.
+     * @param bool $sent
+     */
+    private function safeRedirect(bool $sent): void
+    {
+        \wp_safe_redirect(\add_query_arg('sent', $sent, \wp_get_referer()));
+        exit;
     }
 }

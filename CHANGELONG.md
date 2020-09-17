@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.0 - 2020-09-17
+- More settings to build complete email (with design).
+- Add send test email.
+- Bump WpSettingsApi to version `^3.2.2`
+- Update workflow to build a clean .zip of the plugin (without all the development files and directories).
+
 ## 2.0.0 - 2020-09-15
 - Adding unit tests and code coverage.
 - Bump PHP minimum requirement to >= 7.3.
