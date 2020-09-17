@@ -9,6 +9,7 @@
  * Tested up to: 5.5.1
  * Requires PHP: 7.3
  * Plugin URI: https://github.com/thefrosty/wp-login-locker
+ * GitHub Plugin URI: https://github.com/thefrosty/wp-login-locker
  */
 
 namespace TheFrosty\WpLoginLocker;
