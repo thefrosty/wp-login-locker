@@ -45,7 +45,12 @@ class LoginTest extends TestCase
     public function testAddHooks(): void
     {
         $this->assertTrue(\method_exists($this->login, 'addHooks'));
-        $this->login->addHooks();
+        $provider = $this->getMockProvider(Login::class);
+        $provider->expects($this->exactly(4))
+            ->method(self::METHOD_ADD_FILTER)
+            ->willReturn(true);
+        /** @var Login $provider */
+        $provider->addHooks();
     }
 
     /**
@@ -68,6 +73,62 @@ class LoginTest extends TestCase
             $wpLoginAction->invoke($this->login, $WP_User->user_login, $WP_User);
             $this->assertEquals(2, \did_action(LoginLocker::HOOK_PREFIX . 'wp_login'));
             \delete_user_meta($WP_User->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test sendTestEmail().
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
+    public function testSendTestEmail(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'sendTestEmail'));
+        try {
+            $sendTestEmail = $this->reflection->getMethod('sendTestEmail');
+            $sendTestEmail->setAccessible(true);
+            $user = self::factory()->user->create();
+            \wp_set_current_user($user);
+            \set_current_screen('dashboard');
+            $this->assertTrue(\is_admin());
+            $query = $this->login->getRequest()->query;
+            $nonce = \wp_create_nonce(Login::ADMIN_ACTION_SEND_EMAIL);
+            $query->set('action', Login::ADMIN_ACTION_SEND_EMAIL);
+            $query->set(Login::ADMIN_ACTION_NONCE, $nonce);
+            $_GET['action'] = Login::ADMIN_ACTION_SEND_EMAIL;
+            $_GET[Login::ADMIN_ACTION_NONCE] = $nonce;
+            $this->assertNotSame(0, $user);
+            $this->assertEquals($nonce, $query->get(Login::ADMIN_ACTION_NONCE));
+            $this->assertIsInt(\wp_verify_nonce($nonce, Login::ADMIN_ACTION_SEND_EMAIL));
+//            $this->markTestSkipped('Skipped to avoid exit;');
+//            try {
+//                $sendTestEmail->invoke($this->login);
+//            } catch (\Throwable $exception) {
+//                $this->assertInstanceOf(\WPDieException::class, $exception);
+//            }
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test sendTestEmail(). No user or nonce.
+     */
+    public function testSendTestEmailNoUserOrNonce(): void
+    {
+        $this->assertTrue(\method_exists($this->login, 'sendTestEmail'));
+        try {
+            $sendTestEmail = $this->reflection->getMethod('sendTestEmail');
+            $sendTestEmail->setAccessible(true);
+            try {
+                $sendTestEmail->invoke($this->login);
+            } catch (\Throwable $exception) {
+                $this->assertInstanceOf(\WPDieException::class, $exception);
+            }
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();
@@ -162,7 +223,7 @@ class LoginTest extends TestCase
                 [
                     'first_name' => 'First Name',
                     'display_name' => 'Mr. First Name',
-                    'user_login' => 'mr_first'
+                    'user_login' => 'mr_first',
                 ] as $key => $val) {
 
                 $user = self::factory()->user->create_and_get([$key => $val]);

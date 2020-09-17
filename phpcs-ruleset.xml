@@ -26,6 +26,9 @@
     <config name="minimum_supported_wp_version" value="5.5" />
 
     <rule ref="PSR2"/>
+<!--    @todo Enable Slevomat, (just need to disable some new rules)-->
+<!--    <rule ref="vendor/slevomat/coding-standard/SlevomatCodingStandard/ruleset.xml">-->
+<!--    </rule>-->
 
     <!-- Loads the PHP Compatibility ruleset. -->
     <rule ref="PHPCompatibility" />

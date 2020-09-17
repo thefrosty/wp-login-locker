@@ -46,7 +46,12 @@ class NewUserTest extends TestCase
     public function testAddHooks(): void
     {
         $this->assertTrue(\method_exists($this->newUser, 'addHooks'));
-        $this->newUser->addHooks();
+        $provider = $this->getMockProvider(NewUser::class);
+        $provider->expects($this->exactly(1))
+            ->method(self::METHOD_ADD_FILTER)
+            ->willReturn(true);
+        /** @var NewUser $provider */
+        $provider->addHooks();
     }
 
     /**

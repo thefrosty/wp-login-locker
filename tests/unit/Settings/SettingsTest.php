@@ -2,7 +2,6 @@
 
 namespace TheFrosty\Tests\WpLoginLocker\Settings;
 
-use Dwnload\WpSettingsApi\Api\Script;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Settings\FieldManager;
 use Dwnload\WpSettingsApi\Settings\FieldTypes;
@@ -10,7 +9,6 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
-use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
 
@@ -62,7 +60,7 @@ class SettingsTest extends TestCase
         $provider->expects($this->once())
             ->method('getPlugin')
             ->willReturn($this->plugin);
-        $provider->expects($this->exactly(4))
+        $provider->expects($this->exactly(5))
             ->method(self::METHOD_ADD_FILTER)
             ->willReturn(true);
         /** @var LastLogin $provider */
@@ -79,7 +77,7 @@ class SettingsTest extends TestCase
             $init = $this->reflection->getMethod('init');
             $init->setAccessible(true);
             $WpSettingsApi = $this->getMockBuilder(WpSettingsApi::class)
-                ->setConstructorArgs([Settings::factory()])
+                ->setConstructorArgs([Settings::factory('2')])
                 ->getMock();
             $SectionManager = $this->getMockBuilder(SectionManager::class)
                 ->setConstructorArgs([$WpSettingsApi])
@@ -99,12 +97,13 @@ class SettingsTest extends TestCase
      */
     public function testInit(): void
     {
+        $this->assertTrue(\method_exists($this->settings, 'init'));
         try {
             \set_current_screen('dashboard');
             $this->assertTrue(\is_admin());
             $init = $this->reflection->getMethod('init');
             $init->setAccessible(true);
-            $WpSettingsApi = new WpSettingsApi(Settings::factory());
+            $WpSettingsApi = new WpSettingsApi(Settings::factory('2'));
             $init->invoke($this->settings, new SectionManager($WpSettingsApi), new FieldManager(), $WpSettingsApi);
             $getFields = FieldManager::getFields();
             $this->assertArrayHasKey(Settings::LOGIN_SETTINGS, $getFields);
@@ -120,6 +119,33 @@ class SettingsTest extends TestCase
                 }
             }
             unset($getFields);
+        } catch (\ReflectionException $exception) {
+            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->markAsRisky();
+        }
+    }
+
+    /**
+     * Test sidebar().
+     */
+    public function testSidebar(): void
+    {
+        $this->assertTrue(\method_exists($this->settings, 'sidebar'));
+        try {
+            \set_current_screen('dashboard');
+            $this->assertTrue(\is_admin());
+            $sidebar = $this->reflection->getMethod('sidebar');
+            $sidebar->setAccessible(true);
+            \ob_start();
+            $sidebar->invoke($this->settings);
+            $actual = \ob_get_clean();
+            $this->assertStringNotContainsString('Success - test email sent.', $actual);
+            $_GET['success'] = true;
+            $this->settings->getRequest()->query->set('success', true);
+            \ob_start();
+            $sidebar->invoke($this->settings);
+            $actual = \ob_get_clean();
+            $this->assertStringNotContainsString('Success - test email sent.', $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();
@@ -176,7 +202,7 @@ class SettingsTest extends TestCase
             $addSettingsLink->setAccessible(true);
             $actual = $addSettingsLink->invoke($this->settings, []);
             $this->assertIsArray($actual);
-            $this->assertCount(1, $actual);
+            $this->assertCount(2, $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();
