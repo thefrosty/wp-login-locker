@@ -7,12 +7,13 @@
 # - Run "composer install" for production (required dependencies are already under vendor/)
 # - Create a .zip file, excluding:
 #   - All hidden files (.git, .gitignore, etc)
-#   - Rector file
-#   - All development files, ending in .dist
+#   - All development files, ending in .dist or .xml
 #   - All composer files <= after installing dependencies, no need for them anymore
 #   - Markdown files concerning development
+#   - JS Package files.
 #   - Folder build/ <= created only to store the .zip file
-#   - Folder dev-helpers/ <= not needed for the plugin
+#   - Folder bin/ <= not needed for the plugin
+#   - Folder tests/ <= not needed for the plugin
 # - Upload the .zip file as an artifact to the action (this step is possibly optional)
 # - Upload the .zip file as a release, for download
 ####################################################################################
@@ -34,7 +35,7 @@ jobs:
       - name: Create artifact
         uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -X -r build/wp-login-locker.zip . -x *.git* node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+          args: zip -X -r build/wp-login-locker.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
