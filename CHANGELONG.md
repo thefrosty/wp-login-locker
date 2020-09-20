@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.1 - 2020-09-20
+- Add `GitHub Plugin URI` plugin header, to allow updates direct from GitHub if you have the `GitHub Updater` plugin installed. 
+
 ## 2.1.0 - 2020-09-17
 - More settings to build complete email (with design).
 - Add send test email.
