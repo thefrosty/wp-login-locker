@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.1.2 - 2020-09-21
+- Update `dealerdirect/phpcodesniffer-composer-installer` requirement [#23](https://github.com/thefrosty/wp-login-locker/pull/23)
+- Add `Release Asset` header to pull GitHub version from the release artifact.
+- User release `$repo-$tag.zip` for the uploaded artifact.
+
 ## 2.1.1 - 2020-09-20
 - Add `GitHub Plugin URI` plugin header, to allow updates direct from GitHub if you have the `GitHub Updater` plugin installed. 
 
