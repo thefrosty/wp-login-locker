@@ -23,11 +23,13 @@ on:
     types: [published]
 jobs:
   build:
-    name: Build, Downgrade and Upload Release
+    name: Build and Upload Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        run: |
+          echo "Release Version: ${{ github.event.release.tag_name }}"
       - name: Build project for production
         run: |
           composer install --no-dev --optimize-autoloader
@@ -35,15 +37,15 @@ jobs:
       - name: Create artifact
         uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -X -r build/wp-login-locker.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+          args: zip -X -r build/wp-login-locker-${{ github.event.release.tag_name }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: wp-login-locker
-          path: build/wp-login-locker.zip
+          name: wp-login-locker-${{ github.event.release.tag_name }}
+          path: build/wp-login-locker-${{ github.event.release.tag_name }}.zip
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-login-locker.zip application/zip
+          args: build/wp-login-locker-${{ github.event.release.tag_name }}.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
