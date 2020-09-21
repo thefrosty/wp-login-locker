@@ -28,10 +28,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        run: |
-          echo "Release Version: ${{ github.event.release.tag_name }}"
       - name: Build project for production
         run: |
+          echo "Release Version: ${{ github.event.release.tag_name }}"
           composer install --no-dev --optimize-autoloader
           mkdir build
       - name: Create artifact
