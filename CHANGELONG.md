@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+## 2.1.4 - 2021-01-18
+- Add asset icons for plugin updates.
+- Update GitHub workflow (The `set-env` command is deprecated).
+- Add XDEBUG_MODE for travis builds (change dist back to default `xenial`).
+
 ## 2.1.2 - 2020-09-21
 - Update `dealerdirect/phpcodesniffer-composer-installer` requirement [#23](https://github.com/thefrosty/wp-login-locker/pull/23)
 - Add `Release Asset` header to pull GitHub version from the release artifact.

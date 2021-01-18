@@ -1,5 +1,5 @@
 os: linux
-dist: trusty
+dist: xenial
 
 cache:
   directories:
@@ -19,6 +19,9 @@ branches:
     - "/^.*[bB]ug\\/.*$/"
     - "/^.*[Hh]otfix\\/.*$/"
 
+services:
+  - mysql
+
 jobs:
   fast_finish: true
 
@@ -29,6 +32,7 @@ env:
     - WORDPRESS_DB_NAME=wp_tests
     - WP_VERSION=5.5.1
     - WP_MULTISITE=0
+    - XDEBUG_MODE=coverage
 
 install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
