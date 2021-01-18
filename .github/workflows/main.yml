@@ -32,8 +32,8 @@ jobs:
         run: |
           VERSION=${{ github.event.release.tag_name }}
           echo "Release Version: ${VERSION//v}"
-          echo "RELEASE_VERSION=${VERSION//v}" >> $GITHUB_ENV
-          echo "GITHUB_ENV: $RELEASE_VERSION"
+          echo "RELEASE_VERSION=${VERSION//v}" >> $RELEASE_VERSION
+          echo $RELEASE_VERSION
       # see https://github.com/shivammathur/setup-php
       - name: Use PHP 7.3
         uses: shivammathur/setup-php@v2
