@@ -4,7 +4,7 @@
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 2.1.2
+ * Version: 2.1.4
  * Requires at least: 5.4
  * Tested up to: 5.5.1
  * Requires PHP: 7.3

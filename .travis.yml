@@ -1,5 +1,5 @@
 os: linux
-dist: trusty
+dist: xenial
 
 cache:
   directories:
@@ -18,6 +18,9 @@ branches:
     - "/^.*[rR]elease\\/.*$/"
     - "/^.*[bB]ug\\/.*$/"
     - "/^.*[Hh]otfix\\/.*$/"
+
+services:
+  - mysql
 
 jobs:
   fast_finish: true
