@@ -19,6 +19,10 @@ branches:
     - "/^.*[bB]ug\\/.*$/"
     - "/^.*[Hh]otfix\\/.*$/"
 
+services:
+  - mysql
+  - redis
+
 jobs:
   fast_finish: true
 
