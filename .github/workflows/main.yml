@@ -19,6 +19,9 @@
 ####################################################################################
 name: Generate Installable Plugin and Upload as Release Asset
 on:
+  push:
+    branches:
+      - release/*
   release:
     types: [published]
 jobs:
