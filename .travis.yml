@@ -21,7 +21,6 @@ branches:
 
 services:
   - mysql
-  - redis
 
 jobs:
   fast_finish: true
