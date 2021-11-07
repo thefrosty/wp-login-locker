@@ -2,7 +2,6 @@
   "name": "thefrosty/wp-login-locker",
   "type": "wordpress-plugin",
   "description": "Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.",
-  "version": "2.1.2",
   "license": "MIT",
   "authors": [
     {
@@ -12,12 +11,12 @@
     }
   ],
   "require": {
-    "php": ">=7.3",
+    "php": ">=7.4|^8.0",
     "ext-openssl": "*",
     "composer/installers": "~1.0",
-    "dwnload/wp-settings-api": "^3.2.1",
+    "dwnload/wp-settings-api": "^3.3.2",
     "pimple/pimple": "~3.0",
-    "symfony/http-foundation": "^5.0.7",
+    "symfony/http-foundation": "^5.2|^6.0",
     "thefrosty/wp-utilities": "^2.0"
   },
   "require-dev": {
@@ -27,7 +26,7 @@
     "phpcompatibility/php-compatibility": "*",
     "phpunit/phpunit": "^7",
     "roave/security-advisories": "dev-master",
-    "roots/wordpress": "^5.5.1",
+    "roots/wordpress": "^5.8.1",
     "slevomat/coding-standard": "~6.0",
     "squizlabs/php_codesniffer": "^3.2",
     "wp-phpunit/wp-phpunit": "^5.5.1"
@@ -53,10 +52,10 @@
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ],
     "phpcs": [
-      "bash ./bin/phpcs.sh"
+      "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh"
     ],
     "phpmd": [
-      "bash ./bin/phpmd.sh"
+      "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh"
     ],
     "phpunit": [
       "./vendor/bin/phpunit --colors --verbose --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 85"

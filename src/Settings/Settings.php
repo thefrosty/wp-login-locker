@@ -2,10 +2,8 @@
 
 namespace TheFrosty\WpLoginLocker\Settings;
 
-use Dwnload\WpSettingsApi\Api\Script;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Api\SettingSection;
-use Dwnload\WpSettingsApi\Api\Style;
 use Dwnload\WpSettingsApi\Settings\FieldManager;
 use Dwnload\WpSettingsApi\Settings\FieldTypes;
 use Dwnload\WpSettingsApi\Settings\SectionManager;
@@ -64,8 +62,6 @@ class Settings extends AbstractLoginLocker
     {
         $this->addAction(WpSettingsApi::ACTION_PREFIX . 'init', [$this, 'init'], 10, 3);
         $this->addAction(WpSettingsApi::ACTION_PREFIX . 'settings_sidebars', [$this, 'sidebar'], 200);
-        $this->addFilter(WpSettingsApi::FILTER_PREFIX . 'admin_scripts', [$this, 'adminScripts']);
-        $this->addFilter(WpSettingsApi::FILTER_PREFIX . 'admin_styles', [$this, 'adminStyles']);
         $this->addFilter('plugin_action_links_' . $this->getPlugin()->getBasename(), [$this, 'addSettingsLink']);
     }
 
@@ -251,44 +247,6 @@ class Settings extends AbstractLoginLocker
             \esc_html__('Send Test Email', 'wp-login-locker'),
             \esc_attr__('Send Test Email?', 'wp-login-locker')
         );
-    }
-
-    /**
-     * The default script needs to be moved from the vendor directory somewhere into our app since the
-     * vendor directory is outside of the doc root.
-     * @param Script[] $scripts
-     * @return array
-     */
-    protected function adminScripts(array $scripts): array
-    {
-        $plugin = \dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'vendor/dwnload/wp-settings-api/src/';
-        \array_walk($scripts, function (Script $script, int $key) use (&$scripts, $plugin): void {
-            if ($script->getHandle() === WpSettingsApi::ADMIN_SCRIPT_HANDLE) {
-                $scripts[$key]->setSrc(\plugins_url('src/assets/js/admin.js', $plugin));
-            } elseif ($script->getHandle() === WpSettingsApi::ADMIN_MEDIA_HANDLE) {
-                $scripts[$key]->setSrc(\plugins_url('src/assets/js/wp-media-uploader.js', $plugin));
-            }
-        });
-
-        return $scripts;
-    }
-
-    /**
-     * The default style needs to be moved from the vendor directory somewhere into our app since the
-     * vendor directory is outside of the doc root.
-     * @param Style[] $styles
-     * @return array
-     */
-    protected function adminStyles(array $styles): array
-    {
-        $plugin = \dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'vendor/dwnload/wp-settings-api/src/';
-        \array_walk($styles, function (Style $style, int $key) use (&$styles, $plugin): void {
-            if ($style->getHandle() === WpSettingsApi::ADMIN_STYLE_HANDLE) {
-                $styles[$key]->setSrc(\plugins_url('src/assets/css/admin.css', $plugin));
-            }
-        });
-
-        return $styles;
     }
 
     /**
