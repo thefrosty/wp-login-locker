@@ -60,7 +60,7 @@ class SettingsTest extends TestCase
         $provider->expects($this->once())
             ->method('getPlugin')
             ->willReturn($this->plugin);
-        $provider->expects($this->exactly(5))
+        $provider->expects($this->exactly(3))
             ->method(self::METHOD_ADD_FILTER)
             ->willReturn(true);
         /** @var LastLogin $provider */
@@ -146,44 +146,6 @@ class SettingsTest extends TestCase
             $sidebar->invoke($this->settings);
             $actual = \ob_get_clean();
             $this->assertStringNotContainsString('Success - test email sent.', $actual);
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
-        }
-    }
-
-    /**
-     * Test adminScripts().
-     */
-    public function testAdminScripts(): void
-    {
-        try {
-            \set_current_screen('dashboard');
-            $this->assertTrue(\is_admin());
-            $adminScripts = $this->reflection->getMethod('adminScripts');
-            $adminScripts->setAccessible(true);
-            \do_action('admin_enqueue_scripts');
-            $scripts = \apply_filters(WpSettingsApi::FILTER_PREFIX . 'admin_scripts', []);
-            $adminScripts->invoke($this->settings, $scripts);
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
-        }
-    }
-
-    /**
-     * Test adminStyles().
-     */
-    public function testAdminStyles(): void
-    {
-        try {
-            \set_current_screen('dashboard');
-            $this->assertTrue(\is_admin());
-            $adminStyles = $this->reflection->getMethod('adminStyles');
-            $adminStyles->setAccessible(true);
-            \do_action('admin_enqueue_scripts');
-            $scripts = \apply_filters(WpSettingsApi::FILTER_PREFIX . 'admin_styles', []);
-            $adminStyles->invoke($this->settings, $scripts);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
             $this->markAsRisky();
