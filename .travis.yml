@@ -41,7 +41,7 @@ env:
 
 install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - export DEV_BIN_PATH=.composer/vendor/bin
+  - export DEV_BIN_PATH=$HOME/.composer/vendor/bin
   - composer update --prefer-dist --no-interaction --prefer-stable
   - source $DEV_BIN_PATH/create-all-branches.sh
 
