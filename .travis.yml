@@ -40,10 +40,11 @@ env:
     - XDEBUG_MODE=coverage
 
 install:
+  - composer update --prefer-dist --no-interaction
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - export DEV_BIN_PATH=$HOME/.composer/vendor/bin
-  - composer update --prefer-dist --no-interaction --prefer-stable
-  - source $DEV_BIN_PATH/create-all-branches.sh
+  - export DEV_BIN_PATH=vendor/bin
+  - ls -R
+  - source "$DEV_BIN_PATH/create-all-branches.sh"
 
 before_script:
   - mysql -u root -e "GRANT ALL PRIVILEGES ON $WORDPRESS_DB_NAME.* TO $WORDPRESS_DB_USER IDENTIFIED BY '$WORDPRESS_DB_PASS';"
