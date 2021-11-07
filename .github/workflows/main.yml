@@ -34,10 +34,10 @@ jobs:
           echo "Release Version: ${VERSION//v}"
           echo "RELEASE_VERSION=${VERSION//v}" >> $GITHUB_ENV
       # see https://github.com/shivammathur/setup-php
-      - name: Use PHP 7.3
+      - name: Use PHP 7.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.3
+          php-version: 7.4
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}

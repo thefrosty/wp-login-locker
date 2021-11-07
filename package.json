@@ -5,7 +5,7 @@
   "author": "Austin Passy <thefrosty@users.noreply.github.com>",
   "scripts": {
     "travis": "if [ \"$TRAVIS_COMMIT_RANGE\" ]; then standard $TRAVIS_COMMIT_RANGE; else standard; fi",
-    "eslint": "./bin/eslint.sh"
+    "eslint": "./vendor/thefrosty/wp-utilities/bin/eslint.sh"
   },
   "standard": {
     "ignore": [],
@@ -16,8 +16,8 @@
     ]
   },
   "devDependencies": {
-    "eslint": "~6.4.0",
+    "eslint": "^8.2.0",
     "eslint-plugin-import": "^2.22.0",
-    "standard": "^14.3.4"
+    "standard": "^16.0.4"
   }
 }
