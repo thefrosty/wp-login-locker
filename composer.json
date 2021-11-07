@@ -52,10 +52,10 @@
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
     ],
     "phpcs": [
-      "bash ./vendor/bin/phpcs.sh"
+      "bash ./vendor/thefrosty/wp-utilities/binphpcs.sh"
     ],
     "phpmd": [
-      "bash ./vendor/bin/phpmd.sh"
+      "bash ./vendor/thefrosty/wp-utilities/binphpmd.sh"
     ],
     "phpunit": [
       "./vendor/bin/phpunit --colors --verbose --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 85"
