@@ -30,13 +30,13 @@ env:
     - WORDPRESS_DB_USER=wp
     - WORDPRESS_DB_PASS=password
     - WORDPRESS_DB_NAME=wp_tests
-    - WP_VERSION=5.5.1
+    - WP_VERSION=5.8.1
     - WP_MULTISITE=0
     - XDEBUG_MODE=coverage
 
 install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - export DEV_BIN_PATH=bin
+  - export DEV_BIN_PATH=vendor/bin
   - source $DEV_BIN_PATH/create-all-branches.sh
   - composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
