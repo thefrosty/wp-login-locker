@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.1.6 - 2021-11-07
+- Bump glob-parent from 5.1.1 to 5.1.2 (#36)
+- Bump hosted-git-info from 2.8.8 to 2.8.9 (#35)
+- Bump lodash from 4.17.20 to 4.17.21 (#34)
+- Bump path-parse from 1.0.6 to 1.0.7 (#37)
+- Dependency updates (#38)
+- PHP is now >=7.4.
+
 ## 2.1.4 - 2021-01-18
 - Add asset icons for plugin updates.
 - Update GitHub workflow (The `set-env` command is deprecated).
