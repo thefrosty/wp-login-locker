@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.1.7 - 2021-11-08
+- Fix: PHP Fatal error: Uncaught TypeError: Argument 1 passed to 
+`TheFrosty\WpLoginLocker\Login\LastLoginColumns::manageUsersCustomColumn()` must be of the type string, null given.
+
 ## 2.1.6 - 2021-11-07
 - Bump glob-parent from 5.1.1 to 5.1.2 (#36)
 - Bump hosted-git-info from 2.8.8 to 2.8.9 (#35)
