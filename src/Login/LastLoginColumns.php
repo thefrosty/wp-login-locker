@@ -50,12 +50,12 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Adds the last login column to the network admin user list.
-     * @param string $value Value of the custom column.
+     * @param string|null $value Value of the custom column.
      * @param string $column_name The name of the column.
      * @param int $user_id The user's id.
      * @return string
      */
-    protected function manageUsersCustomColumn(string $value, string $column_name, int $user_id): string
+    protected function manageUsersCustomColumn(?string $value, string $column_name, int $user_id): string
     {
         if ($column_name === LoginLocker::LAST_LOGIN) {
             $value = \esc_html__('Unknown', 'wp-login-locker');
@@ -66,7 +66,7 @@ class LastLoginColumns implements WpHooksInterface
             }
         }
 
-        return $value;
+        return $value ?? '';
     }
 
 

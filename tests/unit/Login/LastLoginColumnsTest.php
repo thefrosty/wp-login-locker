@@ -95,6 +95,8 @@ class LastLoginColumnsTest extends TestCase
             \delete_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY);
             $actual = $manageUsersCustomColumn->invoke($this->lastLoginColumns, '', 'bad_key', $user->ID);
             $this->assertIsString($actual);
+            $actual = $manageUsersCustomColumn->invoke($this->lastLoginColumns, null, 'null_value', $user->ID);
+            $this->assertIsString($actual);
             $this->assertSame('', $actual);
             $actual = $manageUsersCustomColumn->invoke($this->lastLoginColumns, '', LoginLocker::LAST_LOGIN, $user->ID);
             $this->assertIsString($actual);
