@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.1.8 - 2021-11-20
+
+* Make sure `thefrosty/wp-utilties` is locked at `2.5.1`.
+
 ## 2.1.7 - 2021-11-08
 - Fix: PHP Fatal error: Uncaught TypeError: Argument 1 passed to 
 `TheFrosty\WpLoginLocker\Login\LastLoginColumns::manageUsersCustomColumn()` must be of the type string, null given.
