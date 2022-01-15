@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.1.9 - 2021-11-20
+
+* Make sure `thefrosty/wp-utilties` is locked at `2.5.2`.
+
 ## 2.1.8 - 2021-11-20
 
 * Make sure `thefrosty/wp-utilties` is locked at `2.5.1`.
