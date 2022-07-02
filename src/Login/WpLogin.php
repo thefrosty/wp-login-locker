@@ -22,6 +22,7 @@ class WpLogin extends AbstractLoginLocker
     use GeoUtilTrait, Hash, HooksTrait;
 
     public const AUTH_CHECK_KEY = 'auth_check';
+    public const AUTH_CHECK_IS_ENCRYPTED_KEY = 'auth_encrypted';
     public const COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const COOKIE_VALUE_S = 'OK|%s';
     public const COOKIE_EXPIRE = '+1 year';
@@ -54,31 +55,30 @@ class WpLogin extends AbstractLoginLocker
      * denys access to the wp-login.php page.
      *
      * If the $_GET variable defined as a class const is set and that value
-     * is a valid user on the site, set a cookie and allow them access to the login
-     * form. Otherwise send them a fake html without the login form.
+     * is a valid user on the site, set a cookie and allow them to access the login
+     * form. Otherwise, send them a fake html without the login form.
      */
     protected function loginAuthCheck(): void
     {
         // Make sure the current action of logout is allowed (if a user changes their login name or email).
-        if ($this->getRequest()->query->has('action') &&
-            $this->getRequest()->query->get('action') === 'logout' &&
-            $this->getRequest()->query->has('_wpnonce') &&
-            \wp_verify_nonce($this->getRequest()->query->get('_wpnonce'), 'log-out')
+        $query = $this->getRequest()->query;
+        if (
+            $query->has('action') &&
+            $query->get('action') === 'logout' &&
+            $query->has('_wpnonce') &&
+            \wp_verify_nonce($query->get('_wpnonce'), 'log-out')
         ) {
             return;
         }
 
         $has_auth = false;
-        if ($this->getRequest()->query->has(self::AUTH_CHECK_KEY) &&
-            !empty($this->getRequest()->query->get(self::AUTH_CHECK_KEY))
-        ) {
-            [$user, $field] = \array_values(
-                $this->getUserBy(
-                    \sanitize_text_field(
-                        \wp_unslash($this->getRequest()->query->get(self::AUTH_CHECK_KEY))
-                    )
-                )
-            );
+        if ($query->has(self::AUTH_CHECK_KEY) && !empty($query->get(self::AUTH_CHECK_KEY))) {
+            $encrypted = \filter_var($query->get(self::AUTH_CHECK_IS_ENCRYPTED_KEY), \FILTER_VALIDATE_BOOL);
+            $value = $encrypted === false ?
+                $query->get(self::AUTH_CHECK_KEY) :
+                $this->decrypt($query->get(self::AUTH_CHECK_KEY), \home_url());
+
+            [$user, $field] = \array_values($this->getUserBy(\sanitize_text_field(\wp_unslash($value))));
 
             /**
              * If the $user exists, set a cookie in the browser so they have access
