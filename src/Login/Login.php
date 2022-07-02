@@ -48,23 +48,12 @@ class Login extends AbstractLoginLocker
         if (!\array_key_exists(Settings::LOGIN_SETTING_LOGO, $this->settings) || empty($logo)) {
             return;
         }
-        $attachment = \wp_get_attachment_metadata(\attachment_url_to_postid($logo));
-        if (empty($attachment) ||
-            !\array_key_exists('width', $attachment) ||
-            !\array_key_exists('height', $attachment)
-        ) {
-            return;
-        }
         $css = \sprintf(
             '.login h1 a {
 	background-image: none, url(%s);
 	background-size: contain;
-	width: %spx;
-	height: %spx;
 }',
             \wp_make_link_relative($logo),
-            $attachment['width'],
-            $attachment['height']
         );
         \wp_add_inline_style('login', $css);
     }
