@@ -11,6 +11,7 @@ use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
+use TheFrosty\WpUtilities\Api\Hash;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 
 /**
@@ -20,7 +21,7 @@ use TheFrosty\WpUtilities\Plugin\HooksTrait;
 class Login extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, HooksTrait;
+    use GeoUtilTrait, Hash, HooksTrait;
 
     public const ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
     public const ADMIN_ACTION_NONCE = '_lockerNonce';
@@ -189,13 +190,14 @@ class Login extends AbstractLoginLocker
         }
 
         /**
-         * Add our auth check key and the users email so they can access the
+         * Add our auth check key and the users email, so they can access the
          * login page if they don't have "access" by a cookie session. Force re-auth
-         * on login URL render so they have to re-enter there credentials.
+         * on login URL render, so they have to re-enter their credentials.
          */
         $login_url = \add_query_arg(
             [
-                WpLogin::AUTH_CHECK_KEY => \sanitize_email($user->user_email),
+                WpLogin::AUTH_CHECK_KEY => $this->encrypt(\sanitize_email($user->user_email), \home_url()),
+                WpLogin::AUTH_CHECK_IS_ENCRYPTED_KEY => true,
             ],
             \wp_login_url('', true)
         );
