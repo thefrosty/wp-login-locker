@@ -47,6 +47,9 @@ jobs:
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction
 
+      - name: Create all branches
+        run: source ./vendor/thefrosty/wp-utilities/bin/create-all-branches.sh
+
       - name: Run composer tests
         continue-on-error: true
         run: composer tests
