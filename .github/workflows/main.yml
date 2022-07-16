@@ -15,6 +15,10 @@ concurrency:
 jobs:
   Test:
     runs-on: ubuntu-latest
+    env:
+      WORDPRESS_DB_USER: wp
+      WORDPRESS_DB_PASS: password
+      WORDPRESS_DB_NAME: wp_tests
     strategy:
       matrix:
         php-versions: [ 7.4, 8.0, 8.1 ]
@@ -23,10 +27,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: root
-          WORDPRESS_DB_USER: wp
-          WORDPRESS_DB_PASS: password
-          WORDPRESS_DB_NAME: wp_tests
+          MYSQL_ROOT_PASSWORD: root=
         ports:
           - 3306
 
