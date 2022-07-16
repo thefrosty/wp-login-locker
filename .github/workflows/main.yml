@@ -15,10 +15,6 @@ concurrency:
 jobs:
   Test:
     runs-on: ubuntu-latest
-    env:
-      WORDPRESS_DB_USER: wp
-      WORDPRESS_DB_PASS: password
-      WORDPRESS_DB_NAME: wp_tests
     strategy:
       matrix:
         php-versions: [ 7.4, 8.0, 8.1 ]
@@ -27,7 +23,8 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: root=
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
         ports:
           - 3306
 
@@ -41,6 +38,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, mysql, mysqli, pdo_mysql, bcmath, soap, intl, gd, exif, iconv, imagick
           coverage: xdebug
           tools: composer, cs2pr, phpunit
 
@@ -60,16 +58,6 @@ jobs:
 
       - name: Create all branches
         run: source ./vendor/thefrosty/wp-utilities/bin/create-all-branches.sh
-
-      - name: Start MySQL
-        run: sudo systemctl start mysql.service
-
-      - name: Create MySQL database
-        run: >
-          mysql --user=root --password=root -e "
-          GRANT ALL PRIVILEGES ON $WORDPRESS_DB_NAME.* TO $WORDPRESS_DB_USER IDENTIFIED BY '$WORDPRESS_DB_PASS';
-          CREATE DATABASE $WORDPRESS_DB_NAME;
-          "
 
       - name: Run composer tests
         continue-on-error: true
