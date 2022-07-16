@@ -24,10 +24,11 @@ jobs:
         image: mysql:5.7
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: wordpress_test
+          WORDPRESS_DB_USER: wp
+          WORDPRESS_DB_PASS: password
+          WORDPRESS_DB_NAME: wp_tests
         ports:
           - 3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout
@@ -58,6 +59,18 @@ jobs:
 
       - name: Create all branches
         run: source ./vendor/thefrosty/wp-utilities/bin/create-all-branches.sh
+
+      - name: Start MySQL
+        run: sudo systemctl start mysql.service
+
+      - name: Create MySQL database
+        run: >
+          mysql --user=root --password=root -e "
+          CREATE DATABASE \`$WORDPRESS_DB_NAME\` ;
+          CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$WORDPRESS_DB_PASS' ;
+          GRANT ALL ON \`$WORDPRESS_DB_NAME\`.* TO '$WORDPRESS_DB_USER'@'%' ;
+          FLUSH PRIVILEGES ;
+          "
 
       - name: Run composer tests
         continue-on-error: true
