@@ -25,11 +25,11 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_DATABASE: wp_phpunit_tests
+          MYSQL_DATABASE: wordpress_test
           MYSQL_ROOT_PASSWORD: root
-          WORDPRESS_DB_NAME: wp_phpunit_tests
-          WORDPRESS_DB_PASS: mysql_password
-          WORDPRESS_DB_USER: mysql_user
+          WORDPRESS_DB_NAME: wordpress_test
+          WORDPRESS_DB_PASS: root
+          WORDPRESS_DB_USER: root
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
@@ -49,7 +49,7 @@ jobs:
           tools: composer, cs2pr, phpunit
 
       - name: Setup WordPress
-        run: bash bin/install-wp-tests.sh wp_phpunit_tests mysql_user mysql_password 127.0.0.1:3306 latest
+        run: bash bin/install-wp-tests.sh wp_phpunit_tests root root 127.0.0.1:3306 latest
 
       - name: Get composer cache directory
         id: composercache
