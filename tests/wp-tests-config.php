@@ -2,8 +2,6 @@
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 /* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
-// This is the install path as defined by `wordpress-install-dir` in composer.json
-$abspath = defined('TRAVIS') || getenv('TRAVIS') ? '/wordpress/' : '/';
 define('ABSPATH', dirname(__DIR__) . '/wordpress/');
 
 /*
