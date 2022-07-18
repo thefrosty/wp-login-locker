@@ -6,10 +6,6 @@ on:
       - develop
   pull_request:
 
-env:
-  WP_TESTS_DIR: /github/home/wp-tests/wordpress-tests-lib
-  WP_CORE_DIR: /github/home/wp-tests/wordpress
-
 # Cancels all previous workflow runs for the same branch that have not yet completed.
 concurrency:
   # The concurrency group contains the workflow name and the branch name.
