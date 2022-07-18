@@ -22,7 +22,7 @@ jobs:
         coverage: [ true ]
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_DATABASE: wordpress_test
@@ -45,6 +45,9 @@ jobs:
           coverage: xdebug
           tools: composer, cs2pr, phpunit
 
+      - name: Setup WordPress
+        run: bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1:3306 latest
+
       - name: Get composer cache directory
         id: composercache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -63,10 +66,7 @@ jobs:
         run: source ./vendor/thefrosty/wp-utilities/bin/create-all-branches.sh
 
       - name: Run composer tests
-        continue-on-error: true
-        run: |
-          bash bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1:3306 latest true
-          composer tests
+        run: composer tests
 
       - name: Show PHPCS results in PR
         run: cs2pr ./phpcs-report.xml
