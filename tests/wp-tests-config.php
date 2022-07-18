@@ -32,7 +32,7 @@ define('WP_DEBUG', true);
 // These tests will DROP ALL TABLES in the database with the prefix named below.
 // DO NOT use a production database or one that is shared with something else.
 
-define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'wp_phpunit_tests');
+define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'wordpress_test');
 define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'wordpress_user');
 define('DB_PASSWORD', getenv('WORDPRESS_DB_PASS') ?: 'mysql_password');
 define('DB_HOST', getenv('WORDPRESS_DB_HOST') ?: '127.0.0.1');
