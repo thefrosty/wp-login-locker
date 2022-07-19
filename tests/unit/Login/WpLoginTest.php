@@ -45,7 +45,7 @@ class WpLoginTest extends TestCase
     {
         $constants = $this->reflection->getConstants();
         $this->assertIsArray($constants);
-        $this->assertCount(6, $constants);
+        $this->assertCount(7, $constants);
     }
 
     /**
