@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ ubuntu-latest ]
-        php-versions: [ 7.4 ]
+        php-versions: [ 7.4, 8.0, 8.1 ]
         wp-versions: [ 'latest' ]
         coverage: [ true ]
     services:
@@ -83,4 +83,4 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          fail_ci_if_error: false
+          fail_ci_if_error: true
