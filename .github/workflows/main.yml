@@ -41,7 +41,7 @@ jobs:
         with:
           fetch-depth: 0 # No shallow clone, we need all history!
 
-      - name: Setup PHP
+      - name: Setup PHP ${{ matrix.php-versions }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
@@ -49,8 +49,8 @@ jobs:
           coverage: xdebug
           tools: composer, cs2pr, phpunit
 
-      - name: Setup WordPress
-        run: bash bin/install-wp-tests.sh wordpress_test root root localhost latest
+      - name: Setup WordPress ${{ matrix.wp-versions }}
+        run: bash bin/install-wp-tests.sh wordpress_test root root localhost ${{ matrix.wp-versions }} true
 
       - name: Get composer cache directory
         id: composercache
@@ -83,7 +83,7 @@ jobs:
           fail_ci_if_error: false
 
   Build:
-    name: Build and Upload Release
+    name: Build and Upload Release v${{ github.event.release.tag_name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
