@@ -14,9 +14,10 @@ concurrency:
 
 jobs:
   Test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
+        operating-system: [ ubuntu-latest ]
         php-versions: [ 7.4 ]
         wp-versions: [ 'latest' ]
         coverage: [ true ]
@@ -45,7 +46,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mysqli
+          extensions: mysql, mysqli
           coverage: xdebug
           tools: composer, cs2pr, phpunit
 
