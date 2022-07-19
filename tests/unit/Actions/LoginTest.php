@@ -201,8 +201,8 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'getEmailMessage'));
         try {
             $getEmailMessage = $this->reflection->getMethod('getEmailMessage');
-            $WP_User = new \WP_User();
-            $actual = $getEmailMessage->invoke($this->login, $WP_User);
+            $user = self::factory()->user->create_and_get();
+            $actual = $getEmailMessage->invoke($this->login, $user);
             $this->assertIsString($actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
