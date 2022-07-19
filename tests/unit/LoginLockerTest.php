@@ -20,13 +20,13 @@ class LoginLockerTest extends TestCase
     /**
      * Setup.
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->login_locker = new class implements LoginLocker {
         };
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         unset($this->login_locker);
     }
