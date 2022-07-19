@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
 /**
  * Class WpLoginTest
@@ -18,7 +19,7 @@ class WpLoginTest extends TestCase
     /**
      * @var WpLogin $wpLogin
      */
-    private $wpLogin;
+    private WpLogin $wpLogin;
 
     /**
      * Setup.
@@ -30,6 +31,9 @@ class WpLoginTest extends TestCase
         $this->wpLogin->setPlugin($this->plugin);
         $this->wpLogin->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->wpLogin);
+        $wp_mail = $this->reflection->getProperty('wp_mail');
+        $wp_mail->setAccessible(true);
+        $wp_mail->setValue($this->wpLogin, new WpMail());
     }
 
     public function tearDown(): void
