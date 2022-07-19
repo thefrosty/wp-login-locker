@@ -19,7 +19,7 @@ class LoginTest extends TestCase
     /**
      * @var Login $login
      */
-    private $login;
+    private Login $login;
 
     /**
      * Setup.
@@ -31,6 +31,9 @@ class LoginTest extends TestCase
         $this->login->setPlugin($this->plugin);
         $this->login->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->login);
+        $wp_mail = $this->reflection->getProperty('wp_mail');
+        $wp_mail->setAccessible(true);
+        $wp_mail->setValue($this->login, new WpMail());
     }
 
     public function tearDown(): void
