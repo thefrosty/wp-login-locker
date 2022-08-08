@@ -2,8 +2,11 @@
 
 namespace TheFrosty\Tests\WpLoginLocker;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use TheFrosty\WpUtilities\Plugin\Container;
 use TheFrosty\WpUtilities\Plugin\Plugin;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
+use function get_class;
 
 /**
  * Class TestCase
@@ -14,14 +17,14 @@ class TestCase extends \WP_UnitTestCase
 
     public const METHOD_ADD_FILTER = 'addFilter';
 
-    /** @var \TheFrosty\WpUtilities\Plugin\Container $container */
+    /** @var Container $container */
     protected $container;
 
     /** @var Plugin $plugin */
-    protected $plugin;
+    protected Plugin $plugin;
 
     /** @var \ReflectionObject $reflection */
-    protected $reflection;
+    protected \ReflectionObject $reflection;
 
     /**
      * Setup.
@@ -53,24 +56,24 @@ class TestCase extends \WP_UnitTestCase
     {
         static $reflector;
 
-        if (!isset($reflector[\get_class($argument)]) ||
-            !($reflector[\get_class($argument)] instanceof \ReflectionObject)
+        if (!isset($reflector[get_class($argument)]) ||
+            !($reflector[get_class($argument)] instanceof \ReflectionObject)
         ) {
-            $reflector[\get_class($argument)] = new \ReflectionObject($argument);
+            $reflector[get_class($argument)] = new \ReflectionObject($argument);
         }
 
-        return $reflector[\get_class($argument)];
+        return $reflector[get_class($argument)];
     }
 
     /**
      * Get a Mock Provider.
      * @param string $className
-     * @return \PHPUnit\Framework\MockObject\MockObject
+     * @return MockObject
      */
-    protected function getMockProvider(string $className): \PHPUnit\Framework\MockObject\MockObject
+    protected function getMockProvider(string $className): MockObject
     {
         return $this->getMockBuilder($className)
-            ->setMethods([self::METHOD_ADD_FILTER])
+            ->onlyMethods([self::METHOD_ADD_FILTER])
             ->getMock();
     }
 }
