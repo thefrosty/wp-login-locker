@@ -11,24 +11,26 @@
     }
   ],
   "config": {
-    "optimize-autoloader": true,
-    "preferred-install": "dist",
-    "sort-packages": true,
-    "vendor-dir": "vendor",
     "allow-plugins": {
       "composer/installers": true,
       "roots/wordpress-core-installer": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
-    }
+    },
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "7.4"
+    },
+    "preferred-install": "dist",
+    "sort-packages": true
   },
   "require": {
     "php": "^7.4 || ^8.0",
     "ext-openssl": "*",
     "composer/installers": "~1.0 || ~2.0",
-    "dwnload/wp-settings-api": "^3.3.2",
+    "dwnload/wp-settings-api": "^3.6",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^5.2 || ^6.0",
-    "thefrosty/wp-utilities": "^2.5.2"
+    "thefrosty/wp-utilities": "^2.8"
   },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
