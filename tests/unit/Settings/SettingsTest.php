@@ -23,10 +23,10 @@ class SettingsTest extends TestCase
     /**
      * @var Settings $settings
      */
-    private $settings;
+    private Settings $settings;
 
     /** @var \WP_User $user */
-    private $user;
+    private \WP_User $user;
 
     /**
      * Setup.
@@ -38,13 +38,14 @@ class SettingsTest extends TestCase
         $this->settings->setPlugin($this->plugin);
         $this->settings->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->settings);
+        $this->WpSettingsApi = new WpSettingsApi(Settings::factory('2.1.13'));
         $this->user = self::factory()->user->create_and_get(['role' => 'administrator']);
         \wp_set_current_user($this->user->ID);
     }
 
     public function tearDown(): void
     {
-        unset($this->settings, $this->user);
+        unset($this->settings, $this->WpSettingsApi, $this->user);
         parent::tearDown();
     }
 
@@ -55,7 +56,7 @@ class SettingsTest extends TestCase
     {
         $this->assertTrue(\method_exists($this->settings, 'addHooks'));
         $provider = $this->getMockBuilder(Settings::class)
-            ->setMethods([self::METHOD_ADD_FILTER, 'getPlugin'])
+            ->onlyMethods([self::METHOD_ADD_FILTER, 'getPlugin'])
             ->getMock();;
         $provider->expects($this->once())
             ->method('getPlugin')
@@ -137,13 +138,13 @@ class SettingsTest extends TestCase
             $sidebar = $this->reflection->getMethod('sidebar');
             $sidebar->setAccessible(true);
             \ob_start();
-            $sidebar->invoke($this->settings);
+            $sidebar->invoke($this->settings, $this->WpSettingsApi);
             $actual = \ob_get_clean();
             $this->assertStringNotContainsString('Success - test email sent.', $actual);
             $_GET['success'] = true;
             $this->settings->getRequest()->query->set('success', true);
             \ob_start();
-            $sidebar->invoke($this->settings);
+            $sidebar->invoke($this->settings, $this->WpSettingsApi);
             $actual = \ob_get_clean();
             $this->assertStringNotContainsString('Success - test email sent.', $actual);
         } catch (\ReflectionException $exception) {

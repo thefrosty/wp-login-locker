@@ -2,6 +2,8 @@
 
 namespace TheFrosty\WpLoginLocker\Settings;
 
+use Dwnload\WpSettingsApi\ActionHookName;
+use Dwnload\WpSettingsApi\Api\PluginSettings;
 use Dwnload\WpSettingsApi\Api\SettingField;
 use Dwnload\WpSettingsApi\Api\SettingSection;
 use Dwnload\WpSettingsApi\Settings\FieldManager;
@@ -38,9 +40,9 @@ class Settings extends AbstractLoginLocker
     /**
      * Creat the PluginSettings object.
      * @param string $version
-     * @return \Dwnload\WpSettingsApi\Api\PluginSettings
+     * @return PluginSettings
      */
-    public static function factory(string $version): \Dwnload\WpSettingsApi\Api\PluginSettings
+    public static function factory(string $version): PluginSettings
     {
         return SettingsApiFactory::create([
             'domain' => self::DOMAIN,
@@ -60,8 +62,8 @@ class Settings extends AbstractLoginLocker
      */
     public function addHooks(): void
     {
-        $this->addAction(WpSettingsApi::ACTION_PREFIX . 'init', [$this, 'init'], 10, 3);
-        $this->addAction(WpSettingsApi::ACTION_PREFIX . 'settings_sidebars', [$this, 'sidebar'], 200);
+        $this->addAction(WpSettingsApi::HOOK_INIT, [$this, 'init'], 10, 3);
+        $this->addAction(ActionHookName::SETTINGS_SETTINGS_SIDEBARS, [$this, 'sidebar'], 200);
         $this->addFilter('plugin_action_links_' . $this->getPlugin()->getBasename(), [$this, 'addSettingsLink']);
     }
 
@@ -81,15 +83,13 @@ class Settings extends AbstractLoginLocker
      * @param FieldManager $field_manager
      * @param WpSettingsApi $wp_settings_api
      * @see SettingField for additional options for each field passed to the output
-     *
      */
     protected function init(
         SectionManager $section_manager,
         FieldManager $field_manager,
         WpSettingsApi $wp_settings_api
     ): void {
-        // Check if using more than once (slug set below in `SettingsApiFactory::create()`).
-        if ($wp_settings_api->getPluginInfo()->getMenuSlug() !== self::MENU_SLUG) {
+        if (!$wp_settings_api->isCurrentMenuSlug(self::MENU_SLUG)) {
             return;
         }
 
@@ -221,9 +221,13 @@ class Settings extends AbstractLoginLocker
 
     /**
      * Add a sidebar element.
+     * @param WpSettingsApi $wp_settings_api
      */
-    protected function sidebar(): void
+    protected function sidebar(WpSettingsApi $wp_settings_api): void
     {
+        if (!$wp_settings_api->isCurrentMenuSlug(self::MENU_SLUG)) {
+            return;
+        }
         $query = $this->getRequest()->query;
         if ($query->has('sent') && \filter_var($query->get('sent'), \FILTER_VALIDATE_BOOLEAN)) {
             \printf(
