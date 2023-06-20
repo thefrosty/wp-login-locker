@@ -43,14 +43,22 @@ class Login extends AbstractLoginLocker
     }
 
     /**
-     * Create a email notifying the user someone has logged in (if their notifications aren't off).
-     * Also adds user meta data of their IP address and login time.
+     * Create an email notifying the user someone has logged in (if their notifications aren't off).
+     * Also adds user metadata of their IP address and login time.
      *
      * @param string $user_login
      * @param \WP_User $user
      */
     protected function wpLoginAction(string $user_login, \WP_User $user): void
     {
+        if (
+            \filter_var(
+                Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, false),
+                \FILTER_VALIDATE_BOOL
+            ) === true
+        ) {
+            return;
+        }
         $current_ip = $this->getIP();
         $last_login_ip = \get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
         $user_notification = \get_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY, true);
