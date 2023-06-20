@@ -51,12 +51,11 @@ class Login extends AbstractLoginLocker
      */
     protected function wpLoginAction(string $user_login, \WP_User $user): void
     {
-        if (
-            \filter_var(
-                Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, false),
-                \FILTER_VALIDATE_BOOL
-            ) === true
-        ) {
+        $disable = \filter_var(
+            Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, false),
+            \FILTER_VALIDATE_BOOL
+        );
+        if ($disable === true) {
             return;
         }
         $current_ip = $this->getIP();
