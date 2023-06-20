@@ -23,6 +23,7 @@ class Settings extends AbstractLoginLocker
 {
 
     public const EMAIL_SETTINGS = self::PREFIX . 'email_settings';
+    public const EMAIL_SETTING_DISABLE = 'disable';
     public const EMAIL_SETTING_PRETEXT = 'pretext';
     public const EMAIL_SETTING_MESSAGE = 'message';
     public const EMAIL_SETTING_BACKGROUND_COLOR = 'background_color';
@@ -135,6 +136,19 @@ class Settings extends AbstractLoginLocker
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_TEXTAREA,
                 SettingField::DEFAULT => $this->getSettingPretext(),
                 SettingField::SANITIZE => '\wp_kses_post',
+                SettingField::SECTION_ID => $email_section_id,
+            ])
+        );
+
+        $field_manager->addField(
+            new SettingField([
+                SettingField::NAME => self::EMAIL_SETTING_DISABLE,
+                SettingField::LABEL => \esc_html__('Disable all emails', 'wp-login-locker'),
+                SettingField::DESC => \esc_html__(
+                    'Disable all email notifications for all users site wide (overrides user profile).',
+                    'wp-login-locker'
+                ),
+                SettingField::TYPE => FieldTypes::FIELD_TYPE_CHECKBOX,
                 SettingField::SECTION_ID => $email_section_id,
             ])
         );
