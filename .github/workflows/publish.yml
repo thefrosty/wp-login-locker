@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set Release Version env
         run: |
@@ -38,10 +38,10 @@ jobs:
           echo "RELEASE_VERSION=${VERSION//v}" >> $GITHUB_ENV
 
       # see https://github.com/shivammathur/setup-php
-      - name: Use PHP 7.4
+      - name: Use PHP 8.0
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 8.0
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
