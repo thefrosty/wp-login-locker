@@ -25,7 +25,7 @@ use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
 
 if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
-    require __DIR__ . '/vendor/autoload.php';
+    include_once __DIR__ . '/vendor/autoload.php';
 }
 
 $plugin = PluginFactory::create('login-locker');
