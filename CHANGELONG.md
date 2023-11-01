@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.3.0 - 2023-11-01
+
+* Add support upto PHP 8.2.
+* Drop support for PHP <= 7.4.
+
+## 2.2.0 - 2023-07-23
+
+* Feature/disable global emails.
+
 ## 2.1.11 - 2022-07-02
 
 * Add encryption to login email.
