@@ -18,19 +18,19 @@
     },
     "optimize-autoloader": true,
     "platform": {
-      "php": "7.4"
+      "php": "8.0"
     },
     "preferred-install": "dist",
     "sort-packages": true
   },
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^8.0",
     "ext-openssl": "*",
     "composer/installers": "~1.0 || ~2.0",
-    "dwnload/wp-settings-api": "^3.6",
+    "dwnload/wp-settings-api": "^3.9",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^5.2 || ^6.0",
-    "thefrosty/wp-utilities": "^2.8"
+    "thefrosty/wp-utilities": "^3.2"
   },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
