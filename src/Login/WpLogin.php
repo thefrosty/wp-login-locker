@@ -157,8 +157,8 @@ class WpLogin extends AbstractLoginLocker
      */
     private function isLostPassOrExpired(): bool
     {
-        $action = \filter_input(INPUT_GET, 'action', \FILTER_SANITIZE_STRING);
-        $status = \filter_input(INPUT_GET, 'expass', \FILTER_SANITIZE_STRING);
+        $action = \filter_input(INPUT_GET, 'action', \FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $status = \filter_input(INPUT_GET, 'expass', \FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         return 'lostpassword' === $action || 'expired' === $status;
     }
