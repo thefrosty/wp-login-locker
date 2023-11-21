@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.3.1 - 2023-11-21
+
+* Replace deprecated `FILTER_SANITIZE_STRING` in PHP >= 8.2 with `FILTER_SANITIZE_FULL_SPECIAL_CHARS`. [#78](https://github.com/thefrosty/wp-login-locker/pull/78)
+
 ## 2.3.0 - 2023-11-01
 
 * Add support upto PHP 8.2.
