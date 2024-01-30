@@ -53,12 +53,12 @@ jobs:
           mkdir build
 
       - name: Create artifact
-        uses: montudor/action-zip@v0.1.1
+        uses: montudor/action-zip@v1
         with:
           args: zip -X -r build/wp-login-locker.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: wp-login-locker
           path: build/wp-login-locker.zip
@@ -72,7 +72,7 @@ jobs:
 
       - name: Duplicate asset for GitHub Updater
         # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
-        uses: montudor/action-zip@v0.1.1
+        uses: montudor/action-zip@v1
         with:
           args: zip -X -r build/wp-login-locker-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
