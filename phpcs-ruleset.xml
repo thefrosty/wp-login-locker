@@ -24,6 +24,8 @@
     <!-- For CI, don't fail on warnings -->
     <config name="ignore_warnings_on_exit" value="1"/>
     <config name="minimum_supported_wp_version" value="6.2" />
+    <!-- Check for cross-version support for PHP 8.0 and higher. -->
+    <config name="testVersion" value="8.0-"/>
 
     <rule ref="PSR12">
         <exclude name="PSR12.Classes.OpeningBraceSpace.Found"/>
@@ -36,6 +38,4 @@
 
     <!-- Loads the PHP Compatibility ruleset. -->
     <rule ref="PHPCompatibility" />
-    <!-- Check for cross-version support for PHP 8.0 and higher. -->
-    <config name="testVersion" value="8.0-"/>
 </ruleset>
