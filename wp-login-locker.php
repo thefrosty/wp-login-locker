@@ -4,10 +4,10 @@
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 2.3.1
+ * Version: 2.4.0
  * Requires at least: 6.2
- * Tested up to: 6.4.1
- * Requires PHP: 8.0
+ * Tested up to: 6.5
+ * Requires PHP: 8.1
  * Plugin URI: https://github.com/thefrosty/wp-login-locker
  * GitHub Plugin URI: https://github.com/thefrosty/wp-login-locker
  * Primary Branch: develop
@@ -40,7 +40,7 @@ $plugin
     ->add(new Login\WpLogin())
     ->add(new Settings())
     ->add(new WpCore\WpSignup())
-    ->add(new WpSettingsApi(Settings::factory('2.3.1')))
+    ->add(new WpSettingsApi(Settings::factory('2.4.0')))
     ->addOnHook(Login\Login::class, 'login_init', 5)
     ->addOnHook(Login\LastLoginColumns::class, 'admin_init', 10, true)
     ->addOnHook(UserProfile\LastLogin::class, 'admin_init', 10, true)
