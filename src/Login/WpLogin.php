@@ -136,7 +136,7 @@ class WpLogin extends AbstractLoginLocker
      * Render the fake login HTML and send the response to the page.
      * Sets a 403 Forbidden Status code and terminates all processes.
      */
-    private function noAuthLoginHtml(): void
+    private function noAuthLoginHtml(): never
     {
         \ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/login/wp-login.php';
