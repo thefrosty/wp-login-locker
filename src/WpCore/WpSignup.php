@@ -30,7 +30,7 @@ class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInte
     /**
      * Redirect all requests to the 'wp-signup.php' page back to the network home URL.
      */
-    protected function redirectWpSignup(): void
+    protected function redirectWpSignup(): never
     {
         // Don't allow POST requests to the wp-signup.php page
         if (!empty($this->getRequest()->request->all())) {
