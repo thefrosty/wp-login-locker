@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.5.0 - 2024-11-24
+
+* Resolve GHSA-mrqx-rp3w-jpjp
+* Update login css target for WordPress >= 6.7
+* Tested upto WordPress 6.7.1.
+
+## 2.4.0 - 2024-03-08
+
+* Set PHP min to 8.1.
+
 ## 2.3.1 - 2023-11-21
 
 * Replace deprecated `FILTER_SANITIZE_STRING` in PHP >= 8.2 with `FILTER_SANITIZE_FULL_SPECIAL_CHARS`. [#78](https://github.com/thefrosty/wp-login-locker/pull/78)
