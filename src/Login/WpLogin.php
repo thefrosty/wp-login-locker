@@ -102,7 +102,7 @@ class WpLogin extends AbstractLoginLocker
                     // Maybe the user changed their login name or email, delete the cookie.
                     unset($_COOKIE[self::COOKIE_NAME]);
                     if (!\headers_sent()) {
-                        \setcookie(self::COOKIE_NAME, '', \time() - \HOUR_IN_SECONDS);
+                        \setcookie(self::COOKIE_NAME, '', \time() - \HOUR_IN_SECONDS, httponly: true);
                     }
                 }
             }
@@ -217,7 +217,8 @@ class WpLogin extends AbstractLoginLocker
                 \strtotime(self::COOKIE_EXPIRE),
                 \COOKIEPATH,
                 \is_string(\COOKIE_DOMAIN) ? \COOKIE_DOMAIN : \parse_url(\home_url(), PHP_URL_HOST),
-                ('https' === \parse_url(\wp_login_url(), \PHP_URL_SCHEME))
+                ('https' === \parse_url(\wp_login_url(), \PHP_URL_SCHEME)),
+                httponly: true
             );
         }
     }
