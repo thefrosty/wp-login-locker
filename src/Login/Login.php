@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Login;
 
@@ -16,7 +18,7 @@ class Login extends AbstractLoginLocker
      * Settings array.
      * @var array $settings
      */
-    private $settings;
+    private mixed $settings;
 
     /**
      * Login constructor.
@@ -48,11 +50,13 @@ class Login extends AbstractLoginLocker
         if (!\array_key_exists(Settings::LOGIN_SETTING_LOGO, $this->settings) || empty($logo)) {
             return;
         }
+        $login_h1 = version_compare($GLOBALS['wp_version'], '6.7', '>=') ? '.login .wp-login-logo' : '.login h1';
         $css = \sprintf(
-            '.login h1 a {
+            '%s a {
 	background-image: none, url(%s);
 	background-size: contain;
 }',
+            $login_h1,
             \wp_make_link_relative($logo),
         );
         \wp_add_inline_style('login', $css);
