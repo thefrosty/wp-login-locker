@@ -3,7 +3,7 @@
  * Plugin Name: Login Locker
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
- * Author URI: https://github.com/thefrosty
+ * Author URI: https://austin.passy.co/
  * Version: 2.5.0
  * Requires at least: 6.2
  * Tested up to: 6.7.1
