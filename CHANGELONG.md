@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.6.0 - 2025-03-16
+
+* Resolve nullable parameters types to fix PHP 8.4.
+* Bump PHP min to >= 8.3.
+
 ## 2.5.0 - 2024-11-24
 
 * Resolve GHSA-mrqx-rp3w-jpjp
