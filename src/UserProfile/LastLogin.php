@@ -96,7 +96,7 @@ class LastLogin extends UserProfile
      *
      * @param \WP_User|null $user
      */
-    protected function showExtraUserFields(\WP_User $user = null): void
+    protected function showExtraUserFields(?\WP_User $user = null): void
     {
         \ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/user-profile/last-login.php';

@@ -43,7 +43,7 @@ abstract class UserProfile extends AbstractLoginLocker
      * @param \WP_User|null $user
      * @return void
      */
-    protected function doUserProfileAction(\WP_User $user = null): void
+    protected function doUserProfileAction(?\WP_User $user = null): void
     {
         if (!\did_action(self::USER_PROFILE_HOOK)) {
             \printf(
