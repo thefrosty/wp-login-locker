@@ -18,18 +18,18 @@
     },
     "optimize-autoloader": true,
     "platform": {
-      "php": "8.1"
+      "php": "8.3"
     },
     "preferred-install": "dist",
     "sort-packages": true
   },
   "require": {
-    "php": "^8.1",
+    "php": "^8.3",
     "ext-openssl": "*",
     "composer/installers": "~2.0",
     "dwnload/wp-settings-api": "^3.10",
     "pimple/pimple": "~3.0",
-    "symfony/http-foundation": "~6.4.14 || ^7.1.7",
+    "symfony/http-foundation": "^7.1.7",
     "thefrosty/wp-utilities": "^3.3"
   },
   "require-dev": {
