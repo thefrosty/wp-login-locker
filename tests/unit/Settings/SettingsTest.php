@@ -31,6 +31,7 @@ class SettingsTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -43,6 +44,7 @@ class SettingsTest extends TestCase
         \wp_set_current_user($this->user->ID);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->settings, $this->WpSettingsApi, $this->user);

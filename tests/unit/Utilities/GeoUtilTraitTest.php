@@ -21,6 +21,7 @@ class GeoUtilTraitTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -30,6 +31,7 @@ class GeoUtilTraitTest extends TestCase
         $this->class->setRequest(Request::createFromGlobals());
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->class);

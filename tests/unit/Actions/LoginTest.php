@@ -24,6 +24,7 @@ class LoginTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -36,6 +37,7 @@ class LoginTest extends TestCase
         $wp_mail->setValue($this->login, new WpMail());
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->login);

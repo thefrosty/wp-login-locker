@@ -28,6 +28,7 @@ class UserMetaCleanupTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -38,6 +39,7 @@ class UserMetaCleanupTest extends TestCase
         $this->userMetaCleanup = new UserMetaCleanup($this->user_id);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         \delete_user_meta($this->user_id, LoginLocker::LAST_LOGIN_IP_META_KEY);

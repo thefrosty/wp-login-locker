@@ -24,6 +24,7 @@ class UserProfileTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -41,6 +42,7 @@ class UserProfileTest extends TestCase
         $this->reflection = $this->getReflection($this->userProfile);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->userProfile);
