@@ -23,6 +23,7 @@ class WpLoginTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -32,6 +33,7 @@ class WpLoginTest extends TestCase
         $this->reflection = $this->getReflection($this->wpLogin);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->wpLogin);

@@ -22,6 +22,7 @@ class WpSignupTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -31,6 +32,7 @@ class WpSignupTest extends TestCase
         $this->reflection = $this->getReflection($this->wpSignup);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->wpSignup);

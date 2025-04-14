@@ -25,6 +25,7 @@ class NewUserTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -34,6 +35,7 @@ class NewUserTest extends TestCase
         $this->reflection = $this->getReflection($this->newUser);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->newUser);

@@ -23,6 +23,7 @@ class LoginTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -30,6 +31,7 @@ class LoginTest extends TestCase
         $this->reflection = $this->getReflection($this->login);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->login);

@@ -22,6 +22,7 @@ class LastLoginColumnsTest extends TestCase
     /**
      * Setup.
      */
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -29,6 +30,7 @@ class LastLoginColumnsTest extends TestCase
         $this->reflection = $this->getReflection($this->lastLoginColumns);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         unset($this->lastLoginColumns);

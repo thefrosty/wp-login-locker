@@ -56,13 +56,14 @@ class TestCase extends \WP_UnitTestCase
     {
         static $reflector;
 
-        if (!isset($reflector[get_class($argument)]) ||
-            !($reflector[get_class($argument)] instanceof \ReflectionObject)
+        if (
+            !isset($reflector[$argument::class]) ||
+            !($reflector[$argument::class] instanceof \ReflectionObject)
         ) {
-            $reflector[get_class($argument)] = new \ReflectionObject($argument);
+            $reflector[$argument::class] = new \ReflectionObject($argument);
         }
 
-        return $reflector[get_class($argument)];
+        return $reflector[$argument::class];
     }
 
     /**
