@@ -41,8 +41,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # No shallow clone, we need all history!
 
       - name: Install SVN
         run: sudo apt-get update && sudo apt-get install -y subversion
