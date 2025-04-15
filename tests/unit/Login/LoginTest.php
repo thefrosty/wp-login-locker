@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
@@ -18,7 +20,7 @@ class LoginTest extends TestCase
     /**
      * @var Login $login
      */
-    private $login;
+    private Login $login;
 
     /**
      * Setup.
@@ -45,13 +47,11 @@ class LoginTest extends TestCase
     {
         try {
             $settings = $this->reflection->getProperty('settings');
-            $settings->setAccessible(true);
             $actual = $settings->getValue($this->login);
             $this->assertIsArray($actual);
             $this->assertCount(0, $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -92,11 +92,9 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'wpAddInlineLoginStyle'));
         try {
             $wpAddInlineLoginStyle = $this->reflection->getMethod('wpAddInlineLoginStyle');
-            $wpAddInlineLoginStyle->setAccessible(true);
             $this->assertNull($wpAddInlineLoginStyle->invoke($this->login));
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -110,13 +108,12 @@ class LoginTest extends TestCase
             $login = new Login();
             \do_action('login_enqueue_scripts');
             $wpAddInlineLoginStyle = $this->getReflection($login)->getMethod('wpAddInlineLoginStyle');
-            $wpAddInlineLoginStyle->setAccessible(true);
             $this->assertNull($wpAddInlineLoginStyle->invoke($login));
             // With attachment
             $filename = \dirname(ABSPATH) . '/tests/assets/300.jpg';
             $contents = \file_get_contents($filename);
             $upload = \wp_upload_bits(\wp_basename($filename), null, $contents);
-            $this->assertTrue(empty($upload['error']));
+            $this->assertEmpty($upload['error']);
             $id = $this->_make_attachment($upload);
             \update_option(Settings::LOGIN_SETTINGS, [
                 Settings::LOGIN_SETTING_LOGO => \wp_get_attachment_url($id),
@@ -128,7 +125,6 @@ class LoginTest extends TestCase
             $this->setUpSettingOptions(true);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -140,14 +136,12 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'loginHeaderUrl'));
         try {
             $loginHeaderUrl = $this->reflection->getMethod('loginHeaderUrl');
-            $loginHeaderUrl->setAccessible(true);
             $actual = $loginHeaderUrl->invoke($this->login, '');
             $this->assertIsString($actual);
             $this->assertNotSame('', $actual);
             $this->assertSame(\home_url(), $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -159,14 +153,12 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'loginHeaderTitle'));
         try {
             $loginHeaderTitle = $this->reflection->getMethod('loginHeaderTitle');
-            $loginHeaderTitle->setAccessible(true);
             $actual = $loginHeaderTitle->invoke($this->login, '');
             $this->assertIsString($actual);
             $this->assertNotSame('', $actual);
             $this->assertSame(\get_bloginfo('description'), $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
