@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
@@ -18,7 +20,7 @@ class LastLoginTest extends TestCase
     /**
      * @var LastLogin $lastLogin
      */
-    private $lastLogin;
+    private LastLogin $lastLogin;
 
     /**
      * Setup.
@@ -62,7 +64,6 @@ class LastLoginTest extends TestCase
         $this->assertTrue(\method_exists($this->lastLogin, 'getLastLoginIp'));
         try {
             $getLastLoginIp = $this->reflection->getMethod('getLastLoginIp');
-            $getLastLoginIp->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             $actual = $getLastLoginIp->invoke($this->lastLogin, $user->ID);
             $this->assertIsString($actual);
@@ -78,7 +79,6 @@ class LastLoginTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -90,7 +90,6 @@ class LastLoginTest extends TestCase
         $this->assertTrue(\method_exists($this->lastLogin, 'getCurrentLoginIp'));
         try {
             $getCurrentLoginIp = $this->reflection->getMethod('getCurrentLoginIp');
-            $getCurrentLoginIp->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             $actual = $getCurrentLoginIp->invoke($this->lastLogin, $user->ID);
             $this->assertIsString($actual);
@@ -107,7 +106,6 @@ class LastLoginTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -119,7 +117,6 @@ class LastLoginTest extends TestCase
         $this->assertTrue(\method_exists($this->lastLogin, 'getLastLogin'));
         try {
             $getLastLogin = $this->reflection->getMethod('getLastLogin');
-            $getLastLogin->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             $actual = $getLastLogin->invoke($this->lastLogin, $user->ID);
             $this->assertIsString($actual);
@@ -135,7 +132,6 @@ class LastLoginTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -147,7 +143,6 @@ class LastLoginTest extends TestCase
         $this->assertTrue(\method_exists($this->lastLogin, 'getCurrentLogin'));
         try {
             $getCurrentLogin = $this->reflection->getMethod('getCurrentLogin');
-            $getCurrentLogin->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             $actual = $getCurrentLogin->invoke($this->lastLogin, $user->ID);
             $this->assertIsString($actual);
@@ -162,7 +157,6 @@ class LastLoginTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -174,7 +168,6 @@ class LastLoginTest extends TestCase
         $this->assertTrue(\method_exists($this->lastLogin, 'showExtraUserFields'));
         try {
             $showExtraUserFields = $this->reflection->getMethod('showExtraUserFields');
-            $showExtraUserFields->setAccessible(true);
             \ob_start();
             $showExtraUserFields->invoke($this->lastLogin, null);
             $actual = \ob_get_clean();
@@ -189,7 +182,6 @@ class LastLoginTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 }

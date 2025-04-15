@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Utilities;
 
@@ -21,9 +23,9 @@ class UserMetaCleanupTest extends TestCase
     /**
      * @var UserMetaCleanup $userMetaCleanup
      */
-    private $userMetaCleanup;
+    private UserMetaCleanup $userMetaCleanup;
 
-    private $user_id;
+    private int|\WP_Error $user_id;
 
     /**
      * Setup.

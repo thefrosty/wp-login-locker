@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
@@ -18,7 +20,7 @@ class EmailNotificationSettingTest extends TestCase
     /**
      * @var EmailNotificationSetting $emailNotificationSetting
      */
-    private $emailNotificationSetting;
+    private EmailNotificationSetting $emailNotificationSetting;
 
     /**
      * Setup.
@@ -62,7 +64,6 @@ class EmailNotificationSettingTest extends TestCase
         $this->assertTrue(\method_exists($this->emailNotificationSetting, 'showExtraUserFields'));
         try {
             $showExtraUserFields = $this->reflection->getMethod('showExtraUserFields');
-            $showExtraUserFields->setAccessible(true);
             \ob_start();
             $showExtraUserFields->invoke($this->emailNotificationSetting, null);
             $actual = \ob_get_clean();
@@ -79,7 +80,6 @@ class EmailNotificationSettingTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 }

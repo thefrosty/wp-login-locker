@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Settings;
 
@@ -78,7 +80,6 @@ class SettingsTest extends TestCase
         $this->assertTrue(\method_exists($this->settings, 'init'));
         try {
             $init = $this->reflection->getMethod('init');
-            $init->setAccessible(true);
             $WpSettingsApi = $this->getMockBuilder(WpSettingsApi::class)
                 ->setConstructorArgs([Settings::factory('2')])
                 ->getMock();
@@ -91,7 +92,6 @@ class SettingsTest extends TestCase
             $init->invoke($this->settings, $SectionManager, $FieldManager, $WpSettingsApi);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -105,7 +105,6 @@ class SettingsTest extends TestCase
             \set_current_screen('dashboard');
             $this->assertTrue(\is_admin());
             $init = $this->reflection->getMethod('init');
-            $init->setAccessible(true);
             $WpSettingsApi = new WpSettingsApi(Settings::factory('2'));
             $init->invoke($this->settings, new SectionManager($WpSettingsApi), new FieldManager(), $WpSettingsApi);
             $getFields = FieldManager::getFields();
@@ -124,7 +123,6 @@ class SettingsTest extends TestCase
             unset($getFields);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -138,7 +136,6 @@ class SettingsTest extends TestCase
             \set_current_screen('dashboard');
             $this->assertTrue(\is_admin());
             $sidebar = $this->reflection->getMethod('sidebar');
-            $sidebar->setAccessible(true);
             \ob_start();
             $sidebar->invoke($this->settings, $this->WpSettingsApi);
             $actual = \ob_get_clean();
@@ -151,7 +148,6 @@ class SettingsTest extends TestCase
             $this->assertStringNotContainsString('Success - test email sent.', $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -164,13 +160,11 @@ class SettingsTest extends TestCase
             \set_current_screen('plugins.php');
             $this->assertTrue(\is_admin());
             $addSettingsLink = $this->reflection->getMethod('addSettingsLink');
-            $addSettingsLink->setAccessible(true);
             $actual = $addSettingsLink->invoke($this->settings, []);
             $this->assertIsArray($actual);
             $this->assertCount(2, $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 }

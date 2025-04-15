@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\WpCore;
 
@@ -17,7 +19,7 @@ class WpSignupTest extends TestCase
     /**
      * @var WpSignup $wpSignup
      */
-    private $wpSignup;
+    private WpSignup $wpSignup;
 
     /**
      * Setup.
@@ -62,7 +64,6 @@ class WpSignupTest extends TestCase
         try {
             $this->wpSignup->getRequest()->request->set('user_name', 'admin');
             $redirectWpSignup = $this->reflection->getMethod('redirectWpSignup');
-            $redirectWpSignup->setAccessible(true);
             try {
                 $redirectWpSignup->invoke($this->wpSignup);
             } catch (\Throwable $exception) {
@@ -71,7 +72,6 @@ class WpSignupTest extends TestCase
             $this->wpSignup->getRequest()->request->remove('user_name');
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 }

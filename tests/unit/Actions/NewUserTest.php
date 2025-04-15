@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Actions;
 
@@ -20,7 +22,7 @@ class NewUserTest extends TestCase
     /**
      * @var NewUser $newUser
      */
-    private $newUser;
+    private NewUser $newUser;
 
     /**
      * Setup.
@@ -64,7 +66,6 @@ class NewUserTest extends TestCase
         $this->assertTrue(\method_exists($this->newUser, 'userRegisterAction'));
         try {
             $userRegisterAction = $this->reflection->getMethod('userRegisterAction');
-            $userRegisterAction->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             $userRegisterAction->invoke($this->newUser, $user->ID);
             $actual = \get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, true);
@@ -72,7 +73,6 @@ class NewUserTest extends TestCase
             $this->deleteUserMeta($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 

@@ -19,7 +19,7 @@ class UserProfileTest extends TestCase
     /**
      * @var UserProfile $userProfile
      */
-    private $userProfile;
+    private UserProfile $userProfile;
 
     /**
      * Setup.
@@ -71,7 +71,6 @@ class UserProfileTest extends TestCase
         $this->assertTrue(\method_exists($this->userProfile, 'doUserProfileAction'));
         try {
             $doUserProfileAction = $this->reflection->getMethod('doUserProfileAction');
-            $doUserProfileAction->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             \ob_start();
             $doUserProfileAction->invoke($this->userProfile, null);
@@ -86,7 +85,6 @@ class UserProfileTest extends TestCase
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -98,34 +96,24 @@ class UserProfileTest extends TestCase
         $this->assertTrue(\method_exists($this->userProfile, 'saveExtraProfileFields'));
         try {
             $getUserMeta = $this->reflection->getMethod('getUserMeta');
-            $getUserMeta->setAccessible(true);
             $fields = $this->reflection->getProperty('fields');
-            $fields->setAccessible(true);
             $key = $fields->getValue($this->userProfile)[0];
             $saveExtraProfileFields = $this->reflection->getMethod('saveExtraProfileFields');
-            $saveExtraProfileFields->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             \wp_set_current_user($user->ID);
-            $this->assertFalse(
-                \in_array(
-                    'value',
-                    $getUserMeta->invoke($this->userProfile, $user->ID, $key),
-                    true
-                )
+            $this->assertNotContains(
+                'value',
+                $getUserMeta->invoke($this->userProfile, $user->ID, $key)
             );
             $this->userProfile->getRequest()->request->set($key, 'value');
             $saveExtraProfileFields->invoke($this->userProfile, $user->ID);
-            $this->assertTrue(
-                \in_array(
-                    'value',
-                    $getUserMeta->invoke($this->userProfile, $user->ID, $key),
-                    true
-                )
+            $this->assertContains(
+                'value',
+                $getUserMeta->invoke($this->userProfile, $user->ID, $key)
             );
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -137,13 +125,11 @@ class UserProfileTest extends TestCase
         $this->assertTrue(\method_exists($this->userProfile, 'saveExtraProfileFields'));
         try {
             $saveExtraProfileFields = $this->reflection->getMethod('saveExtraProfileFields');
-            $saveExtraProfileFields->setAccessible(true);
             $user = self::factory()->user->create_and_get();
             $saveExtraProfileFields->invoke($this->userProfile, $user->ID);
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 }

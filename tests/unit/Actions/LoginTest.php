@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Actions;
 
@@ -33,7 +35,6 @@ class LoginTest extends TestCase
         $this->login->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->login);
         $wp_mail = $this->reflection->getProperty('wp_mail');
-        $wp_mail->setAccessible(true);
         $wp_mail->setValue($this->login, new WpMail());
     }
 
@@ -66,7 +67,6 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'wpLoginAction'));
         try {
             $wpLoginAction = $this->reflection->getMethod('wpLoginAction');
-            $wpLoginAction->setAccessible(true);
             $WP_User = new \WP_User();
             $wpLoginAction->invoke($this->login, $WP_User->user_login, $WP_User);
             $this->assertEquals(1, \did_action(LoginLocker::HOOK_PREFIX . 'wp_login'));
@@ -80,7 +80,6 @@ class LoginTest extends TestCase
             \delete_user_meta($WP_User->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -94,7 +93,6 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'sendTestEmail'));
         try {
             $sendTestEmail = $this->reflection->getMethod('sendTestEmail');
-            $sendTestEmail->setAccessible(true);
             $user = self::factory()->user->create();
             \wp_set_current_user($user);
             \set_current_screen('dashboard');
@@ -116,7 +114,6 @@ class LoginTest extends TestCase
 //            }
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -128,7 +125,6 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'sendTestEmail'));
         try {
             $sendTestEmail = $this->reflection->getMethod('sendTestEmail');
-            $sendTestEmail->setAccessible(true);
             try {
                 $sendTestEmail->invoke($this->login);
             } catch (\Throwable $exception) {
@@ -136,7 +132,6 @@ class LoginTest extends TestCase
             }
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -148,12 +143,10 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'postMetaCleanup'));
         try {
             $postMetaCleanup = $this->reflection->getMethod('postMetaCleanup');
-            $postMetaCleanup->setAccessible(true);
             $WP_User = new \WP_User();
             $this->assertNull($postMetaCleanup->invoke($this->login, $WP_User->ID));
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -165,7 +158,6 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'setProtectedMeta'));
         try {
             $setProtectedMeta = $this->reflection->getMethod('setProtectedMeta');
-            $setProtectedMeta->setAccessible(true);
             $actual = $setProtectedMeta->invoke($this->login, false, 'bad_key');
             $this->assertFalse($actual);
             foreach ([LoginLocker::LAST_LOGIN_IP_META_KEY, LoginLocker::LAST_LOGIN_TIME_META_KEY] as $key) {
@@ -174,7 +166,6 @@ class LoginTest extends TestCase
             }
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -186,15 +177,12 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'getEmailPretext'));
         try {
             $wp_mail = $this->reflection->getProperty('wp_mail');
-            $wp_mail->setAccessible(true);
             $wp_mail->setValue($this->login, new WpMail());
             $getEmailPretext = $this->reflection->getMethod('getEmailPretext');
-            $getEmailPretext->setAccessible(true);
             $actual = $getEmailPretext->invoke($this->login);
             $this->assertIsString($actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -211,7 +199,6 @@ class LoginTest extends TestCase
             $this->assertIsString($actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -223,18 +210,18 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'getUserName'));
         try {
             $getUserName = $this->reflection->getMethod('getUserName');
-            $getUserName->setAccessible(true);
             foreach (
                 [
                     'first_name' => 'First Name',
                     'display_name' => 'Mr. First Name',
                     'user_login' => 'mr_first',
-                ] as $key => $val) {
-
+                ] as $key => $val
+            ) {
                 $user = self::factory()->user->create_and_get([$key => $val]);
                 $actual = $getUserName->invoke($this->login, $user);
-                $this->assertTrue(
-                    \in_array($actual, [$user->first_name, $user->display_name, $user->user_login], true)
+                $this->assertContains(
+                    $actual,
+                    [$user->first_name, $user->display_name, $user->user_login]
                 );
             }
             $user = self::factory()->user->create_and_get();
@@ -244,7 +231,6 @@ class LoginTest extends TestCase
             $this->assertSame($user->user_login, $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 
@@ -256,12 +242,10 @@ class LoginTest extends TestCase
         $this->assertTrue(\method_exists($this->login, 'getHomeUrl'));
         try {
             $getHomeUrl = $this->reflection->getMethod('getHomeUrl');
-            $getHomeUrl->setAccessible(true);
             $actual = $getHomeUrl->invoke($this->login);
             $this->assertIsString($actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
-            $this->markAsRisky();
         }
     }
 }
