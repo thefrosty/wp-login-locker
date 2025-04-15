@@ -26,6 +26,14 @@ class TestCase extends \WP_UnitTestCase
     protected \ReflectionObject $reflection;
 
     /**
+     * @internal Workaround to allow the tests to run on PHPUnit 10.
+     * @link https://core.trac.wordpress.org/ticket/59486
+     */
+    public function expectDeprecated(): void
+    {
+    }
+
+    /**
      * Setup.
      */
     public function setUp(): void
