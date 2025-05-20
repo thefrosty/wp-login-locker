@@ -10,7 +10,7 @@ use TheFrosty\WpLoginLocker\Settings\Settings;
 
 /**
  * Class Login
- * @package BeachbodyOnDemand\WpLogin
+ * @package TheFrosty\WpLoginLocker\Login
  */
 class Login extends AbstractLoginLocker
 {
