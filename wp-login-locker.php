@@ -16,15 +16,18 @@
 
 namespace TheFrosty\WpLoginLocker;
 
-\defined('ABSPATH') || exit;
+defined('ABSPATH') || exit;
 
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
+use function defined;
+use function is_readable;
+use function register_activation_hook;
 
-if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
+if (is_readable(__DIR__ . '/vendor/autoload.php')) {
     include_once __DIR__ . '/vendor/autoload.php';
 }
 
@@ -48,6 +51,6 @@ $plugin
     ->initialize();
 
 require_once 'helpers.php';
-\register_activation_hook(__FILE__, static function () {
+register_activation_hook(__FILE__, static function (): void {
     (new Login\WpLogin())->activate();
 });
