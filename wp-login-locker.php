@@ -5,8 +5,8 @@
  * Author: Austin Passy
  * Author URI: https://austin.passy.co/
  * Version: 2.6.0
- * Requires at least: 6.4
- * Tested up to: 6.7.2
+ * Requires at least: 6.7
+ * Tested up to: 6.8.1
  * Requires PHP: 8.3
  * Plugin URI: https://github.com/thefrosty/wp-login-locker
  * GitHub Plugin URI: https://github.com/thefrosty/wp-login-locker
@@ -16,15 +16,18 @@
 
 namespace TheFrosty\WpLoginLocker;
 
-\defined('ABSPATH') || exit;
+defined('ABSPATH') || exit;
 
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
+use function defined;
+use function is_readable;
+use function register_activation_hook;
 
-if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
+if (is_readable(__DIR__ . '/vendor/autoload.php')) {
     include_once __DIR__ . '/vendor/autoload.php';
 }
 
@@ -48,6 +51,6 @@ $plugin
     ->initialize();
 
 require_once 'helpers.php';
-\register_activation_hook(__FILE__, static function () {
+register_activation_hook(__FILE__, static function (): void {
     (new Login\WpLogin())->activate();
 });
