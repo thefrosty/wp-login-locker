@@ -24,7 +24,6 @@ use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
 use function defined;
-use function get_plugin_data;
 use function is_readable;
 use function register_activation_hook;
 
