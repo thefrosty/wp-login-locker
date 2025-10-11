@@ -52,7 +52,6 @@ jobs:
       matrix:
         php-version: [ "8.3" ]
         wp-versions: [ 'latest' ]
-        coverage: [ true ]
     services:
       mysql:
         image: mysql:8.0
