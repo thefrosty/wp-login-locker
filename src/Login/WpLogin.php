@@ -7,9 +7,9 @@ namespace TheFrosty\WpLoginLocker\Login;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
+use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Api\Hash;
-use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use WP_User;
 use function array_values;
@@ -32,6 +32,7 @@ use function sanitize_email;
 use function sanitize_text_field;
 use function sanitize_user;
 use function setcookie;
+use function sprintf;
 use function str_replace;
 use function strtotime;
 use function TheFrosty\WpLoginLocker\Helpers\terminate;
@@ -124,7 +125,7 @@ class WpLogin extends AbstractLoginLocker
                 $this->setLoginCookie($user, $field);
             }
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
-            // Validate the cookie
+            // Validate the cookie.
             $cookie = $this->decrypt($this->getRequest()->cookies->get(self::COOKIE_NAME), self::ENCRYPTION_KEY);
             if ($cookie === false) {
                 $delete_cookie = true;
@@ -147,7 +148,7 @@ class WpLogin extends AbstractLoginLocker
 
         if (isset($delete_cookie)) {
             // Maybe the user changed their login name or email, delete the cookie.
-            unset($_COOKIE[self::COOKIE_NAME]);
+            unset($_COOKIE[self::COOKIE_NAME]); // phpcs:ignore
             if (!headers_sent()) {
                 setcookie(
                     self::COOKIE_NAME,
@@ -155,7 +156,7 @@ class WpLogin extends AbstractLoginLocker
                     time() - HOUR_IN_SECONDS,
                     COOKIEPATH,
                     COOKIE_DOMAIN,
-                    is_ssl() && 'https' === parse_url(get_option('home'), PHP_URL_SCHEME),
+                    is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
                     true
                 );
             }
@@ -210,7 +211,7 @@ class WpLogin extends AbstractLoginLocker
         $action = filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $status = filter_input(INPUT_GET, 'expass', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        return 'lostpassword' === $action || 'expired' === $status;
+        return $action === 'lostpassword' || $status === 'expired';
     }
 
     /**
@@ -240,7 +241,7 @@ class WpLogin extends AbstractLoginLocker
      */
     private function getCookieValue(string $value): string
     {
-        return $this->encrypt(\sprintf(self::COOKIE_VALUE_S, $value), self::ENCRYPTION_KEY);
+        return $this->encrypt(sprintf(self::COOKIE_VALUE_S, $value), self::ENCRYPTION_KEY);
     }
 
     /**
@@ -262,7 +263,7 @@ class WpLogin extends AbstractLoginLocker
                 strtotime(self::COOKIE_EXPIRE),
                 COOKIEPATH,
                 is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
-                is_ssl() && 'https' === parse_url(get_option('home'), PHP_URL_SCHEME),
+                is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
                 httponly: true
             );
         }
