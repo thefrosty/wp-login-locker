@@ -38,12 +38,14 @@ $plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = static function (): Re
 
 $plugin
     ->add(new Actions\Login())
+    ->add(new Actions\Logout())
     ->add(new Actions\NewUser())
     ->add(new DisablePluginUpdateCheck())
     ->add(new Login\WpLogin())
     ->add(new Settings())
     ->add(new WpCore\WpSignup())
     ->add(new WpSettingsApi(Settings::factory('2.6.0.2')))
+    ->addOnHook(Admin\Menu::class, 'admin_init')
     ->addOnHook(Login\Login::class, 'login_init', 5)
     ->addOnHook(Login\LastLoginColumns::class, 'admin_init', 10, true)
     ->addOnHook(UserProfile\LastLogin::class, 'admin_init', 10, true)
