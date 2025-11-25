@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Login;
 
-use Random\RandomException;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
@@ -249,7 +248,7 @@ class WpLogin extends AbstractLoginLocker
      * Returns an encrypted hash from the incoming value.
      * @param string $value
      * @return string
-     * @throws RandomException
+     * @throws Random\RandomException
      */
     private function getCookieValue(string $value): string
     {

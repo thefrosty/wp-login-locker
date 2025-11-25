@@ -35,6 +35,7 @@ class Menu extends AbstractLoginLocker
 
     /**
      * Register our custom logout action.
+     * phpcs:disable Generic.Files.LineLength.TooLong
      * @param WP_Admin_Bar $wp_admin_bar
      */
     protected function adminBarMenu(WP_Admin_Bar $wp_admin_bar): void
