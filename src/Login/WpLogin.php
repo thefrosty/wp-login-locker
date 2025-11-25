@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Login;
 
+use Random\RandomException;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Api\Hash;
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use WP_User;
 use function array_values;
 use function explode;
@@ -34,7 +34,9 @@ use function sanitize_user;
 use function setcookie;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strtotime;
+use function substr;
 use function TheFrosty\WpLoginLocker\Helpers\terminate;
 use function time;
 use function wp_get_current_user;
@@ -56,7 +58,9 @@ use const PHP_URL_SCHEME;
 class WpLogin extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash, HooksTrait;
+    use GeoUtilTrait, Hash {
+        Hash::getEncryptionKey as hashEncryptionKey;
+    }
 
     public const string AUTH_CHECK_KEY = 'auth_check';
     public const string AUTH_CHECK_IS_ENCRYPTED_KEY = 'auth_encrypted';
@@ -66,6 +70,26 @@ class WpLogin extends AbstractLoginLocker
 
     protected const string ENCRYPTION_DELIMITER = '|';
     private const string ENCRYPTION_KEY = 'WpL0gin' . self::ENCRYPTION_DELIMITER;
+
+    /**
+     * Maybe the user changed their login name, email, or the Hash key has been changed/reset.
+     * Delete our auth cookie.
+     */
+    public static function unsetCookie(): void
+    {
+        unset($_COOKIE[self::COOKIE_NAME]); // phpcs:ignore
+        if (!headers_sent()) {
+            setcookie(
+                self::COOKIE_NAME,
+                '',
+                time() - HOUR_IN_SECONDS,
+                COOKIEPATH,
+                COOKIE_DOMAIN,
+                is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
+                true
+            );
+        }
+    }
 
     /**
      * Add class hooks.
@@ -126,7 +150,7 @@ class WpLogin extends AbstractLoginLocker
             }
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
             // Validate the cookie.
-            $cookie = $this->decrypt($this->getRequest()->cookies->get(self::COOKIE_NAME), self::ENCRYPTION_KEY);
+            $cookie = $this->decrypt($this->getRequest()->cookies->get(self::COOKIE_NAME), $this->getEncryptionKey());
             if ($cookie === false) {
                 $delete_cookie = true;
             }
@@ -147,19 +171,7 @@ class WpLogin extends AbstractLoginLocker
         }
 
         if (isset($delete_cookie)) {
-            // Maybe the user changed their login name or email, delete the cookie.
-            unset($_COOKIE[self::COOKIE_NAME]); // phpcs:ignore
-            if (!headers_sent()) {
-                setcookie(
-                    self::COOKIE_NAME,
-                    '',
-                    time() - HOUR_IN_SECONDS,
-                    COOKIEPATH,
-                    COOKIE_DOMAIN,
-                    is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
-                    true
-                );
-            }
+            self::unsetCookie();
         }
 
         if (!$has_auth) {
@@ -234,14 +246,26 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
-     * Returns a encrypted hash from the incoming value and our defined
-     * class COOKIE_VALUE.
+     * Returns an encrypted hash from the incoming value.
      * @param string $value
      * @return string
+     * @throws RandomException
      */
     private function getCookieValue(string $value): string
     {
-        return $this->encrypt(sprintf(self::COOKIE_VALUE_S, $value), self::ENCRYPTION_KEY);
+        return $this->encrypt(sprintf(self::COOKIE_VALUE_S, $value), $this->getEncryptionKey());
+    }
+
+    /**
+     * Gets the sites encryption key. This value is dynamically set into the DB.
+     * @return string a 32 character encryption key.
+     */
+    private function getEncryptionKey(): string
+    {
+        $key = self::hashEncryptionKey();
+        [$prefix] = explode(self::ENCRYPTION_DELIMITER, $key);
+
+        return sprintf('%s%s%s', $prefix, substr($key, 0, -(strlen($prefix) + 1)), self::ENCRYPTION_DELIMITER);
     }
 
     /**
@@ -270,7 +294,7 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
-     * Activation method to add the meta data to the current user.
+     * Activation method to add the metadata to the current user.
      */
     private function addDefaultUserMeta(): void
     {
