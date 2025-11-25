@@ -15,6 +15,7 @@ use WP_User;
 use function array_values;
 use function explode;
 use function filter_input;
+use function filter_var;
 use function get_current_user_id;
 use function get_option;
 use function get_user_by;
@@ -35,11 +36,14 @@ use function str_replace;
 use function strtotime;
 use function TheFrosty\WpLoginLocker\Helpers\terminate;
 use function time;
+use function wp_get_current_user;
 use function wp_unslash;
 use function wp_verify_nonce;
 use const COOKIE_DOMAIN;
 use const COOKIEPATH;
 use const FILTER_SANITIZE_FULL_SPECIAL_CHARS;
+use const FILTER_VALIDATE_BOOL;
+use const HOUR_IN_SECONDS;
 use const PHP_URL_HOST;
 use const PHP_URL_SCHEME;
 
@@ -77,7 +81,7 @@ class WpLogin extends AbstractLoginLocker
     public function activate(): void
     {
         if (is_user_logged_in()) {
-            $this->setLoginCookie(\wp_get_current_user(), 'user_email');
+            $this->setLoginCookie(wp_get_current_user(), 'user_email');
             $this->addDefaultUserMeta();
         }
     }
@@ -85,7 +89,6 @@ class WpLogin extends AbstractLoginLocker
     /**
      * This method, called on `login_init` validates the user and allows or
      * denys access to the wp-login.php page.
-     *
      * If the $_GET variable defined as a class const is set and that value
      * is a valid user on the site, set a cookie and allow them to access the login
      * form. Otherwise, send them a fake html without the login form.
@@ -105,7 +108,7 @@ class WpLogin extends AbstractLoginLocker
 
         $has_auth = false;
         if ($query->has(self::AUTH_CHECK_KEY) && !empty($query->get(self::AUTH_CHECK_KEY))) {
-            $encrypted = \filter_var($query->get(self::AUTH_CHECK_IS_ENCRYPTED_KEY), \FILTER_VALIDATE_BOOL);
+            $encrypted = filter_var($query->get(self::AUTH_CHECK_IS_ENCRYPTED_KEY), FILTER_VALIDATE_BOOL);
             $value = $encrypted === false ?
                 $query->get(self::AUTH_CHECK_KEY) :
                 $this->decrypt($query->get(self::AUTH_CHECK_KEY), home_url());
@@ -123,7 +126,13 @@ class WpLogin extends AbstractLoginLocker
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
             // Validate the cookie
             $cookie = $this->decrypt($this->getRequest()->cookies->get(self::COOKIE_NAME), self::ENCRYPTION_KEY);
-            [, $cookie_value] = explode(self::ENCRYPTION_DELIMITER, $cookie);
+            if ($cookie === false) {
+                $delete_cookie = true;
+            }
+            [, $cookie_value] = explode(
+                self::ENCRYPTION_DELIMITER,
+                $cookie !== false ? $cookie : self::ENCRYPTION_DELIMITER
+            );
             if (!empty($cookie_value)) {
                 [$user] = array_values(
                     $this->getUserBy($cookie_value)
@@ -131,20 +140,24 @@ class WpLogin extends AbstractLoginLocker
                 if ($user instanceof WP_User) {
                     $has_auth = true;
                 } else {
-                    // Maybe the user changed their login name or email, delete the cookie.
-                    unset($_COOKIE[self::COOKIE_NAME]);
-                    if (!headers_sent()) {
-                        setcookie(
-                            self::COOKIE_NAME,
-                            '',
-                            time() - \HOUR_IN_SECONDS,
-                            COOKIEPATH,
-                            COOKIE_DOMAIN,
-                            is_ssl() && 'https' === parse_url(get_option('home'), PHP_URL_SCHEME),
-                            true
-                        );
-                    }
+                    $delete_cookie = true;
                 }
+            }
+        }
+
+        if (isset($delete_cookie)) {
+            // Maybe the user changed their login name or email, delete the cookie.
+            unset($_COOKIE[self::COOKIE_NAME]);
+            if (!headers_sent()) {
+                setcookie(
+                    self::COOKIE_NAME,
+                    '',
+                    time() - HOUR_IN_SECONDS,
+                    COOKIEPATH,
+                    COOKIE_DOMAIN,
+                    is_ssl() && 'https' === parse_url(get_option('home'), PHP_URL_SCHEME),
+                    true
+                );
             }
         }
 
@@ -157,9 +170,7 @@ class WpLogin extends AbstractLoginLocker
      * Replace the custom message HTML created from the Expire Passwords plugin.
      * Replaces the line break and empty paragraph tag with the default p.message entity.
      * Called on a priority higher than `lost_password_message` of 10.
-     *
      * @param string $message
-     *
      * @return string
      */
     protected function lostPasswordMessage($message): string
@@ -192,7 +203,6 @@ class WpLogin extends AbstractLoginLocker
 
     /**
      * Is the current URL a lost password or expired request?
-     *
      * @return bool
      */
     private function isLostPassOrExpired(): bool
@@ -205,9 +215,7 @@ class WpLogin extends AbstractLoginLocker
 
     /**
      * Helper to return an array of user data and the flag type used.
-     *
      * @param string $input Incoming user credentials, email or login.
-     *
      * @return array An array of user: WP_User object of false, and the field type flag for the
      *     WP_User object data.
      */
@@ -227,9 +235,7 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Returns a encrypted hash from the incoming value and our defined
      * class COOKIE_VALUE.
-     *
      * @param string $value
-     *
      * @return string
      */
     private function getCookieValue(string $value): string
@@ -239,7 +245,6 @@ class WpLogin extends AbstractLoginLocker
 
     /**
      * Set's the user login cookie.
-     *
      * @param WP_User $user WP_User object.
      * @param string $field WP_User object property field.
      */
