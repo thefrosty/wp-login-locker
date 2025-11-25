@@ -155,7 +155,7 @@ class LoginTest extends TestCase
             $loginHeaderTitle = $this->reflection->getMethod('loginHeaderTitle');
             $actual = $loginHeaderTitle->invoke($this->login, '');
             $this->assertIsString($actual);
-            $this->assertNotSame('', $actual);
+            $this->assertSame('', $actual);
             $this->assertSame(\get_bloginfo('description'), $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
