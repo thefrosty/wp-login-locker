@@ -57,21 +57,12 @@
     }
   },
   "scripts": {
-    "install-codestandards": [
-      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
-    ],
-    "phpcs": [
-      "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh --standard=phpcs-ruleset.xml"
-    ],
-    "phpmd": [
-      "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh"
-    ],
-    "phpunit": [
-      "./vendor/bin/phpunit --colors --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 85"
-    ],
-    "eslint": [
-      "npm run eslint"
-    ],
+    "install-codestandards": "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run",
+    "phpcs": "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh --standard=phpcs-ruleset.xml",
+    "phpmd": "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh",
+    "phpunit": "./vendor/bin/phpunit --colors",
+    "phpunit:coverage": "./vendor/bin/phpunit --colors --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 85",
+    "eslint": "npm run eslint",
     "tests": [
       "@phpcs",
       "@phpunit",
