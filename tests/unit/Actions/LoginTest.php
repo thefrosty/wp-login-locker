@@ -7,10 +7,13 @@ namespace TheFrosty\Tests\WpLoginLocker\Actions;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\UsesClass;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
 /**
@@ -19,6 +22,9 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
  */
 #[CoversClass(Login::class)]
 #[Group('actions')]
+#[UsesClass(NewUser::class)]
+#[UsesClass(UserMetaCleanup::class)]
+#[UsesClass(WpMail::class)]
 class LoginTest extends TestCase
 {
 

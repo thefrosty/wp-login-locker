@@ -28,9 +28,11 @@
     "ext-openssl": "*",
     "composer/installers": "~2.0",
     "dwnload/wp-settings-api": "^3.10",
+    "oscarotero/env": "^2.1",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^7.3.7",
-    "thefrosty/wp-utilities": "^3.8.6.3"
+    "thefrosty/wp-utilities": "^3.8.7",
+    "vlucas/phpdotenv": "^5.6"
   },
   "require-dev": {
     "ext-simplexml": "*",
@@ -57,21 +59,12 @@
     }
   },
   "scripts": {
-    "install-codestandards": [
-      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
-    ],
-    "phpcs": [
-      "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh --standard=phpcs-ruleset.xml"
-    ],
-    "phpmd": [
-      "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh"
-    ],
-    "phpunit": [
-      "./vendor/bin/phpunit --colors --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 85"
-    ],
-    "eslint": [
-      "npm run eslint"
-    ],
+    "install-codestandards": "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run",
+    "phpcs": "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh --standard=phpcs-ruleset.xml",
+    "phpmd": "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh",
+    "phpunit": "./vendor/bin/phpunit --colors",
+    "phpunit:coverage": "./vendor/bin/phpunit --colors --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 70",
+    "eslint": "npm run eslint",
     "tests": [
       "@phpcs",
       "@phpunit",

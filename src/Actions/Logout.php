@@ -7,8 +7,10 @@ namespace TheFrosty\WpLoginLocker\Actions;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use function Env\env;
 use function esc_html__;
 use function sprintf;
+use function TheFrosty\WpUtilities\exitOrThrow;
 use function wp_login_url;
 use function wp_safe_redirect;
 use function wp_verify_nonce;
@@ -40,13 +42,13 @@ class Logout extends AbstractLoginLocker
             $query->has(Login::ADMIN_ACTION_NONCE) &&
             wp_verify_nonce(
                 $query->get(Login::ADMIN_ACTION_NONCE),
-                sprintf(self::ACTION_S, $query->has('user_id'))
+                sprintf(self::ACTION_S, $query->get('user_id'))
             ) !== false
         ) {
             WpLogin::unsetCookie();
             wp_logout();
             wp_safe_redirect(add_query_arg(self::ACTION, '1', wp_login_url()));
-            exit;
+            exitOrThrow(env('IS_PHPUNIT__TEST'));
         }
     }
 

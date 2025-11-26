@@ -92,10 +92,11 @@ jobs:
       - name: Run PHPUnit
         continue-on-error: false
         id: phpunit
-        run: composer phpunit
+        run: composer phpunit:coverage
         env:
           CHANGED_FILES: ${{ steps.ci-setup.outputs.files }}
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          IS_PHPUNIT__TEST: ${{ true }}
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'pull_request' }}
