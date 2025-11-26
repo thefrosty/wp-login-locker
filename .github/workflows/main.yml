@@ -92,7 +92,7 @@ jobs:
       - name: Run PHPUnit
         continue-on-error: false
         id: phpunit
-        run: composer phpunit
+        run: composer phpunit:coverage
         env:
           CHANGED_FILES: ${{ steps.ci-setup.outputs.files }}
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
