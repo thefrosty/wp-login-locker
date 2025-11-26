@@ -15,7 +15,6 @@ use TheFrosty\WpLoginLocker\Actions\Logout;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpUtilities\Exceptions\TerminationException;
-use function get_current_user_id;
 use function is_admin;
 use function method_exists;
 use function set_current_screen;
