@@ -96,6 +96,7 @@ jobs:
         env:
           CHANGED_FILES: ${{ steps.ci-setup.outputs.files }}
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
+          IS_PHPUNIT__TEST: ${{ true }}
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'pull_request' }}
