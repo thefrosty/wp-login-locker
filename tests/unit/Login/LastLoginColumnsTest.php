@@ -4,10 +4,13 @@ namespace TheFrosty\Tests\WpLoginLocker\Login;
 
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\LastLoginColumns;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 
 /**
  * Class Login
@@ -41,6 +44,8 @@ class LastLoginColumnsTest extends TestCase
     /**
      * Test addHooks(). With user cap
      */
+    #[CoversClass(NewUser::class)]
+    #[CoversTrait(GeoUtilTrait::class)]
     public function testAddHooks(): void
     {
         $this->assertTrue(\method_exists($this->lastLoginColumns, 'addHooks'));
@@ -86,6 +91,8 @@ class LastLoginColumnsTest extends TestCase
     /**
      * Test manageUsersCustomColumn().
      */
+    #[CoversClass(NewUser::class)]
+    #[CoversTrait(GeoUtilTrait::class)]
     public function testManageUsersCustomColumn(): void
     {
         $this->assertTrue(\method_exists($this->lastLoginColumns, 'manageUsersCustomColumn'));

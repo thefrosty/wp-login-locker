@@ -49,6 +49,7 @@ class LoginTest extends TestCase
     /**
      * Test addHooks().
      */
+    #[CoversClass(WpMail::class)]
     public function testAddHooks(): void
     {
         $this->assertTrue(\method_exists($this->login, 'addHooks'));
@@ -86,8 +87,6 @@ class LoginTest extends TestCase
 
     /**
      * Test sendTestEmail().
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
      */
     public function testSendTestEmail(): void
     {

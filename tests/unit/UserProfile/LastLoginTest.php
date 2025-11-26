@@ -6,11 +6,14 @@ namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 
 /**
  * Class LastLoginTest
@@ -18,6 +21,8 @@ use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
  * @group user-profile
  */
 #[CoversClass(LastLogin::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
 #[Group('user-profile')]
 class LastLoginTest extends TestCase
 {

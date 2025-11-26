@@ -6,9 +6,12 @@ namespace TheFrosty\Tests\WpLoginLocker\Utilities;
 
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use WP_Error;
 
@@ -17,6 +20,8 @@ use WP_Error;
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  */
 #[CoversClass(UserMetaCleanup::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
 #[Group('utilities')]
 class UserMetaCleanupTest extends TestCase
 {

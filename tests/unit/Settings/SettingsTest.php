@@ -11,11 +11,14 @@ use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use WP_User;
 
 /**
@@ -23,6 +26,8 @@ use WP_User;
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  */
 #[CoversClass(Settings::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
 #[Group('settings')]
 class SettingsTest extends TestCase
 {

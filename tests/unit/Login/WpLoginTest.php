@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
 
@@ -124,6 +125,7 @@ class WpLoginTest extends TestCase
     /**
      * Test loginAuthCheck(). With auth check query key
      */
+    #[CoversClass(NewUser::class)]
     public function testLoginAuthCheckWithAuthKey(): void
     {
         $this->assertTrue(\method_exists($this->wpLogin, 'loginAuthCheck'));

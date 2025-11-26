@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use TheFrosty\WpLoginLocker\LoginLocker;
-use PHPUnit\Framework\TestCase;
+use function array_values;
 
 /**
  * Class LoginLockerTest
  * @package TheFrosty\Tests\WpLoginLocker
  */
+#[CoversClass(LoginLocker::class)]
 class LoginLockerTest extends TestCase
 {
 
@@ -47,24 +49,8 @@ class LoginLockerTest extends TestCase
             LoginLocker::WP_LOGIN,
             LoginLocker::CONTAINER_GITHUB_ARGS,
         ];
-        $constants = $this->getReflection()->getConstants();
+        $constants = $this->getReflection($this->login_locker)->getConstants();
         $this->assertNotEmpty($constants);
-        $this->assertSame($expected, \array_values($constants));
-    }
-
-    /**
-     * Gets an instance of the \ReflectionObject.
-     *
-     * @return \ReflectionObject
-     */
-    private function getReflection(): \ReflectionObject
-    {
-        static $reflector;
-
-        if (!($reflector instanceof \ReflectionObject)) {
-            $reflector = new \ReflectionObject($this->login_locker);
-        }
-
-        return $reflector;
+        $this->assertSame($expected, array_values($constants));
     }
 }
