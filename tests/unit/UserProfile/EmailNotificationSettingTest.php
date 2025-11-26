@@ -6,17 +6,22 @@ namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\UserProfile\EmailNotificationSetting;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 
 /**
  * Class WpSignupTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  */
 #[CoversClass(EmailNotificationSetting::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
 #[Group('user-profile')]
 class EmailNotificationSettingTest extends TestCase
 {

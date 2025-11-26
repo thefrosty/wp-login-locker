@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
-use Dwnload\WpSettingsApi\Api\Options;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\Login;
+use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\Settings\Settings;
+use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
 #[CoversClass(Login::class)]
+#[CoversClass(NewUser::class)]
+#[CoversClass(UserMetaCleanup::class)]
+#[CoversClass(WpLogin::class)]
 #[Group('login')]
 class LoginTest extends TestCase
 {
