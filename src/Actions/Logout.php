@@ -7,14 +7,17 @@ namespace TheFrosty\WpLoginLocker\Actions;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpUtilities\Exceptions\TerminationException;
 use function Env\env;
 use function esc_html__;
+use function filter_var;
 use function sprintf;
 use function TheFrosty\WpUtilities\exitOrThrow;
 use function wp_login_url;
 use function wp_safe_redirect;
 use function wp_verify_nonce;
 use const FILTER_VALIDATE_BOOL;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Class Login
@@ -35,6 +38,10 @@ class Logout extends AbstractLoginLocker
         $this->addFilter(LoginLocker::HOOK_PREFIX . 'wp-login/message', [$this, 'message']);
     }
 
+    /**
+     * Maybe log out?
+     * @throws TerminationException
+     */
     protected function maybeLogout(): void
     {
         $query = $this->getRequest()->query;
@@ -48,7 +55,7 @@ class Logout extends AbstractLoginLocker
             WpLogin::unsetCookie();
             wp_logout();
             wp_safe_redirect(add_query_arg(self::ACTION, '1', wp_login_url()));
-            exitOrThrow(env('IS_PHPUNIT__TEST'));
+            exitOrThrow(filter_var(env('IS_PHPUNIT__TEST'), FILTER_VALIDATE_BOOLEAN));
         }
     }
 
