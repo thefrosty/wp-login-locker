@@ -10,7 +10,6 @@ use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\Login;
-use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 
@@ -19,9 +18,6 @@ use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
 #[CoversClass(Login::class)]
-#[CoversClass(NewUser::class)]
-#[CoversClass(UserMetaCleanup::class)]
-#[CoversClass(WpLogin::class)]
 #[Group('login')]
 class LoginTest extends TestCase
 {
