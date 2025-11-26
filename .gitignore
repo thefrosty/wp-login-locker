@@ -2,6 +2,7 @@
 /.idea
 tests/results/
 node_modules/
+tests/.phpunit.cache
 tests/clover.xml
 /wordpress
 /vendor
