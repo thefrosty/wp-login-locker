@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker;
 
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionObject;
 use TheFrosty\WpUtilities\Plugin\Container;
@@ -32,6 +33,13 @@ class TestCase extends \WP_UnitTestCase
      */
     public function expectDeprecated(): void
     {
+    }
+
+    /**
+     * Fix for PHPUnit >= 11.
+     */
+    #[Override]
+    protected function checkRequirements() {
     }
 
     /**
