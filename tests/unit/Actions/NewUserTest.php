@@ -4,24 +4,21 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Actions;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
-use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
-use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
 /**
  * Class NewUserTest
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group actions
  */
+#[CoversClass(NewUser::class)]
+#[Group('actions')]
 class NewUserTest extends TestCase
 {
-
-    /**
-     * @var NewUser $newUser
-     */
     private NewUser $newUser;
 
     /**

@@ -4,33 +4,36 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Utilities;
 
-use Symfony\Component\HttpFoundation\Request;
+use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
-use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
-use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
+use WP_Error;
 
 /**
  * Class UserMetaCleanupTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
- * @group utilities
  */
+#[CoversClass(UserMetaCleanup::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
+#[Group('utilities')]
 class UserMetaCleanupTest extends TestCase
 {
 
-    /**
-     * @var UserMetaCleanup $userMetaCleanup
-     */
     private UserMetaCleanup $userMetaCleanup;
 
-    private int|\WP_Error $user_id;
+    private int|WP_Error $user_id;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -41,7 +44,7 @@ class UserMetaCleanupTest extends TestCase
         $this->userMetaCleanup = new UserMetaCleanup($this->user_id);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         \delete_user_meta($this->user_id, LoginLocker::LAST_LOGIN_IP_META_KEY);

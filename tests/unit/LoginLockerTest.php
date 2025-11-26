@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker;
 
+use PHPUnit\Framework\Attributes\CoversNothing;
 use TheFrosty\WpLoginLocker\LoginLocker;
-use PHPUnit\Framework\TestCase;
+use function array_values;
 
 /**
  * Class LoginLockerTest
  * @package TheFrosty\Tests\WpLoginLocker
  */
+#[CoversNothing]
 class LoginLockerTest extends TestCase
 {
 
-    /**
-     * @var LoginLocker $login_locker
-     */
-    private $login_locker;
+    private LoginLocker $login_locker;
 
     /**
      * Setup.
@@ -36,7 +35,7 @@ class LoginLockerTest extends TestCase
     /**
      * Test class has constants.
      */
-    public function testConstants()
+    public function testConstants(): void
     {
         $expected = [
             LoginLocker::HOOK_PREFIX,
@@ -50,24 +49,8 @@ class LoginLockerTest extends TestCase
             LoginLocker::WP_LOGIN,
             LoginLocker::CONTAINER_GITHUB_ARGS,
         ];
-        $constants = $this->getReflection()->getConstants();
+        $constants = $this->getReflection($this->login_locker)->getConstants();
         $this->assertNotEmpty($constants);
-        $this->assertSame($expected, \array_values($constants));
-    }
-
-    /**
-     * Gets an instance of the \ReflectionObject.
-     *
-     * @return \ReflectionObject
-     */
-    private function getReflection(): \ReflectionObject
-    {
-        static $reflector;
-
-        if (!($reflector instanceof \ReflectionObject)) {
-            $reflector = new \ReflectionObject($this->login_locker);
-        }
-
-        return $reflector;
+        $this->assertSame($expected, array_values($constants));
     }
 }

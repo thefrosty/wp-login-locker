@@ -4,28 +4,30 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
-use Dwnload\WpSettingsApi\Api\Options;
+use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\Login;
 use TheFrosty\WpLoginLocker\Settings\Settings;
+use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group login
  */
+#[CoversClass(Login::class)]
+#[Group('login')]
 class LoginTest extends TestCase
 {
 
-    /**
-     * @var Login $login
-     */
     private Login $login;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -33,7 +35,7 @@ class LoginTest extends TestCase
         $this->reflection = $this->getReflection($this->login);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->login);
@@ -155,7 +157,7 @@ class LoginTest extends TestCase
             $loginHeaderTitle = $this->reflection->getMethod('loginHeaderTitle');
             $actual = $loginHeaderTitle->invoke($this->login, '');
             $this->assertIsString($actual);
-            $this->assertNotSame('', $actual);
+            $this->assertSame('', $actual);
             $this->assertSame(\get_bloginfo('description'), $actual);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);

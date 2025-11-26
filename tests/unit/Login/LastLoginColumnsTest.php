@@ -2,27 +2,33 @@
 
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
+use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\LastLoginColumns;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group login
  */
+#[CoversClass(LastLoginColumns::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
+#[Group('login')]
 class LastLoginColumnsTest extends TestCase
 {
 
-    /**
-     * @var LastLoginColumns $lastLoginColumns
-     */
     private LastLoginColumns $lastLoginColumns;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -30,7 +36,7 @@ class LastLoginColumnsTest extends TestCase
         $this->reflection = $this->getReflection($this->lastLoginColumns);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->lastLoginColumns);

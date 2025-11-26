@@ -1,8 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker;
 
+use Override;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionObject;
 use TheFrosty\WpUtilities\Plugin\Container;
 use TheFrosty\WpUtilities\Plugin\Plugin;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
@@ -14,16 +18,14 @@ use TheFrosty\WpUtilities\Plugin\PluginFactory;
 class TestCase extends \WP_UnitTestCase
 {
 
-    public const METHOD_ADD_FILTER = 'addFilter';
+    public const string METHOD_ADD_FILTER = 'addFilter';
 
     /** @var Container $container */
     protected $container;
 
-    /** @var Plugin $plugin */
     protected Plugin $plugin;
 
-    /** @var \ReflectionObject $reflection */
-    protected \ReflectionObject $reflection;
+    protected ReflectionObject $reflection;
 
     /**
      * @internal Workaround to allow the tests to run on PHPUnit 10.
@@ -31,6 +33,13 @@ class TestCase extends \WP_UnitTestCase
      */
     public function expectDeprecated(): void
     {
+    }
+
+    /**
+     * Fix for PHPUnit >= 11.
+     */
+    #[Override]
+    protected function checkRequirements() {
     }
 
     /**
@@ -57,17 +66,17 @@ class TestCase extends \WP_UnitTestCase
     /**
      * Gets an instance of the \ReflectionObject.
      * @param object $argument
-     * @return \ReflectionObject
+     * @return ReflectionObject
      */
-    protected function getReflection(object $argument): \ReflectionObject
+    protected function getReflection(object $argument): ReflectionObject
     {
         static $reflector;
 
         if (
             !isset($reflector[$argument::class]) ||
-            !($reflector[$argument::class] instanceof \ReflectionObject)
+            !($reflector[$argument::class] instanceof ReflectionObject)
         ) {
-            $reflector[$argument::class] = new \ReflectionObject($argument);
+            $reflector[$argument::class] = new ReflectionObject($argument);
         }
 
         return $reflector[$argument::class];

@@ -4,28 +4,35 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
+use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 
 /**
  * Class LastLoginTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  * @group user-profile
  */
+#[CoversClass(LastLogin::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
+#[Group('user-profile')]
 class LastLoginTest extends TestCase
 {
 
-    /**
-     * @var LastLogin $lastLogin
-     */
     private LastLogin $lastLogin;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -35,7 +42,7 @@ class LastLoginTest extends TestCase
         $this->reflection = $this->getReflection($this->lastLogin);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->lastLogin);

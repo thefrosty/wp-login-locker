@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Utilities;
 
+use Override;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
@@ -13,17 +16,15 @@ use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 /**
  * Class GeoUtilTraitTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
- * @group utilities
  */
+#[CoversTrait(GeoUtilTrait::class)]
+#[Group('utilities')]
 class GeoUtilTraitTest extends TestCase
 {
 
     private $class;
 
-    /**
-     * Setup.
-     */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -33,7 +34,7 @@ class GeoUtilTraitTest extends TestCase
         $this->class->setRequest(Request::createFromGlobals());
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->class);

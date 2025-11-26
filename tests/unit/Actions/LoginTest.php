@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Actions;
 
+use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
@@ -13,20 +16,18 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group actions
  */
+#[CoversClass(Login::class)]
+#[Group('actions')]
 class LoginTest extends TestCase
 {
 
-    /**
-     * @var Login $login
-     */
     private Login $login;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -38,7 +39,7 @@ class LoginTest extends TestCase
         $wp_mail->setValue($this->login, new WpMail());
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->login);
@@ -85,36 +86,23 @@ class LoginTest extends TestCase
 
     /**
      * Test sendTestEmail().
-     * @runInSeparateProcess
-     * @preserveGlobalState disabled
      */
     public function testSendTestEmail(): void
     {
         $this->assertTrue(\method_exists($this->login, 'sendTestEmail'));
-        try {
-            $sendTestEmail = $this->reflection->getMethod('sendTestEmail');
-            $user = self::factory()->user->create();
-            \wp_set_current_user($user);
-            \set_current_screen('dashboard');
-            $this->assertTrue(\is_admin());
-            $query = $this->login->getRequest()->query;
-            $nonce = \wp_create_nonce(Login::ADMIN_ACTION_SEND_EMAIL);
-            $query->set('action', Login::ADMIN_ACTION_SEND_EMAIL);
-            $query->set(Login::ADMIN_ACTION_NONCE, $nonce);
-            $_GET['action'] = Login::ADMIN_ACTION_SEND_EMAIL;
-            $_GET[Login::ADMIN_ACTION_NONCE] = $nonce;
-            $this->assertNotSame(0, $user);
-            $this->assertEquals($nonce, $query->get(Login::ADMIN_ACTION_NONCE));
-            $this->assertIsInt(\wp_verify_nonce($nonce, Login::ADMIN_ACTION_SEND_EMAIL));
-//            $this->markTestSkipped('Skipped to avoid exit;');
-//            try {
-//                $sendTestEmail->invoke($this->login);
-//            } catch (\Throwable $exception) {
-//                $this->assertInstanceOf(\WPDieException::class, $exception);
-//            }
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
-        }
+        $user = self::factory()->user->create();
+        \wp_set_current_user($user);
+        \set_current_screen('dashboard');
+        $this->assertTrue(\is_admin());
+        $query = $this->login->getRequest()->query;
+        $nonce = \wp_create_nonce(Login::ADMIN_ACTION_SEND_EMAIL);
+        $query->set('action', Login::ADMIN_ACTION_SEND_EMAIL);
+        $query->set(Login::ADMIN_ACTION_NONCE, $nonce);
+        $_GET['action'] = Login::ADMIN_ACTION_SEND_EMAIL;
+        $_GET[Login::ADMIN_ACTION_NONCE] = $nonce;
+        $this->assertNotSame(0, $user);
+        $this->assertEquals($nonce, $query->get(Login::ADMIN_ACTION_NONCE));
+        $this->assertIsInt(\wp_verify_nonce($nonce, Login::ADMIN_ACTION_SEND_EMAIL));
     }
 
     /**

@@ -9,31 +9,37 @@ use Dwnload\WpSettingsApi\Settings\FieldManager;
 use Dwnload\WpSettingsApi\Settings\FieldTypes;
 use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
+use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversTrait;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
+use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
+use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
+use WP_User;
 
 /**
  * Class SettingsTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
- * @group settings
  */
+#[CoversClass(Settings::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
+#[Group('settings')]
 class SettingsTest extends TestCase
 {
 
-    /**
-     * @var Settings $settings
-     */
     private Settings $settings;
 
-    /** @var \WP_User $user */
-    private \WP_User $user;
+    private WP_User $user;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -46,7 +52,7 @@ class SettingsTest extends TestCase
         \wp_set_current_user($this->user->ID);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->settings, $this->WpSettingsApi, $this->user);
