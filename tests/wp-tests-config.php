@@ -2,7 +2,15 @@
 
 declare(strict_types=1);
 
+use function Env\env;
+
 require_once dirname(__DIR__) . '/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createUnsafeImmutable(__DIR__);
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv->safeLoad();
+    $dotenv->required(['WORDPRESS_DB_USER', 'WORDPRESS_DB_PASS', 'WORDPRESS_DB_HOST']);
+}
+
 /* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
 define('ABSPATH', dirname(__DIR__) . '/wordpress/');
 
@@ -34,10 +42,10 @@ define('WP_DEBUG', true);
 // These tests will DROP ALL TABLES in the database with the prefix named below.
 // DO NOT use a production database or one that is shared with something else.
 
-define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'wordpress_test');
-define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'wp');
-define('DB_PASSWORD', getenv('WORDPRESS_DB_PASS') ?: 'password');
-define('DB_HOST', getenv('WORDPRESS_DB_HOST') ?: '127.0.0.1');
+define('DB_NAME', env('WORDPRESS_DB_NAME') ?? 'wordpress_test');
+define('DB_USER', env('WORDPRESS_DB_USER') ?? 'wp');
+define('DB_PASSWORD', env('WORDPRESS_DB_PASS') ?? 'password');
+define('DB_HOST', env('WORDPRESS_DB_HOST') ?? '127.0.0.1');
 define('DB_CHARSET', 'utf8mb4');
 define('DB_COLLATE', '');
 
@@ -59,6 +67,7 @@ define('NONCE_SALT', 'L3.( +bK+PG[7C{YkXLZlg]SBCLx[5&s3PPV]x)AZ-1!$y%-#SDNt#,T<~
 
 $table_prefix = 'wptests_';
 
+define('WP_ENVIRONMENT_TYPE', 'local');
 define('WP_TESTS_DOMAIN', 'example.org');
 define('WP_TESTS_EMAIL', 'admin@example.org');
 define('WP_TESTS_TITLE', 'Test Blog');
