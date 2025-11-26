@@ -7,7 +7,6 @@ namespace TheFrosty\WpLoginLocker\Actions;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
-use TheFrosty\WpUtilities\Exceptions\TerminationException;
 use function Env\env;
 use function esc_html__;
 use function filter_var;
@@ -40,7 +39,7 @@ class Logout extends AbstractLoginLocker
 
     /**
      * Maybe log out?
-     * @throws TerminationException
+     * @throws \TheFrosty\WpUtilities\Exceptions\TerminationException
      */
     protected function maybeLogout(): void
     {
