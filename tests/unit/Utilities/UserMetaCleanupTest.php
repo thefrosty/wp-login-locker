@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace TheFrosty\Tests\WpLoginLocker\Utilities;
 
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
@@ -16,6 +16,7 @@ use WP_Error;
  * Class UserMetaCleanupTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  */
+#[CoversClass(UserMetaCleanup::class)]
 #[Group('utilities')]
 class UserMetaCleanupTest extends TestCase
 {

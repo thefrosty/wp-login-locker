@@ -3,6 +3,7 @@
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\LastLoginColumns;
@@ -12,6 +13,7 @@ use TheFrosty\WpLoginLocker\LoginLocker;
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
+#[CoversClass(LastLoginColumns::class)]
 #[Group('login')]
 class LastLoginColumnsTest extends TestCase
 {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
@@ -15,6 +16,7 @@ use TheFrosty\WpLoginLocker\LoginLocker;
  * Class WpLoginTest
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
+#[CoversClass(WpLogin::class)]
 #[Group('login')]
 class WpLoginTest extends TestCase
 {

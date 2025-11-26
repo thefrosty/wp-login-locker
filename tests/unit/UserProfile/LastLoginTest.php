@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
@@ -16,6 +17,7 @@ use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  * @group user-profile
  */
+#[CoversClass(LastLogin::class)]
 #[Group('user-profile')]
 class LastLoginTest extends TestCase
 {

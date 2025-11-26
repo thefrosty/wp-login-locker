@@ -10,23 +10,26 @@ use Dwnload\WpSettingsApi\Settings\FieldTypes;
 use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
+use WP_User;
 
 /**
  * Class SettingsTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  */
+#[CoversClass(Settings::class)]
 #[Group('settings')]
 class SettingsTest extends TestCase
 {
 
     private Settings $settings;
 
-    private \WP_User $user;
+    private WP_User $user;
 
     /**
      * Setup.

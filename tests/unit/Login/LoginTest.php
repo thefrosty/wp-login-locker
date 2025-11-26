@@ -6,6 +6,7 @@ namespace TheFrosty\Tests\WpLoginLocker\Login;
 
 use Dwnload\WpSettingsApi\Api\Options;
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\Login;
@@ -15,6 +16,7 @@ use TheFrosty\WpLoginLocker\Settings\Settings;
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
+#[CoversClass(Login::class)]
 #[Group('login')]
 class LoginTest extends TestCase
 {

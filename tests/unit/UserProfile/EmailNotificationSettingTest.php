@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
 use Override;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
@@ -15,6 +16,7 @@ use TheFrosty\WpLoginLocker\UserProfile\EmailNotificationSetting;
  * Class WpSignupTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  */
+#[CoversClass(EmailNotificationSetting::class)]
 #[Group('user-profile')]
 class EmailNotificationSettingTest extends TestCase
 {
