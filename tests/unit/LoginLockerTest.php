@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker;
 
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use function array_values;
 
@@ -12,7 +12,7 @@ use function array_values;
  * Class LoginLockerTest
  * @package TheFrosty\Tests\WpLoginLocker
  */
-#[CoversClass(LoginLocker::class)]
+#[CoversNothing]
 class LoginLockerTest extends TestCase
 {
 
