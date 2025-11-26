@@ -17,7 +17,7 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
     ])
     ->withSets([
-        PHPUnitSetList::PHPUNIT_110
+        PHPUnitSetList::PHPUNIT_110,
     ])
     ->withRules([
         AnnotationWithValueToAttributeRector::class,
