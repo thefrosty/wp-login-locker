@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\LoginLocker;
@@ -14,18 +16,16 @@ use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
  * @group user-profile
  */
+#[Group('user-profile')]
 class LastLoginTest extends TestCase
 {
 
-    /**
-     * @var LastLogin $lastLogin
-     */
     private LastLogin $lastLogin;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -35,7 +35,7 @@ class LastLoginTest extends TestCase
         $this->reflection = $this->getReflection($this->lastLogin);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->lastLogin);

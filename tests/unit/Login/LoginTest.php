@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
 use Dwnload\WpSettingsApi\Api\Options;
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\Login;
 use TheFrosty\WpLoginLocker\Settings\Settings;
@@ -12,20 +14,17 @@ use TheFrosty\WpLoginLocker\Settings\Settings;
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group login
  */
+#[Group('login')]
 class LoginTest extends TestCase
 {
 
-    /**
-     * @var Login $login
-     */
     private Login $login;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -33,7 +32,7 @@ class LoginTest extends TestCase
         $this->reflection = $this->getReflection($this->login);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->login);

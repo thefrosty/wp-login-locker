@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\WpCore;
 
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\WpCore\WpSignup;
@@ -11,20 +13,17 @@ use TheFrosty\WpLoginLocker\WpCore\WpSignup;
 /**
  * Class WpSignupTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
- * @group wp-core
  */
+#[Group('wp-core')]
 class WpSignupTest extends TestCase
 {
 
-    /**
-     * @var WpSignup $wpSignup
-     */
     private WpSignup $wpSignup;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -34,7 +33,7 @@ class WpSignupTest extends TestCase
         $this->reflection = $this->getReflection($this->wpSignup);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->wpSignup);

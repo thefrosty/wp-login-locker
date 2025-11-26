@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Actions;
 
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
@@ -14,8 +15,8 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
 /**
  * Class NewUserTest
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group actions
  */
+#[Group('actions')]
 class NewUserTest extends TestCase
 {
 

@@ -14,10 +14,7 @@ use PHPUnit\Framework\TestCase;
 class LoginLockerTest extends TestCase
 {
 
-    /**
-     * @var LoginLocker $login_locker
-     */
-    private $login_locker;
+    private LoginLocker $login_locker;
 
     /**
      * Setup.
@@ -36,7 +33,7 @@ class LoginLockerTest extends TestCase
     /**
      * Test class has constants.
      */
-    public function testConstants()
+    public function testConstants(): void
     {
         $expected = [
             LoginLocker::HOOK_PREFIX,

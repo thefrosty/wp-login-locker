@@ -2,6 +2,8 @@
 
 namespace TheFrosty\Tests\WpLoginLocker\Login;
 
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Login\LastLoginColumns;
 use TheFrosty\WpLoginLocker\LoginLocker;
@@ -9,20 +11,17 @@ use TheFrosty\WpLoginLocker\LoginLocker;
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group login
  */
+#[Group('login')]
 class LastLoginColumnsTest extends TestCase
 {
 
-    /**
-     * @var LastLoginColumns $lastLoginColumns
-     */
     private LastLoginColumns $lastLoginColumns;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -30,7 +29,7 @@ class LastLoginColumnsTest extends TestCase
         $this->reflection = $this->getReflection($this->lastLoginColumns);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->lastLoginColumns);

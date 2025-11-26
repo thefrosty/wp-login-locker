@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\Actions;
 
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
@@ -13,8 +15,8 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
 /**
  * Class Login
  * @package TheFrosty\Tests\WpLoginLocker\Actions
- * @group actions
  */
+#[Group('actions')]
 class LoginTest extends TestCase
 {
 
@@ -26,7 +28,7 @@ class LoginTest extends TestCase
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -38,7 +40,7 @@ class LoginTest extends TestCase
         $wp_mail->setValue($this->login, new WpMail());
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->login);

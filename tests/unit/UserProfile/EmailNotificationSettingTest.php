@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpLoginLocker\UserProfile;
 
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\LoginLocker;
@@ -12,20 +14,17 @@ use TheFrosty\WpLoginLocker\UserProfile\EmailNotificationSetting;
 /**
  * Class WpSignupTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
- * @group user-profile
  */
+#[Group('user-profile')]
 class EmailNotificationSettingTest extends TestCase
 {
 
-    /**
-     * @var EmailNotificationSetting $emailNotificationSetting
-     */
     private EmailNotificationSetting $emailNotificationSetting;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -35,7 +34,7 @@ class EmailNotificationSettingTest extends TestCase
         $this->reflection = $this->getReflection($this->emailNotificationSetting);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->emailNotificationSetting);

@@ -9,6 +9,8 @@ use Dwnload\WpSettingsApi\Settings\FieldManager;
 use Dwnload\WpSettingsApi\Settings\FieldTypes;
 use Dwnload\WpSettingsApi\Settings\SectionManager;
 use Dwnload\WpSettingsApi\WpSettingsApi;
+use Override;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Settings\Settings;
@@ -17,23 +19,19 @@ use TheFrosty\WpLoginLocker\UserProfile\LastLogin;
 /**
  * Class SettingsTest
  * @package TheFrosty\Tests\WpLoginLocker\WpCore
- * @group settings
  */
+#[Group('settings')]
 class SettingsTest extends TestCase
 {
 
-    /**
-     * @var Settings $settings
-     */
     private Settings $settings;
 
-    /** @var \WP_User $user */
     private \WP_User $user;
 
     /**
      * Setup.
      */
-    #[\Override]
+    #[Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -46,7 +44,7 @@ class SettingsTest extends TestCase
         \wp_set_current_user($this->user->ID);
     }
 
-    #[\Override]
+    #[Override]
     public function tearDown(): void
     {
         unset($this->settings, $this->WpSettingsApi, $this->user);
