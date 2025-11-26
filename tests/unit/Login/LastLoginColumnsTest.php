@@ -17,6 +17,8 @@ use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
 #[CoversClass(LastLoginColumns::class)]
+#[CoversClass(NewUser::class)]
+#[CoversTrait(GeoUtilTrait::class)]
 #[Group('login')]
 class LastLoginColumnsTest extends TestCase
 {
@@ -44,8 +46,6 @@ class LastLoginColumnsTest extends TestCase
     /**
      * Test addHooks(). With user cap
      */
-    #[CoversClass(NewUser::class)]
-    #[CoversTrait(GeoUtilTrait::class)]
     public function testAddHooks(): void
     {
         $this->assertTrue(\method_exists($this->lastLoginColumns, 'addHooks'));

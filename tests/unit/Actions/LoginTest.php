@@ -49,7 +49,6 @@ class LoginTest extends TestCase
     /**
      * Test addHooks().
      */
-    #[CoversClass(WpMail::class)]
     public function testAddHooks(): void
     {
         $this->assertTrue(\method_exists($this->login, 'addHooks'));
