@@ -17,6 +17,7 @@ use TheFrosty\WpLoginLocker\LoginLocker;
  * Class WpLoginTest
  * @package TheFrosty\Tests\WpLoginLocker\Actions
  */
+#[CoversClass(NewUser::class)]
 #[CoversClass(WpLogin::class)]
 #[Group('login')]
 class WpLoginTest extends TestCase
@@ -125,7 +126,6 @@ class WpLoginTest extends TestCase
     /**
      * Test loginAuthCheck(). With auth check query key
      */
-    #[CoversClass(NewUser::class)]
     public function testLoginAuthCheckWithAuthKey(): void
     {
         $this->assertTrue(\method_exists($this->wpLogin, 'loginAuthCheck'));

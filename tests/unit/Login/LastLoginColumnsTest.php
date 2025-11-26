@@ -91,8 +91,6 @@ class LastLoginColumnsTest extends TestCase
     /**
      * Test manageUsersCustomColumn().
      */
-    #[CoversClass(NewUser::class)]
-    #[CoversTrait(GeoUtilTrait::class)]
     public function testManageUsersCustomColumn(): void
     {
         $this->assertTrue(\method_exists($this->lastLoginColumns, 'manageUsersCustomColumn'));
