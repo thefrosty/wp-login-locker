@@ -40,7 +40,7 @@ class Logout extends AbstractLoginLocker
             $query->has(Login::ADMIN_ACTION_NONCE) &&
             wp_verify_nonce(
                 $query->get(Login::ADMIN_ACTION_NONCE),
-                sprintf(self::ACTION_S, $query->has('user_id'))
+                sprintf(self::ACTION_S, $query->get('user_id'))
             ) !== false
         ) {
             WpLogin::unsetCookie();
