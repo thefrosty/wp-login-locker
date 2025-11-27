@@ -7,9 +7,14 @@ namespace TheFrosty\Tests\WpLoginLocker\WpCore;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\WpCore\WpSignup;
+use TheFrosty\WpUtilities\Exceptions\TerminationException;
+use Throwable;
+use WPDieException;
+use function method_exists;
 
 /**
  * Class WpSignupTest
@@ -22,9 +27,6 @@ class WpSignupTest extends TestCase
 
     private WpSignup $wpSignup;
 
-    /**
-     * Setup.
-     */
     #[Override]
     public function setUp(): void
     {
@@ -47,9 +49,9 @@ class WpSignupTest extends TestCase
      */
     public function testAddHooks(): void
     {
-        $this->assertTrue(\method_exists($this->wpSignup, 'addHooks'));
+        $this->assertTrue(method_exists($this->wpSignup, 'addHooks'));
         $provider = $this->getMockProvider(WpSignup::class);
-        $provider->expects($this->exactly(1))
+        $provider->expects($this->once())
             ->method(self::METHOD_ADD_FILTER)
             ->willReturn(true);
         /** @var WpSignup $provider */
@@ -61,18 +63,19 @@ class WpSignupTest extends TestCase
      */
     public function testRedirectWpSignup(): void
     {
-        $this->assertTrue(\method_exists($this->wpSignup, 'redirectWpSignup'));
+        $this->assertTrue(method_exists($this->wpSignup, 'redirectWpSignup'));
         try {
             $this->wpSignup->getRequest()->request->set('user_name', 'admin');
             $redirectWpSignup = $this->reflection->getMethod('redirectWpSignup');
             try {
                 $redirectWpSignup->invoke($this->wpSignup);
-            } catch (\Throwable $exception) {
-                $this->assertInstanceOf(\WPDieException::class, $exception);
+            } catch (Throwable $exception) {
+                $this->assertInstanceOf(WPDieException::class, $exception);
             }
             $this->wpSignup->getRequest()->request->remove('user_name');
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+            $this->expectException(TerminationException::class);
+            $redirectWpSignup->invoke($this->wpSignup);
+        } catch (ReflectionException) {
         }
     }
 }
