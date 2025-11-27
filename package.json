@@ -4,7 +4,6 @@
   "private": true,
   "author": "Austin Passy <thefrosty@users.noreply.github.com>",
   "scripts": {
-    "travis": "if [ \"$TRAVIS_COMMIT_RANGE\" ]; then standard $TRAVIS_COMMIT_RANGE; else standard; fi",
     "eslint": "./vendor/thefrosty/wp-utilities/bin/eslint.sh"
   },
   "standard": {
@@ -16,8 +15,8 @@
     ]
   },
   "devDependencies": {
-    "eslint": "^8.2.0",
-    "eslint-plugin-import": "^2.22.0",
-    "standard": "^16.0.4"
+    "eslint": "^9.0",
+    "eslint-plugin-import": "^2.32",
+    "standard": "^17.1"
   }
 }
