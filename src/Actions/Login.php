@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Actions;
 
@@ -12,7 +14,12 @@ use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Api\Hash;
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
+use WP_User;
+use function home_url;
+use function parse_url;
+use function TheFrosty\WpUtilities\exitOrThrow;
+use function wp_safe_redirect;
+use const PHP_URL_HOST;
 
 /**
  * Class Login
@@ -21,15 +28,15 @@ use TheFrosty\WpUtilities\Plugin\HooksTrait;
 class Login extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash, HooksTrait;
+    use GeoUtilTrait, Hash;
 
-    public const ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
-    public const ADMIN_ACTION_NONCE = '_lockerNonce';
+    public const string ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
+    public const string ADMIN_ACTION_NONCE = '_lockerNonce';
 
     /**
      * @var WpMail $wp_mail
      */
-    private $wp_mail;
+    private WpMail $wp_mail;
 
     /**
      * Add class hooks.
@@ -45,11 +52,10 @@ class Login extends AbstractLoginLocker
     /**
      * Create an email notifying the user someone has logged in (if their notifications aren't off).
      * Also adds user metadata of their IP address and login time.
-     *
      * @param string $user_login
-     * @param \WP_User $user
+     * @param WP_User $user
      */
-    protected function wpLoginAction(string $user_login, \WP_User $user): void
+    protected function wpLoginAction(string $user_login, WP_User $user): void
     {
         $disable = \filter_var(
             Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, false),
@@ -79,7 +85,6 @@ class Login extends AbstractLoginLocker
 
         /**
          * Action when a user logs-in you can hook into.
-         *
          * @param string $current_ip The current users IP address.
          * @param array $last_login_ip An array of the users last login IP's.
          * @param mixed $user_notification Whether the users notification preferences are enabled.
@@ -103,7 +108,7 @@ class Login extends AbstractLoginLocker
     {
         $user = \wp_get_current_user();
         $query = $this->getRequest()->query;
-        if (!($user instanceof \WP_User) ||
+        if (!($user instanceof WP_User) ||
             !$query->has(self::ADMIN_ACTION_NONCE) ||
             \wp_verify_nonce($query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL) !== 1 ||
             $user->ID === 0
@@ -136,7 +141,6 @@ class Login extends AbstractLoginLocker
 
     /**
      * Filters whether a meta key is protected.
-     *
      * @param bool $protected
      * @param string $meta_key
      * @return bool
@@ -156,7 +160,6 @@ class Login extends AbstractLoginLocker
 
     /**
      * Get the pretext content.
-     *
      * @return string
      */
     private function getEmailPretext(): string
@@ -180,10 +183,10 @@ class Login extends AbstractLoginLocker
 
     /**
      * Get our notification message from our messages templates.
-     * @param \WP_User $user
+     * @param WP_User $user
      * @return string
      */
-    private function getEmailMessage(\WP_User $user): string
+    private function getEmailMessage(WP_User $user): string
     {
         $content = Options::getOption(
             Settings::EMAIL_SETTING_MESSAGE,
@@ -203,7 +206,7 @@ class Login extends AbstractLoginLocker
          */
         $login_url = \add_query_arg(
             [
-                WpLogin::AUTH_CHECK_KEY => $this->encrypt(\sanitize_email($user->user_email), \home_url()),
+                WpLogin::AUTH_CHECK_KEY => $this->encrypt(\sanitize_email($user->user_email), home_url()),
                 WpLogin::AUTH_CHECK_IS_ENCRYPTED_KEY => true,
             ],
             \wp_login_url('', true)
@@ -229,13 +232,12 @@ class Login extends AbstractLoginLocker
     }
 
     /**
-     * Return a user name based on the current WP_User. Checks whether they
-     * have setup their first name\ or, display name before using their login
-     * user name.
-     * @param \WP_User $user
+     * Return a username based on the current WP_User. Checks whether they
+     * have set up their first name or display name before using their login username.
+     * @param WP_User $user
      * @return string
      */
-    private function getUserName(\WP_User $user): string
+    private function getUserName(WP_User $user): string
     {
         if (!empty($user->first_name)) {
             return $user->first_name;
@@ -252,16 +254,16 @@ class Login extends AbstractLoginLocker
      */
     private function getHomeUrl(): string
     {
-        return \parse_url(\home_url(), \PHP_URL_HOST);
+        return parse_url(home_url(), PHP_URL_HOST);
     }
 
     /**
      * Safe redirect.
      * @param bool $sent
      */
-    private function safeRedirect(bool $sent): void
+    private function safeRedirect(bool $sent): never
     {
-        \wp_safe_redirect(\add_query_arg('sent', $sent, \wp_get_referer()));
-        exit;
+        wp_safe_redirect(\add_query_arg('sent', $sent, \wp_get_referer()));
+        exitOrThrow();
     }
 }

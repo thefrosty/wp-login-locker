@@ -10,7 +10,6 @@ use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 use function esc_html__;
 use function network_home_url;
-use function TheFrosty\WpLoginLocker\Helpers\terminate;
 use function TheFrosty\WpUtilities\exitOrThrow;
 use function wp_die;
 use function wp_safe_redirect;

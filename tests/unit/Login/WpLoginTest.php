@@ -7,11 +7,17 @@ namespace TheFrosty\Tests\WpLoginLocker\Login;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use Throwable;
+use WPDieException;
+use function method_exists;
+use function ob_get_clean;
+use function ob_get_level;
 
 /**
  * Class WpLoginTest
@@ -25,9 +31,6 @@ class WpLoginTest extends TestCase
 
     private WpLogin $wpLogin;
 
-    /**
-     * Setup.
-     */
     #[Override]
     public function setUp(): void
     {
@@ -60,7 +63,7 @@ class WpLoginTest extends TestCase
      */
     public function testAddHooks(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'addHooks'));
+        $this->assertTrue(method_exists($this->wpLogin, 'addHooks'));
         $provider = $this->getMockProvider(WpLogin::class);
         $provider->expects($this->exactly(2))
             ->method(self::METHOD_ADD_FILTER)
@@ -74,13 +77,12 @@ class WpLoginTest extends TestCase
      */
     public function testActivateNoUser(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'activate'));
+        $this->assertTrue(method_exists($this->wpLogin, 'activate'));
         try {
             $activate = $this->reflection->getMethod('activate');
             \do_action('activate_' . $this->wpLogin->getPlugin()->getFile(), $activate->invoke($this->wpLogin));
             $this->assertNull($activate->invoke($this->wpLogin));
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 
@@ -89,7 +91,7 @@ class WpLoginTest extends TestCase
      */
     public function testActivate(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'activate'));
+        $this->assertTrue(method_exists($this->wpLogin, 'activate'));
         try {
             $user_id = self::factory()->user->create();
             \wp_set_current_user($user_id);
@@ -99,8 +101,7 @@ class WpLoginTest extends TestCase
             $actual = \get_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, true);
             $this->assertNotEmpty($actual);
             \delete_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY);
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 
@@ -109,7 +110,7 @@ class WpLoginTest extends TestCase
      */
     public function testLoginAuthCheckWithLogoutAction(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'loginAuthCheck'));
+        $this->assertTrue(method_exists($this->wpLogin, 'loginAuthCheck'));
         try {
             $this->wpLogin->getRequest()->query->set('action', 'logout');
             $this->wpLogin->getRequest()->query->set('_wpnonce', \wp_create_nonce('log-out'));
@@ -118,8 +119,7 @@ class WpLoginTest extends TestCase
             $this->assertEquals(0, \did_action('wp_verify_nonce_failed'));
             $this->wpLogin->getRequest()->query->remove('action');
             $this->wpLogin->getRequest()->query->remove('_wpnonce');
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 
@@ -128,15 +128,14 @@ class WpLoginTest extends TestCase
      */
     public function testLoginAuthCheckWithAuthKey(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'loginAuthCheck'));
+        $this->assertTrue(method_exists($this->wpLogin, 'loginAuthCheck'));
         try {
             $user = self::factory()->user->create_and_get();
             $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $user->user_login);
             $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
             $this->assertNull($loginAuthCheck->invoke($this->wpLogin));
             $this->wpLogin->getRequest()->query->remove(WpLogin::AUTH_CHECK_KEY);
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 
@@ -145,7 +144,7 @@ class WpLoginTest extends TestCase
      */
     public function testLoginAuthCheckWithCookie(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'loginAuthCheck'));
+        $this->assertTrue(method_exists($this->wpLogin, 'loginAuthCheck'));
         try {
             $user = self::factory()->user->create_and_get();
             $cookieValue = $this->reflection->getMethod('getCookieValue');
@@ -159,15 +158,14 @@ class WpLoginTest extends TestCase
             $this->go_to(\wp_login_url());
             try {
                 $loginAuthCheck->invoke($this->wpLogin);
-            } catch (\Throwable $exception) {
-                $this->assertInstanceOf(\WPDieException::class, $exception);
-                if (\ob_get_level()) {
-                    \ob_get_clean();
+            } catch (Throwable $exception) {
+                $this->assertInstanceOf(WPDieException::class, $exception);
+                if (ob_get_level()) {
+                    ob_get_clean();
                 }
             }
             $this->wpLogin->getRequest()->cookies->remove(WpLogin::COOKIE_NAME);
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 
@@ -176,7 +174,7 @@ class WpLoginTest extends TestCase
      */
     public function testLostPasswordMessage(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'lostPasswordMessage'));
+        $this->assertTrue(method_exists($this->wpLogin, 'lostPasswordMessage'));
         try {
             $lostPasswordMessage = $this->reflection->getMethod('lostPasswordMessage');
             $expected = 'This is a message';
@@ -189,8 +187,7 @@ class WpLoginTest extends TestCase
             $this->assertIsString($actual);
             $this->assertStringNotContainsString('class="message"', $actual);
             unset($_GET['action']);
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 
@@ -199,19 +196,18 @@ class WpLoginTest extends TestCase
      */
     public function testNoAuthLoginHtml(): void
     {
-        $this->assertTrue(\method_exists($this->wpLogin, 'noAuthLoginHtml'));
+        $this->assertTrue(method_exists($this->wpLogin, 'noAuthLoginHtml'));
         try {
             $noAuthLoginHtml = $this->reflection->getMethod('noAuthLoginHtml');
             try {
                 $noAuthLoginHtml->invoke($this->wpLogin);
-            } catch (\Throwable $exception) {
-                $this->assertInstanceOf(\WPDieException::class, $exception);
-                if (\ob_get_level()) {
-                    \ob_get_clean();
+            } catch (Throwable $exception) {
+                $this->assertInstanceOf(WPDieException::class, $exception);
+                if (ob_get_level()) {
+                    ob_get_clean();
                 }
             }
-        } catch (\ReflectionException $exception) {
-            $this->assertInstanceOf(\ReflectionException::class, $exception);
+        } catch (ReflectionException) {
         }
     }
 }
