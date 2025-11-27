@@ -6,12 +6,11 @@ namespace TheFrosty\WpLoginLocker\WpCore;
 
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 use function esc_html__;
 use function network_home_url;
-use function TheFrosty\WpLoginLocker\Helpers\terminate;
+use function TheFrosty\WpUtilities\exitOrThrow;
 use function wp_die;
 use function wp_safe_redirect;
 
@@ -22,7 +21,7 @@ use function wp_safe_redirect;
 class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInterface
 {
 
-    use HttpFoundationRequestTrait, HooksTrait;
+    use HttpFoundationRequestTrait;
 
     /**
      * Add class hooks.
@@ -34,6 +33,7 @@ class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInte
 
     /**
      * Redirect all requests to the 'wp-signup.php' page back to the network home URL.
+     * @throws \TheFrosty\WpUtilities\Exceptions\TerminationException
      */
     protected function redirectWpSignup(): never
     {
@@ -45,6 +45,6 @@ class WpSignup extends AbstractHookProvider implements HttpFoundationRequestInte
             );
         }
         wp_safe_redirect(network_home_url(), Response::HTTP_PERMANENTLY_REDIRECT);
-        terminate();
+        exitOrThrow();
     }
 }

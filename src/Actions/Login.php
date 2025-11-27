@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Actions;
 
@@ -12,7 +14,32 @@ use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Api\Hash;
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
+use WP_User;
+use function add_query_arg;
+use function add_user_meta;
+use function do_action;
+use function end;
+use function esc_html__;
+use function esc_url;
+use function filter_var;
+use function get_user_meta;
+use function home_url;
+use function ob_get_clean;
+use function ob_start;
+use function parse_url;
+use function sanitize_email;
+use function sprintf;
+use function TheFrosty\WpUtilities\exitOrThrow;
+use function time;
+use function wp_die;
+use function wp_get_current_user;
+use function wp_get_referer;
+use function wp_login_url;
+use function wp_safe_redirect;
+use function wp_schedule_single_event;
+use function wp_verify_nonce;
+use const MINUTE_IN_SECONDS;
+use const PHP_URL_HOST;
 
 /**
  * Class Login
@@ -21,15 +48,15 @@ use TheFrosty\WpUtilities\Plugin\HooksTrait;
 class Login extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash, HooksTrait;
+    use GeoUtilTrait, Hash;
 
-    public const ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
-    public const ADMIN_ACTION_NONCE = '_lockerNonce';
+    public const string ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
+    public const string ADMIN_ACTION_NONCE = '_lockerNonce';
 
     /**
      * @var WpMail $wp_mail
      */
-    private $wp_mail;
+    private WpMail $wp_mail;
 
     /**
      * Add class hooks.
@@ -45,55 +72,53 @@ class Login extends AbstractLoginLocker
     /**
      * Create an email notifying the user someone has logged in (if their notifications aren't off).
      * Also adds user metadata of their IP address and login time.
-     *
      * @param string $user_login
-     * @param \WP_User $user
+     * @param WP_User $user
      */
-    protected function wpLoginAction(string $user_login, \WP_User $user): void
+    protected function wpLoginAction(string $user_login, WP_User $user): void
     {
-        $disable = \filter_var(
+        $disable = filter_var(
             Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, false),
-            \FILTER_VALIDATE_BOOL
+            FILTER_VALIDATE_BOOL
         );
         if ($disable === true) {
             return;
         }
         $current_ip = $this->getIP();
-        $last_login_ip = \get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
-        $user_notification = \get_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY, true);
+        $last_login_ip = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
+        $user_notification = get_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY, true);
 
         /**
          * If the current IP does not match their last login IP
          * (and the user has login notifications 'on'), send a notification.
          */
-        if ((!empty($last_login_ip) && $current_ip !== \end($last_login_ip)) && empty($user_notification)) {
+        if ((!empty($last_login_ip) && $current_ip !== end($last_login_ip)) && empty($user_notification)) {
             $this->wp_mail = new WpMail();
             $this->wp_mail->setPlugin($this->getPlugin());
             $this->wp_mail->__set('pretext', $this->getEmailPretext());
             $this->wp_mail->send(
                 $user->user_email,
-                \sprintf(\esc_html__('New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
+                sprintf(esc_html__('New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
                 $this->getEmailMessage($user)
             );
         }
 
         /**
          * Action when a user logs-in you can hook into.
-         *
          * @param string $current_ip The current users IP address.
          * @param array $last_login_ip An array of the users last login IP's.
          * @param mixed $user_notification Whether the users notification preferences are enabled.
          */
-        \do_action(LoginLocker::HOOK_PREFIX . 'wp_login', $current_ip, $last_login_ip, $user_notification);
+        do_action(LoginLocker::HOOK_PREFIX . 'wp_login', $current_ip, $last_login_ip, $user_notification);
 
         /**
          * Update the current users login meta data
          * (regardless of current IP or notification settings)
          */
-        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, false);
-        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, \time(), false);
+        add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, false);
+        add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, time(), false);
         unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
-        \wp_schedule_single_event(\time() + MINUTE_IN_SECONDS, 'login_locker_cleanup_last_login_meta', [$user->ID]);
+        wp_schedule_single_event(time() + MINUTE_IN_SECONDS, 'login_locker_cleanup_last_login_meta', [$user->ID]);
     }
 
     /**
@@ -101,15 +126,16 @@ class Login extends AbstractLoginLocker
      */
     protected function sendTestEmail(): void
     {
-        $user = \wp_get_current_user();
+        $user = wp_get_current_user();
         $query = $this->getRequest()->query;
-        if (!($user instanceof \WP_User) ||
+        if (
+            !($user instanceof WP_User) ||
             !$query->has(self::ADMIN_ACTION_NONCE) ||
-            \wp_verify_nonce($query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL) !== 1 ||
+            wp_verify_nonce($query->get(self::ADMIN_ACTION_NONCE), self::ADMIN_ACTION_SEND_EMAIL) !== 1 ||
             $user->ID === 0
         ) {
-            \wp_die(
-                \esc_html__('Couldn\'t send test email.', 'wp-login-locker'),
+            wp_die(
+                esc_html__('Couldn\'t send test email.', 'wp-login-locker'),
                 '',
                 ['response' => Response::HTTP_NOT_ACCEPTABLE]
             );
@@ -119,7 +145,7 @@ class Login extends AbstractLoginLocker
         $this->wp_mail->__set('pretext', $this->getEmailPretext());
         $sent = $this->wp_mail->send(
             $user->user_email,
-            \sprintf(\esc_html__('[TEST] New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
+            sprintf(esc_html__('[TEST] New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
             $this->getEmailMessage($user)
         );
         $this->safeRedirect($sent);
@@ -136,7 +162,6 @@ class Login extends AbstractLoginLocker
 
     /**
      * Filters whether a meta key is protected.
-     *
      * @param bool $protected
      * @param string $meta_key
      * @return bool
@@ -156,7 +181,6 @@ class Login extends AbstractLoginLocker
 
     /**
      * Get the pretext content.
-     *
      * @return string
      */
     private function getEmailPretext(): string
@@ -167,23 +191,23 @@ class Login extends AbstractLoginLocker
             null
         );
         if (empty($content)) {
-            \ob_start();
+            ob_start();
             include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-pretext.php';
-            $content = \ob_get_clean();
+            $content = ob_get_clean();
         }
 
         /**
          * %1$s Site name
          */
-        return \sprintf($content, $this->wp_mail->getFromName());
+        return sprintf($content, $this->wp_mail->getFromName());
     }
 
     /**
      * Get our notification message from our messages templates.
-     * @param \WP_User $user
+     * @param WP_User $user
      * @return string
      */
-    private function getEmailMessage(\WP_User $user): string
+    private function getEmailMessage(WP_User $user): string
     {
         $content = Options::getOption(
             Settings::EMAIL_SETTING_MESSAGE,
@@ -191,9 +215,9 @@ class Login extends AbstractLoginLocker
             null
         );
         if (empty($content)) {
-            \ob_start();
+            ob_start();
             include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-notice.php';
-            $content = \ob_get_clean();
+            $content = ob_get_clean();
         }
 
         /**
@@ -201,12 +225,12 @@ class Login extends AbstractLoginLocker
          * login page if they don't have "access" by a cookie session. Force re-auth
          * on login URL render, so they have to re-enter their credentials.
          */
-        $login_url = \add_query_arg(
+        $login_url = add_query_arg(
             [
-                WpLogin::AUTH_CHECK_KEY => $this->encrypt(\sanitize_email($user->user_email), \home_url()),
+                WpLogin::AUTH_CHECK_KEY => $this->encrypt(sanitize_email($user->user_email), home_url()),
                 WpLogin::AUTH_CHECK_IS_ENCRYPTED_KEY => true,
             ],
-            \wp_login_url('', true)
+            wp_login_url('', true)
         );
 
         /**
@@ -217,25 +241,24 @@ class Login extends AbstractLoginLocker
          * %5$s Site name
          * %6$s Site email
          */
-        return \sprintf(
+        return sprintf(
             $content,
             $this->getUserName($user),
             $this->getUserAgent(),
             $this->getIP(),
-            \esc_url($login_url),
+            esc_url($login_url),
             $this->wp_mail->getFromName(),
             $this->wp_mail->getFromAddress()
         );
     }
 
     /**
-     * Return a user name based on the current WP_User. Checks whether they
-     * have setup their first name\ or, display name before using their login
-     * user name.
-     * @param \WP_User $user
+     * Return a username based on the current WP_User. Checks whether they
+     * have set up their first name or display name before using their login username.
+     * @param WP_User $user
      * @return string
      */
-    private function getUserName(\WP_User $user): string
+    private function getUserName(WP_User $user): string
     {
         if (!empty($user->first_name)) {
             return $user->first_name;
@@ -252,16 +275,16 @@ class Login extends AbstractLoginLocker
      */
     private function getHomeUrl(): string
     {
-        return \parse_url(\home_url(), \PHP_URL_HOST);
+        return parse_url(home_url(), PHP_URL_HOST);
     }
 
     /**
      * Safe redirect.
      * @param bool $sent
      */
-    private function safeRedirect(bool $sent): void
+    private function safeRedirect(bool $sent): never
     {
-        \wp_safe_redirect(\add_query_arg('sent', $sent, \wp_get_referer()));
-        exit;
+        wp_safe_redirect(add_query_arg('sent', $sent, wp_get_referer()));
+        exitOrThrow();
     }
 }
