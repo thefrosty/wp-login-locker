@@ -6,6 +6,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.7.0 - 2025-12-01
+
+* 2.6.7 was supposed to be tagged 2.7.0.
+* Remove package.json  by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/106
+* Remove PHPMD by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/107
+* Better Code coverage, and PHP cleanup by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/108
+* Update thefrosty/wp-utilities requirement from 3.8.8 to 3.8.8.1 by @dependabot[bot] in https://github.com/thefrosty/wp-login-locker/pull/109
+
+## 2.6.7 - 2025-11-26
+* Remove roave/security-advisories by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/95
+* Bump js-yaml by @dependabot[bot] in https://github.com/thefrosty/wp-login-locker/pull/97
+* Feature: Validate Possible Hash Key Change by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/100
+* Feature: Secure Log Out & Auth Cookie Removal by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/101
+* Phpunit Action testing by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/102
+* Resolve Risky PHPUnit Tests with UsesClass by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/103
+* Fix possible null error by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/104
+
+## 2.6.0.2 - 2025-07-16
+
+* get_plugin_data isn't available yet.
+
+## 2.6.0.1 - 2025-07-13
+
+* Update composer dependencies, specifically wp-utilities from 3.8 to 3.8.2.
+
 ## 2.6.0 - 2025-03-16
 
 * Resolve nullable parameters types to fix PHP 8.4.
