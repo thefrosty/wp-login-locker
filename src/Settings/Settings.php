@@ -48,6 +48,8 @@ class Settings extends AbstractLoginLocker
     public const string EMAIL_SETTING_HERO_IMAGE = 'hero_image';
     public const string BACKGROUND_COLOR_DEFAULT = '#222222';
     public const string FULL_BLEED_COLOR_DEFAULT = '#709f2b';
+    public const string GENERAL_SETTINGS = self::PREFIX . 'general_settings';
+    public const string ALLOW_LOST_PASSWORD = self::PREFIX . 'allow_lost_password';
     public const string LOGIN_SETTINGS = self::PREFIX . 'login_settings';
     public const string LOGIN_SETTING_LOGO = 'logo';
     private const string PREFIX = 'login_locker_';
@@ -109,6 +111,29 @@ class Settings extends AbstractLoginLocker
         }
 
         /**
+         * General Settings Section
+         */
+        $general_section_id = $section_manager->addSection(
+            new SettingSection([
+                SettingSection::SECTION_ID => self::GENERAL_SETTINGS, // Unique section ID
+                SettingSection::SECTION_TITLE => 'General Settings',
+            ])
+        );
+
+        $field_manager->addField(
+            new SettingField([
+                SettingField::NAME => self::ALLOW_LOST_PASSWORD,
+                SettingField::LABEL => esc_html__('Allow lost password?', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
+                    'Checking this box will allow the wp-login lost password user name/email form.',
+                    'wp-login-locker'
+                ),
+                SettingField::TYPE => FieldTypes::FIELD_TYPE_CHECKBOX,
+                SettingField::SECTION_ID => $general_section_id,
+            ])
+        );
+
+        /**
          * Login Settings Section
          */
         $login_section_id = $section_manager->addSection(
@@ -118,7 +143,6 @@ class Settings extends AbstractLoginLocker
             ])
         );
 
-        // Passing Field settings as an Array
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::LOGIN_SETTING_LOGO,
