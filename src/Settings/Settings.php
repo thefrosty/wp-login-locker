@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Settings;
 
@@ -14,6 +16,20 @@ use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\UserProfile\UserProfile;
+use function add_query_arg;
+use function admin_url;
+use function array_unshift;
+use function esc_attr__;
+use function esc_html__;
+use function esc_url;
+use function filter_var;
+use function menu_page_url;
+use function ob_get_clean;
+use function ob_start;
+use function printf;
+use function sprintf;
+use function wp_nonce_url;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Class Settings
@@ -22,21 +38,21 @@ use TheFrosty\WpLoginLocker\UserProfile\UserProfile;
 class Settings extends AbstractLoginLocker
 {
 
-    public const EMAIL_SETTINGS = self::PREFIX . 'email_settings';
-    public const EMAIL_SETTING_DISABLE = 'disable';
-    public const EMAIL_SETTING_PRETEXT = 'pretext';
-    public const EMAIL_SETTING_MESSAGE = 'message';
-    public const EMAIL_SETTING_BACKGROUND_COLOR = 'background_color';
-    public const EMAIL_SETTING_FULL_BLEED_COLOR = 'full_bleed';
-    public const EMAIL_SETTING_HEADER_IMAGE = 'email_header';
-    public const EMAIL_SETTING_HERO_IMAGE = 'hero_image';
-    public const BACKGROUND_COLOR_DEFAULT = '#222222';
-    public const FULL_BLEED_COLOR_DEFAULT = '#709f2b';
-    public const LOGIN_SETTINGS = self::PREFIX . 'login_settings';
-    public const LOGIN_SETTING_LOGO = 'logo';
-    private const PREFIX = 'login_locker_';
-    private const DOMAIN = 'login-locker';
-    private const MENU_SLUG = self::DOMAIN . '-settings';
+    public const string EMAIL_SETTINGS = self::PREFIX . 'email_settings';
+    public const string EMAIL_SETTING_DISABLE = 'disable';
+    public const string EMAIL_SETTING_PRETEXT = 'pretext';
+    public const string EMAIL_SETTING_MESSAGE = 'message';
+    public const string EMAIL_SETTING_BACKGROUND_COLOR = 'background_color';
+    public const string EMAIL_SETTING_FULL_BLEED_COLOR = 'full_bleed';
+    public const string EMAIL_SETTING_HEADER_IMAGE = 'email_header';
+    public const string EMAIL_SETTING_HERO_IMAGE = 'hero_image';
+    public const string BACKGROUND_COLOR_DEFAULT = '#222222';
+    public const string FULL_BLEED_COLOR_DEFAULT = '#709f2b';
+    public const string LOGIN_SETTINGS = self::PREFIX . 'login_settings';
+    public const string LOGIN_SETTING_LOGO = 'logo';
+    private const string PREFIX = 'login_locker_';
+    private const string DOMAIN = 'login-locker';
+    private const string MENU_SLUG = self::DOMAIN . '-settings';
 
     /**
      * Creat the PluginSettings object.
@@ -70,7 +86,6 @@ class Settings extends AbstractLoginLocker
 
     /**
      * Initiate our setting to the Section & Field Manager classes.
-     *
      * SettingField requires the following settings (passes as an array or set explicitly):
      * [
      *  SettingField::NAME
@@ -79,7 +94,6 @@ class Settings extends AbstractLoginLocker
      *  SettingField::TYPE
      *  SettingField::SECTION_ID
      * ]
-     *
      * @param SectionManager $section_manager
      * @param FieldManager $field_manager
      * @param WpSettingsApi $wp_settings_api
@@ -108,8 +122,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::LOGIN_SETTING_LOGO,
-                SettingField::LABEL => \esc_html__('Login Logo', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__(
+                SettingField::LABEL => esc_html__('Login Logo', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
                     'Logo to replace WordPress\' logo on the login page (must be uploaded to media library).',
                     'wp-login-locker'
                 ),
@@ -131,7 +145,7 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_PRETEXT,
-                SettingField::LABEL => \esc_html__('Pre Text', 'wp-login-locker'),
+                SettingField::LABEL => esc_html__('Pre Text', 'wp-login-locker'),
                 SettingField::DESC => '%1$s Site name',
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_TEXTAREA,
                 SettingField::DEFAULT => $this->getSettingPretext(),
@@ -143,8 +157,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_DISABLE,
-                SettingField::LABEL => \esc_html__('Disable all emails', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__(
+                SettingField::LABEL => esc_html__('Disable all emails', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
                     'Disable all email notifications for all users site wide (overrides user profile).',
                     'wp-login-locker'
                 ),
@@ -156,8 +170,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_MESSAGE,
-                SettingField::LABEL => \esc_html__('Message', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__(
+                SettingField::LABEL => esc_html__('Message', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
                     'Email body, use the keys listed below for text replacement.',
                     'wp-login-locker'
                 ),
@@ -171,7 +185,7 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => '',
-                SettingField::LABEL => \esc_html__('Message', 'wp-login-locker'),
+                SettingField::LABEL => esc_html__('Message', 'wp-login-locker'),
                 SettingField::DEFAULT => '<ul>
 <li><code>%1$s</code> User first and last name (display name)</li>
 <li><code>%2$s</code> User agent</li>
@@ -188,8 +202,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_BACKGROUND_COLOR,
-                SettingField::LABEL => \esc_html__('Background Color', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__('Email background color.', 'wp-login-locker'),
+                SettingField::LABEL => esc_html__('Background Color', 'wp-login-locker'),
+                SettingField::DESC => esc_html__('Email background color.', 'wp-login-locker'),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_COLOR,
                 SettingField::DEFAULT => self::BACKGROUND_COLOR_DEFAULT,
                 SettingField::SANITIZE => '\sanitize_hex_color',
@@ -200,8 +214,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_FULL_BLEED_COLOR,
-                SettingField::LABEL => \esc_html__('Full Bleed Color', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__('Full bleed background section color.', 'wp-login-locker'),
+                SettingField::LABEL => esc_html__('Full Bleed Color', 'wp-login-locker'),
+                SettingField::DESC => esc_html__('Full bleed background section color.', 'wp-login-locker'),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_COLOR,
                 SettingField::DEFAULT => self::FULL_BLEED_COLOR_DEFAULT,
                 SettingField::SANITIZE => '\sanitize_hex_color',
@@ -212,8 +226,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_HEADER_IMAGE,
-                SettingField::LABEL => \esc_html__('Email Header', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__('Email Header Image, suggested size 200x50.', 'wp-login-locker'),
+                SettingField::LABEL => esc_html__('Email Header', 'wp-login-locker'),
+                SettingField::DESC => esc_html__('Email Header Image, suggested size 200x50.', 'wp-login-locker'),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_IMAGE,
                 SettingField::SECTION_ID => $email_section_id,
             ])
@@ -222,8 +236,8 @@ class Settings extends AbstractLoginLocker
         $field_manager->addField(
             new SettingField([
                 SettingField::NAME => self::EMAIL_SETTING_HERO_IMAGE,
-                SettingField::LABEL => \esc_html__('Hero Image', 'wp-login-locker'),
-                SettingField::DESC => \esc_html__(
+                SettingField::LABEL => esc_html__('Hero Image', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
                     'Hero Image Image (flush), suggested size 1200x600.',
                     'wp-login-locker'
                 ),
@@ -243,27 +257,27 @@ class Settings extends AbstractLoginLocker
             return;
         }
         $query = $this->getRequest()->query;
-        if ($query->has('sent') && \filter_var($query->get('sent'), \FILTER_VALIDATE_BOOLEAN)) {
-            \printf(
+        if ($query->has('sent') && filter_var($query->get('sent'), FILTER_VALIDATE_BOOLEAN)) {
+            printf(
                 '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
-                \esc_html__('Success - test email sent.', 'wp-login-locker')
+                esc_html__('Success - test email sent.', 'wp-login-locker')
             );
         }
-        \printf(
+        printf(
             '<p><a href="%1$s" class="button button-secondary" onclick="return confirm(\'%3$s\');">%2$s</a></p>',
-            \esc_url(
-                \wp_nonce_url(
-                    \add_query_arg(
+            esc_url(
+                wp_nonce_url(
+                    add_query_arg(
                         'action',
                         Login::ADMIN_ACTION_SEND_EMAIL,
-                        \admin_url('admin-post.php')
+                        admin_url('admin-post.php')
                     ),
                     Login::ADMIN_ACTION_SEND_EMAIL,
                     Login::ADMIN_ACTION_NONCE
                 )
             ),
-            \esc_html__('Send Test Email', 'wp-login-locker'),
-            \esc_attr__('Send Test Email?', 'wp-login-locker')
+            esc_html__('Send Test Email', 'wp-login-locker'),
+            esc_attr__('Send Test Email?', 'wp-login-locker')
         );
     }
 
@@ -274,19 +288,19 @@ class Settings extends AbstractLoginLocker
      */
     protected function addSettingsLink(array $actions): array
     {
-        \array_unshift(
+        array_unshift(
             $actions,
-            \sprintf(
+            sprintf(
                 '<a href="%s" aria-label="%s">%s</a>',
-                \menu_page_url(self::MENU_SLUG, false),
-                \esc_attr__('Settings for Login Locker', 'wp-login-locker'),
-                \esc_html__('Settings', 'default')
+                menu_page_url(self::MENU_SLUG, false),
+                esc_attr__('Settings for Login Locker', 'wp-login-locker'),
+                esc_html__('Settings', 'default')
             ),
-            \sprintf(
+            sprintf(
                 '<a href="%s" aria-label="%s">%s</a>',
-                \admin_url(\sprintf('profile.php#%s', UserProfile::USER_PROFILE_ID)),
-                \esc_attr__('Login Locker user email notifications settings', 'wp-login-locker'),
-                \esc_html__('Emails', 'default')
+                admin_url(sprintf('profile.php#%s', UserProfile::USER_PROFILE_ID)),
+                esc_attr__('Login Locker user email notifications settings', 'wp-login-locker'),
+                esc_html__('Emails', 'default')
             )
         );
 
@@ -299,9 +313,9 @@ class Settings extends AbstractLoginLocker
      */
     private function getSettingPretext(): string
     {
-        \ob_start();
+        ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-pretext.php';
-        $content = \ob_get_clean();
+        $content = ob_get_clean();
 
         return \strval($content);
     }
@@ -312,9 +326,9 @@ class Settings extends AbstractLoginLocker
      */
     private function getSettingMessage(): string
     {
-        \ob_start();
+        ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-notice.php';
-        $content = \ob_get_clean();
+        $content = ob_get_clean();
 
         return \strval($content);
     }
