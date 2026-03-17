@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.8.0 - 2026-03-17
+
+* Update GitHub Actions Workflow Versions by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/111
+* Update to use the new thefrosty/ci-setup@main by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/112
+* Update Dependabot with GitHub Actions by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/113
+* Feature: Allow Lost Password bypass by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/124
+
+**Full Changelog**: https://github.com/thefrosty/wp-login-locker/compare/v2.7.0...v2.8.0
+
 ## 2.7.0 - 2025-12-01
 
 * 2.6.7 was supposed to be tagged 2.7.0.
