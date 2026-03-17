@@ -67,8 +67,8 @@ class Settings extends AbstractLoginLocker
             'domain' => self::DOMAIN,
             'file' => __FILE__, // Path to WpSettingsApi file (not required, see README for more info).
             'menu-slug' => self::MENU_SLUG,
-            'menu-title' => 'Login Locker', // Title found in menu
-            'page-title' => 'Login Locker Settings', // Title output at top of settings page
+            'menu-title' => 'Login Locker', // Title found in menu.
+            'page-title' => 'Login Locker Settings', // Title output at top of settings page.
             'prefix' => self::PREFIX,
             'version' => $version,
         ]);
@@ -115,7 +115,7 @@ class Settings extends AbstractLoginLocker
          */
         $general_section_id = $section_manager->addSection(
             new SettingSection([
-                SettingSection::SECTION_ID => self::GENERAL_SETTINGS, // Unique section ID
+                SettingSection::SECTION_ID => self::GENERAL_SETTINGS, // Unique section ID.
                 SettingSection::SECTION_TITLE => 'General Settings',
             ])
         );
@@ -138,7 +138,7 @@ class Settings extends AbstractLoginLocker
          */
         $login_section_id = $section_manager->addSection(
             new SettingSection([
-                SettingSection::SECTION_ID => self::LOGIN_SETTINGS, // Unique section ID
+                SettingSection::SECTION_ID => self::LOGIN_SETTINGS, // Unique section ID.
                 SettingSection::SECTION_TITLE => 'Login Settings',
             ])
         );
@@ -318,13 +318,13 @@ class Settings extends AbstractLoginLocker
                 '<a href="%s" aria-label="%s">%s</a>',
                 menu_page_url(self::MENU_SLUG, false),
                 esc_attr__('Settings for Login Locker', 'wp-login-locker'),
-                esc_html__('Settings', 'default')
+                esc_html__('Settings', 'wp-login-locker')
             ),
             sprintf(
                 '<a href="%s" aria-label="%s">%s</a>',
                 admin_url(sprintf('profile.php#%s', UserProfile::USER_PROFILE_ID)),
                 esc_attr__('Login Locker user email notifications settings', 'wp-login-locker'),
-                esc_html__('Emails', 'default')
+                esc_html__('Emails', 'wp-login-locker')
             )
         );
 
