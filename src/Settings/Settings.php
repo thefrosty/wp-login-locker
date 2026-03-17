@@ -317,7 +317,7 @@ class Settings extends AbstractLoginLocker
         include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-pretext.php';
         $content = ob_get_clean();
 
-        return \strval($content);
+        return (string)$content;
     }
 
     /**
@@ -330,6 +330,6 @@ class Settings extends AbstractLoginLocker
         include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-notice.php';
         $content = ob_get_clean();
 
-        return \strval($content);
+        return (string)$content;
     }
 }
