@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Login;
 
+use Dwnload\WpSettingsApi\Api\Options;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpUtilities\Api\Hash;
 use WP_User;
@@ -70,6 +72,8 @@ class WpLogin extends AbstractLoginLocker
     protected const string ENCRYPTION_DELIMITER = '|';
     private const string ENCRYPTION_KEY = 'WpL0gin' . self::ENCRYPTION_DELIMITER;
 
+    private bool $has_auth = false;
+
     /**
      * Maybe the user changed their login name, email, or the Hash key has been changed/reset.
      * Delete our auth cookie.
@@ -130,7 +134,8 @@ class WpLogin extends AbstractLoginLocker
             return;
         }
 
-        $has_auth = false;
+        $this->maybeValidateLostPasswordUser();
+
         if ($query->has(self::AUTH_CHECK_KEY) && !empty($query->get(self::AUTH_CHECK_KEY))) {
             $encrypted = filter_var($query->get(self::AUTH_CHECK_IS_ENCRYPTED_KEY), FILTER_VALIDATE_BOOL);
             $value = $encrypted === false ?
@@ -144,7 +149,7 @@ class WpLogin extends AbstractLoginLocker
              * to the login page for `self::COOKIE_EXPIRE` time.
              */
             if ($user instanceof WP_User && isset($user->$field)) {
-                $has_auth = true;
+                $this->has_auth = true;
                 $this->setLoginCookie($user, $field);
             }
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
@@ -162,7 +167,7 @@ class WpLogin extends AbstractLoginLocker
                     $this->getUserBy($cookie_value)
                 );
                 if ($user instanceof WP_User) {
-                    $has_auth = true;
+                    $this->has_auth = true;
                 } else {
                     $delete_cookie = true;
                 }
@@ -173,7 +178,7 @@ class WpLogin extends AbstractLoginLocker
             self::unsetCookie();
         }
 
-        if (!$has_auth) {
+        if (!$this->has_auth) {
             $this->noAuthLoginHtml();
         }
     }
@@ -197,20 +202,63 @@ class WpLogin extends AbstractLoginLocker
 
     /**
      * Render the fake login HTML and send the response to the page.
-     * Sets a 403 Forbidden Status code and terminates all processes.
+     * Sets a 403 Forbidden Status code and terminates all processes (unless los passwords are allowed).
      */
     private function noAuthLoginHtml(): never
     {
-        ob_start();
-        include $this->getPlugin()->getDirectory() . 'templates/login/wp-login.php';
-        $content = ob_get_clean();
+        $allow_lost_password = filter_var(
+            Options::getOption(Settings::ALLOW_LOST_PASSWORD, Settings::GENERAL_SETTINGS),
+            FILTER_VALIDATE_BOOL
+        );
+        if ($allow_lost_password && $this->isLostPassOrExpired()) {
+            ob_start();
+            include $this->getPlugin()->getDirectory() . 'templates/login/lostpassword.php';
+            $content = ob_get_clean();
+        }
+
+        if (!isset($content)) {
+            ob_start();
+            include $this->getPlugin()->getDirectory() . 'templates/login/wp-login.php';
+            $code = Response::HTTP_FORBIDDEN;
+            $content = ob_get_clean();
+        }
 
         (new Response())
             ->setContent($content)
-            ->setStatusCode(Response::HTTP_FORBIDDEN)
+            ->setStatusCode($code ?? Response::HTTP_ACCEPTED)
             ->sendHeaders()
             ->send();
         terminate();
+    }
+
+    /**
+     * Maybe validate the current request is a "lostpassword" action.
+     */
+    private function maybeValidateLostPasswordUser(): void
+    {
+        $request = $this->getRequest()->request;
+        if (
+            $this->getRequest()->query->has('login_locker') &&
+            ($request->has('login_locker_user_login') && !empty($request->get('login_locker_user_login'))) &&
+            (
+                username_exists($request->get('login_locker_user_login')) ||
+                email_exists($request->get('login_locker_user_login'))
+            )
+        ) {
+            [$user, $field] = array_values(
+                $this->getUserBy(sanitize_text_field(wp_unslash($request->get('login_locker_user_login'))))
+            );
+            /**
+             * If the $user exists, set a cookie in the browser so they have access
+             * to the login page for `self::COOKIE_EXPIRE` time.
+             */
+            if ($user instanceof WP_User && isset($user->$field)) {
+                $this->has_auth = true;
+                // Assign the global post object with the user_login value to trigger the form.
+                $_POST['user_login'] = $request->get('login_locker_user_login'); // phpcs:ignore
+                $this->setLoginCookie($user, $field);
+            }
+        }
     }
 
     /**
