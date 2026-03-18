@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.8.1 - 2026-03-18
+
+* Feature: Lostpass No Username Check + Access Timeout by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/126
+
 ## 2.8.0 - 2026-03-17
 
 * Update GitHub Actions Workflow Versions by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/111
