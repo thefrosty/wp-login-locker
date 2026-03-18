@@ -207,7 +207,7 @@ class WpLogin extends AbstractLoginLocker
     private function noAuthLoginHtml(): never
     {
         $allow_lost_password = filter_var(
-            Options::getOption(Settings::ALLOW_LOST_PASSWORD, Settings::GENERAL_SETTINGS),
+            Options::getOption(Settings::GENERAL_SETTING_ALLOW_LP, Settings::GENERAL_SETTINGS),
             FILTER_VALIDATE_BOOL
         );
         if ($allow_lost_password && $this->isLostPassOrExpired()) {
@@ -241,7 +241,7 @@ class WpLogin extends AbstractLoginLocker
             $this->getRequest()->query->has('login_locker') &&
             ($request->has('login_locker_user_login') && !empty($request->get('login_locker_user_login'))) &&
             (
-                username_exists($request->get('login_locker_user_login')) ||
+                is_email($request->get('login_locker_user_login')) &&
                 email_exists($request->get('login_locker_user_login'))
             )
         ) {
@@ -256,7 +256,8 @@ class WpLogin extends AbstractLoginLocker
                 $this->has_auth = true;
                 // Assign the global post object with the user_login value to trigger the form.
                 $_POST['user_login'] = $request->get('login_locker_user_login'); // phpcs:ignore
-                $this->setLoginCookie($user, $field);
+                $expire = Options::getOption(Settings::GENERAL_SETTING_LP_TIMEOUT, Settings::GENERAL_SETTINGS, 1);
+                $this->setLoginCookie($user, $field, sprintf('+%d minute', (int)$expire));
             }
         }
     }
@@ -319,8 +320,9 @@ class WpLogin extends AbstractLoginLocker
      * Set's the user login cookie.
      * @param WP_User $user WP_User object.
      * @param string $field WP_User object property field.
+     * @param string|null $expire Cookie expiration time.
      */
-    private function setLoginCookie(WP_User $user, string $field): void
+    private function setLoginCookie(WP_User $user, string $field, ?string $expire = null): void
     {
         /**
          * Dev note, you can't use Symfony's Response()->headers->setCookie( new Cookie( 'name', 'value' ) )
@@ -331,7 +333,7 @@ class WpLogin extends AbstractLoginLocker
             setcookie(
                 self::COOKIE_NAME,
                 $this->getCookieValue($user->$field),
-                strtotime(self::COOKIE_EXPIRE),
+                strtotime($expire ?? self::COOKIE_EXPIRE),
                 COOKIEPATH,
                 is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
                 is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
