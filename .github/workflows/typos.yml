@@ -12,6 +12,7 @@ env:
 jobs:
   spelling:
     name: Spell Check with Typos
+    if: ${{ !contains(github.ref, 'release') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

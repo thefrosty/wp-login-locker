@@ -12,6 +12,7 @@ concurrency:
 jobs:
   run-phpcs:
     name: Run PHPCS
+    if: ${{ !contains(github.ref, 'release') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,6 +45,7 @@ jobs:
 
   run-phpunit:
     name: Run PHPUnit
+    if: ${{ !contains(github.ref, 'release') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:

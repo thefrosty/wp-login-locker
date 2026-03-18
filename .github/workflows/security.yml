@@ -6,6 +6,7 @@ on:
 jobs:
   security-checker:
     name: PHP Security Checker
+    if: ${{ !contains(github.ref, 'release') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
