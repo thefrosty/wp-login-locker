@@ -49,7 +49,8 @@ class Settings extends AbstractLoginLocker
     public const string BACKGROUND_COLOR_DEFAULT = '#222222';
     public const string FULL_BLEED_COLOR_DEFAULT = '#709f2b';
     public const string GENERAL_SETTINGS = self::PREFIX . 'general_settings';
-    public const string ALLOW_LOST_PASSWORD = self::PREFIX . 'allow_lost_password';
+    public const string GENERAL_SETTING_ALLOW_LP = 'allow_lost_password';
+    public const string GENERAL_SETTING_LP_TIMEOUT = 'lost_password_timeout';
     public const string LOGIN_SETTINGS = self::PREFIX . 'login_settings';
     public const string LOGIN_SETTING_LOGO = 'logo';
     private const string PREFIX = 'login_locker_';
@@ -122,13 +123,32 @@ class Settings extends AbstractLoginLocker
 
         $field_manager->addField(
             new SettingField([
-                SettingField::NAME => self::ALLOW_LOST_PASSWORD,
+                SettingField::NAME => self::GENERAL_SETTING_ALLOW_LP,
                 SettingField::LABEL => esc_html__('Allow lost password?', 'wp-login-locker'),
                 SettingField::DESC => esc_html__(
                     'Checking this box will allow the wp-login lost password user name/email form.',
                     'wp-login-locker'
                 ),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_CHECKBOX,
+                SettingField::SECTION_ID => $general_section_id,
+            ])
+        );
+
+        $field_manager->addField(
+            new SettingField([
+                SettingField::NAME => self::GENERAL_SETTING_LP_TIMEOUT,
+                SettingField::LABEL => esc_html__('Timeout', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
+                    'Set the "lost password" cookie timeout in minutes.',
+                    'wp-login-locker'
+                ),
+                SettingField::TYPE => FieldTypes::FIELD_TYPE_NUMBER,
+                SettingField::DEFAULT => 1,
+                SettingField::ATTRIBUTES => [
+                    'min' => 1,
+                    'max' => DAY_IN_SECONDS,
+                    'step' => 1,
+                ],
                 SettingField::SECTION_ID => $general_section_id,
             ])
         );
