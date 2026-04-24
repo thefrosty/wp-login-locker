@@ -28,15 +28,14 @@
     "ext-openssl": "*",
     "composer/installers": "~2.0",
     "dwnload/wp-settings-api": "^3.10",
-    "oscarotero/env": "^2.1",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^7.3.7",
-    "thefrosty/wp-utilities": "^3.8.8",
-    "vlucas/phpdotenv": "^5.6"
+    "thefrosty/wp-utilities": "^3.8.8"
   },
   "require-dev": {
     "ext-simplexml": "*",
     "dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
+    "oscarotero/env": "^2.1",
     "phpcompatibility/php-compatibility": "*",
     "phpunit/php-code-coverage": "^11",
     "phpunit/phpunit": "^11",
@@ -44,6 +43,7 @@
     "roots/wordpress": "^6.7",
     "slevomat/coding-standard": "~8.18",
     "squizlabs/php_codesniffer": "^3.2",
+    "vlucas/phpdotenv": "^5.6",
     "wp-coding-standards/wpcs": "^3.1",
     "wp-phpunit/wp-phpunit": "^6.7",
     "yoast/phpunit-polyfills": "^4.0"
