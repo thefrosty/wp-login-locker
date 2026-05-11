@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 2.9.0 - 2026-05-11
+
+* Bump codecov/codecov-action from 5 to 6 by @dependabot[bot] in https://github.com/thefrosty/wp-login-locker/pull/128
+* Bump crate-ci/typos from 1.44.0 to 1.45.0 by @dependabot[bot] in https://github.com/thefrosty/wp-login-locker/pull/129
+* Bump softprops/action-gh-release from 2 to 3 by @dependabot[bot] in https://github.com/thefrosty/wp-login-locker/pull/130
+* AGENTS.md & CLAUDE.md symbolic  by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/132
+* Update allowed PHP version & Symfony 8.x by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/135
+* Bump crate-ci/typos from 1.45.0 to 1.46.1 by @dependabot[bot] in https://github.com/thefrosty/wp-login-locker/pull/134
+
+**Full Changelog**: https://github.com/thefrosty/wp-login-locker/compare/v2.8.1...v2.9.0
+
 ## 2.8.1 - 2026-03-18
 
 * Feature: Lostpass No Username Check + Access Timeout by @thefrosty in https://github.com/thefrosty/wp-login-locker/pull/126
