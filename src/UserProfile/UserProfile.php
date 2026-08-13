@@ -93,6 +93,6 @@ abstract class UserProfile extends AbstractLoginLocker
      */
     protected function getUserMeta(int $user_id, string $key): array
     {
-        return (array)get_user_meta($user_id, $key, false);
+        return (array)get_user_meta($user_id, $key);
     }
 }

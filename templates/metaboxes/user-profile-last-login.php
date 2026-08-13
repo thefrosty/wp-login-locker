@@ -2,8 +2,8 @@
 
 use TheFrosty\WpLoginLocker\LoginLocker;
 
-$user_login_ip = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, false);
-$user_login_time = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, false);
+$user_login_ip = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
+$user_login_time = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY);
 if (empty($user_login_ip) || empty($user_login_time)) {
     return;
 }

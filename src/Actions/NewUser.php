@@ -34,8 +34,8 @@ class NewUser extends AbstractLoginLocker
      */
     public static function addLoginUserMeta(int $user_id, string $ip_address): void
     {
-        add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $ip_address, false);
-        add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, time(), false);
+        add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $ip_address);
+        add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, time());
     }
 
     /**
