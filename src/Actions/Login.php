@@ -157,7 +157,7 @@ class Login extends AbstractLoginLocker
      */
     protected function postMetaCleanup(int $user_id): void
     {
-        (new UserMetaCleanup($user_id))->cleanup();
+        new UserMetaCleanup($user_id)->cleanup();
     }
 
     /**
