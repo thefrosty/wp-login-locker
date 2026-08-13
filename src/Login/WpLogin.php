@@ -223,7 +223,7 @@ class WpLogin extends AbstractLoginLocker
             $content = ob_get_clean();
         }
 
-        (new Response())
+        new Response()
             ->setContent($content)
             ->setStatusCode($code ?? Response::HTTP_ACCEPTED)
             ->sendHeaders()
