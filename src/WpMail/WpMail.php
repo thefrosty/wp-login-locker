@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\WpMail;
 
@@ -6,6 +8,25 @@ use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
+use function _doing_it_wrong;
+use function apply_filters;
+use function current_time;
+use function date_i18n;
+use function did_action;
+use function do_action;
+use function error_log;
+use function get_bloginfo;
+use function get_site_option;
+use function implode;
+use function is_array;
+use function ob_get_clean;
+use function ob_start;
+use function sprintf;
+use function str_replace;
+use function wp_mail;
+use function wp_specialchars_decode;
+use function wp_strip_all_tags;
+use function wpautop;
 
 /**
  * Class WpMail
@@ -21,66 +42,57 @@ class WpMail implements PluginAwareInterface
 
     /**
      * Holds the from address
-     *
      * @var string $from_address
      */
-    private $from_address = '';
+    private string $from_address = '';
 
     /**
      * Holds the from name
-     *
      * @var string $from_name
      */
-    private $from_name = '';
+    private string $from_name = '';
 
     /**
      * Holds the email content type
-     *
      * @var string $content_type
      */
-    private $content_type = '';
+    private string $content_type = '';
 
     /**
      * Holds the email headers
-     *
      * @var string $headers
      */
-    private $headers = '';
+    private string $headers = '';
 
     /**
      * Whether to send email in HTML
-     *
      * @var bool $html
      */
-    private $html = true;
+    private bool $html = true;
 
     /**
      * The email template to use
-     *
      * @var string $template
      */
-    private $template = '';
+    private string $template = '';
 
     /**
      * The header text for the email
-     *
      * @var string $heading
      */
-    private $heading = '';
+    private string $heading = '';
 
     /**
      * The visually hidden "pretext".
-     *
      * @var string $pretext
      */
-    private $pretext = '';
+    private string $pretext = '';
 
     /**
      * WpMail constructor.
      */
     public function __construct()
     {
-
         if ($this->getTemplate() === 'none') {
             $this->html = false;
         }
@@ -91,68 +103,62 @@ class WpMail implements PluginAwareInterface
 
     /**
      * Set a property.
-     *
      * @param string $key
      * @param mixed $value
      */
-    public function __set(string $key, $value)
+    public function __set(string $key, $value): void
     {
         $this->$key = $value;
     }
 
     /**
      * Get a property.
-     *
      * @param string $key
-     *
      * @return mixed
      */
-    public function __get(string $key)
+    public function __get(string $key): mixed
     {
         return $this->$key;
     }
 
     /**
      * Get the email from name
-     *
      * @return string
      */
     public function getFromName(): string
     {
         if (empty($this->from_name)) {
-            $this->from_name = \get_bloginfo('name');
+            $this->from_name = get_bloginfo('name');
         }
 
-        return (string)\apply_filters(
+        return (string)apply_filters(
             LoginLocker::HOOK_PREFIX . 'email_from_name',
-            \wp_specialchars_decode($this->from_name),
+            wp_specialchars_decode($this->from_name),
             $this
         );
     }
 
     /**
      * Get the email from address.
-     *
      * @return string
      */
     public function getFromAddress(): string
     {
         if (empty($this->from_address)) {
-            $this->from_address = \get_site_option('admin_email');
+            $this->from_address = get_site_option('admin_email');
         }
 
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_address', $this->from_address, $this);
+        return (string)apply_filters(LoginLocker::HOOK_PREFIX . 'email_from_address', $this->from_address, $this);
     }
 
     /**
      * Get the email content type.
-     *
      * @return string
      */
     public function getContentType(): string
     {
         if (empty($this->content_type) && $this->html) {
-            $this->content_type = (string)\apply_filters(
+            $this->content_type = (string)apply_filters(
                 LoginLocker::HOOK_PREFIX . 'email_default_content_type',
                 self::CONTENT_TYPE_HTML,
                 $this
@@ -161,12 +167,11 @@ class WpMail implements PluginAwareInterface
             $this->content_type = self::CONTENT_TYPE_PLAIN;
         }
 
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_content_type', $this->content_type, $this);
+        return (string)apply_filters(LoginLocker::HOOK_PREFIX . 'email_content_type', $this->content_type, $this);
     }
 
     /**
      * Get the email headers.
-     *
      * @return string
      */
     public function getHeaders(): string
@@ -177,12 +182,11 @@ class WpMail implements PluginAwareInterface
             $this->headers .= "Content-Type: {$this->getContentType()}; charset=utf-8\r\n";
         }
 
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_headers', $this->headers, $this);
+        return (string)apply_filters(LoginLocker::HOOK_PREFIX . 'email_headers', $this->headers, $this);
     }
 
     /**
      * Get the enabled email template
-     *
      * @return string
      */
     public function getTemplate(): string
@@ -191,24 +195,21 @@ class WpMail implements PluginAwareInterface
             $this->template = 'default';
         }
 
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_template', $this->template);
+        return (string)apply_filters(LoginLocker::HOOK_PREFIX . 'email_template', $this->template);
     }
 
     /**
      * Get the header text for the email
-     *
      * @return string
      */
     public function getHeading(): string
     {
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_heading', $this->heading);
+        return (string)apply_filters(LoginLocker::HOOK_PREFIX . 'email_heading', $this->heading);
     }
 
     /**
      * Parse email template tags
-     *
      * @param string $content
-     *
      * @return string
      */
     public function parseTags($content): string
@@ -218,24 +219,22 @@ class WpMail implements PluginAwareInterface
 
     /**
      * Build the final email.
-     *
      * @param string $message
-     *
      * @return string
      */
     public function buildEmail(string $message): string
     {
         if (!$this->html) {
-            return (string)\apply_filters(
+            return (string)apply_filters(
                 LoginLocker::HOOK_PREFIX . 'email_message',
-                \wp_strip_all_tags($message),
+                wp_strip_all_tags($message),
                 $this
             );
         }
 
         $message = $this->textToHtml($message);
 
-        \ob_start();
+        ob_start();
 
         // Render the header
         include $this->getPlugin()->getDirectory() . 'templates/email/header.php';
@@ -243,50 +242,46 @@ class WpMail implements PluginAwareInterface
         /**
          * Hooks into the email header
          */
-        \do_action(LoginLocker::HOOK_PREFIX . 'email_header', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_header', $this);
 
         // Render the body
         include $this->getPlugin()->getDirectory() . 'templates/email/body.php';
 
         /**
          * Hooks into the body of the email
-         *
          * @param WpMail $this
          */
-        \do_action(LoginLocker::HOOK_PREFIX . 'email_body', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_body', $this);
 
         // Render the footer
         include $this->getPlugin()->getDirectory() . 'templates/email/footer.php';
 
         /**
          * Hooks into the footer of the email
-         *
          * @param WpMail $this
          */
-        \do_action(LoginLocker::HOOK_PREFIX . 'email_footer', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_footer', $this);
 
-        $body = \ob_get_clean();
-        $message = \str_replace(['{pretext}', '{message}'], [$this->pretext, $message], $body);
+        $body = ob_get_clean();
+        $message = str_replace(['{pretext}', '{message}'], [$this->pretext, $message], $body);
 
-        return (string)\apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', $message, $this);
+        return (string)apply_filters(LoginLocker::HOOK_PREFIX . 'email_message', $message, $this);
     }
 
     /**
      * Send the email
-     *
      * @param string $to The To address to send to.
      * @param string $subject The subject line of the email to send.
      * @param string $message The body of the email to send.
      * @param string|array $attachments Attachments to the email in a format supported by wp_mail()
-     *
      * @return bool
      */
     public function send($to, $subject, $message, $attachments = ''): bool
     {
-        if (!\did_action('init') && !\did_action('admin_init')) {
-            \_doing_it_wrong(
+        if (!did_action('init') && !did_action('admin_init')) {
+            _doing_it_wrong(
                 __FUNCTION__,
-                \sprintf('You cannot send email with `%s` until `init` or `admin_init` has been reached.', self::class),
+                sprintf('You cannot send email with `%s` until `init` or `admin_init` has been reached.', self::class),
                 null
             );
 
@@ -295,43 +290,41 @@ class WpMail implements PluginAwareInterface
 
         /**
          * Hook before the email is sent.
-         *
          * @param WpMail $this
          */
-        \do_action(LoginLocker::HOOK_PREFIX . 'email_send_before', $this);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_send_before', $this);
 
         $subject = $this->parseTags($subject);
         $message = $this->parseTags($message);
         $message = $this->buildEmail($message);
 
-        $attachments = \apply_filters(LoginLocker::HOOK_PREFIX . 'email_attachments', $attachments, $this);
+        $attachments = apply_filters(LoginLocker::HOOK_PREFIX . 'email_attachments', $attachments, $this);
 
-        $sent = \wp_mail($to, $subject, $message, $this->getHeaders(), $attachments);
-        $log_errors = \apply_filters(LoginLocker::HOOK_PREFIX . 'log_email_errors', true, $to, $subject, $message);
+        $sent = wp_mail($to, $subject, $message, $this->getHeaders(), $attachments);
+        $log_errors = apply_filters(LoginLocker::HOOK_PREFIX . 'log_email_errors', true, $to, $subject, $message);
 
         if (!$sent && $log_errors) {
-            if (\is_array($to)) {
-                $to = \implode(',', $to);
+            if (is_array($to)) {
+                $to = implode(',', $to);
             }
 
             $log_message = sprintf(
                 "Email from %s failed to send.\nSend time: %s\nTo: %s\nSubject: %s\n\n",
                 self::class,
-                \date_i18n('F j Y H:i:s', \current_time('timestamp')),
+                date_i18n('F j Y H:i:s', current_time('timestamp')),
                 $to,
                 $subject
             );
 
-            \error_log($log_message);
+            error_log($log_message);
         }
 
         /**
          * Hook after the email is sent.
-         *
          * @param WpMail $this
          * @param bool $sent Whether the email was sent
          */
-        \do_action(LoginLocker::HOOK_PREFIX . 'email_send_after', $this, $sent);
+        do_action(LoginLocker::HOOK_PREFIX . 'email_send_after', $this, $sent);
 
         return $sent;
     }
@@ -339,7 +332,7 @@ class WpMail implements PluginAwareInterface
     /**
      * Add filters / actions before the email is sent.
      */
-    public function sendBefore()
+    public function sendBefore(): void
     {
         $this->addFilter('wp_mail_from', [$this, 'getFromAddress']);
         $this->addFilter('wp_mail_from_name', [$this, 'getFromName']);
@@ -349,7 +342,7 @@ class WpMail implements PluginAwareInterface
     /**
      * Remove filters / actions after the email is sent.
      */
-    public function sendAfter()
+    public function sendAfter(): void
     {
         $this->removeFilter('wp_mail_from', [$this, 'getFromAddress']);
         $this->removeFilter('wp_mail_from_name', [$this, 'getFromName']);
@@ -362,16 +355,14 @@ class WpMail implements PluginAwareInterface
     /**
      * Converts text to formatted HTML. This is primarily for turning line breaks into <p> and
      * <br/> tags.
-     *
      * @param string $message
-     *
      * @return string
      */
     public function textToHtml(string $message): string
     {
         if ($this->content_type === self::CONTENT_TYPE_HTML || $this->html === true) {
-            $message = \apply_filters(LoginLocker::HOOK_PREFIX . 'email_template_wpautop', true) ?
-                \wpautop($message) : $message;
+            $message = apply_filters(LoginLocker::HOOK_PREFIX . 'email_template_wpautop', true) ?
+                wpautop($message) : $message;
         }
 
         return $message;

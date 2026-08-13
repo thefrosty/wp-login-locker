@@ -1,12 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\UserProfile;
 
 use TheFrosty\WpLoginLocker\LoginLocker;
+use WP_User;
+use function ob_get_clean;
+use function ob_start;
 
 /**
  * Class EmailNotification
- *
  * @package TheFrosty\WpLoginLocker\UserProfile
  */
 class EmailNotificationSetting extends UserProfile
@@ -32,13 +36,12 @@ class EmailNotificationSetting extends UserProfile
 
     /**
      * Show extra user fields for last login IP and time.
-     *
      * @param \WP_User|null $user
      */
-    protected function showExtraUserFields(?\WP_User $user = null): void
+    protected function showExtraUserFields(?WP_User $user = null): void
     {
-        \ob_start();
+        ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/user-profile/email-notification.php';
-        echo \ob_get_clean();
+        echo ob_get_clean();
     }
 }
