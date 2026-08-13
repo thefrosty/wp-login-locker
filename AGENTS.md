@@ -16,6 +16,9 @@ composer tests
 # Run PHP_CodeSniffer only
 composer phpcs
 
+# Run PHP Code Beautifier and Fixer only
+composer phpcs:fix
+
 # Run PHPUnit only
 composer phpunit
 
@@ -102,11 +105,12 @@ containers use the command `docker ps`. If no database is running, run the follo
 
 ## Coding Standards
 
-- PHP 8.3+ with strict types
+- PHP 8.4+ with strict types
 - PSR-12 formatting
 - WordPress coding standards (via WPCS)
 - Slevomat coding standards (additional rules)
 - Run `composer phpcs` to validate
+- Run `composer phpcs:fix` to auto resolve phpcs issues with phpcbf command.
 
 ## Dependencies
 
