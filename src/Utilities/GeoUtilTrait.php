@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TheFrosty\WpLoginLocker\Utilities;
 
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
+use function array_map;
 use function explode;
 use function TheFrosty\WpUtilities\getIpAddress;
 
@@ -23,7 +24,7 @@ trait GeoUtilTrait
      */
     public function getIP(): string
     {
-        $ip = explode(',', getIpAddress($this->getRequest()) ?? '0.0.0.0');
+        $ip = array_map('trim', explode(',', getIpAddress($this->getRequest()) ?? '0.0.0.0'));
 
         return sanitize_text_field(end($ip));
     }
