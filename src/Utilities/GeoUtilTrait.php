@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TheFrosty\WpLoginLocker\Utilities;
 
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
-use function strval;
 
 /**
  * Trait GeoUtilTrait
