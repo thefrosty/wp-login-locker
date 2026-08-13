@@ -22,19 +22,19 @@ trait GeoUtilTrait
      */
     public function getIP(): string
     {
+        if ($this->getRequest()->server->has('HTTP_CLIENT_IP') &&
+        !empty($this->getRequest()->server->get('HTTP_CLIENT_IP'))) {
+            return (string)$this->getRequest()->server->get('HTTP_CLIENT_IP');
+        }
+
         if (
-            $this->getRequest()->server->has('HTTP_CLIENT_IP') &&
-            !empty($this->getRequest()->server->get('HTTP_CLIENT_IP'))
-        ) {
-            return strval($this->getRequest()->server->get('HTTP_CLIENT_IP'));
-        } elseif (
             $this->getRequest()->server->has('HTTP_X_FORWARDED_FOR') &&
             !empty($this->getRequest()->server->get('HTTP_X_FORWARDED_FOR'))
         ) {
-            return strval($this->getRequest()->server->get('HTTP_X_FORWARDED_FOR'));
+            return (string)$this->getRequest()->server->get('HTTP_X_FORWARDED_FOR');
         }
 
-        return strval($this->getRequest()->server->get('REMOTE_ADDR'));
+        return (string)$this->getRequest()->server->get('REMOTE_ADDR');
     }
 
     /**
