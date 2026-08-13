@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace TheFrosty\WpLoginLocker\Utilities;
 
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
+use function array_map;
+use function explode;
+use function TheFrosty\WpUtilities\getIpAddress;
 
 /**
  * Trait GeoUtilTrait
@@ -21,21 +24,9 @@ trait GeoUtilTrait
      */
     public function getIP(): string
     {
-        if (
-            $this->getRequest()->server->has('HTTP_CLIENT_IP') &&
-            !empty($this->getRequest()->server->get('HTTP_CLIENT_IP'))
-        ) {
-            return (string)$this->getRequest()->server->get('HTTP_CLIENT_IP');
-        }
+        $ip = array_map('trim', explode(',', getIpAddress($this->getRequest()) ?? '0.0.0.0'));
 
-        if (
-            $this->getRequest()->server->has('HTTP_X_FORWARDED_FOR') &&
-            !empty($this->getRequest()->server->get('HTTP_X_FORWARDED_FOR'))
-        ) {
-            return (string)$this->getRequest()->server->get('HTTP_X_FORWARDED_FOR');
-        }
-
-        return (string)$this->getRequest()->server->get('REMOTE_ADDR');
+        return sanitize_text_field(end($ip));
     }
 
     /**
