@@ -37,8 +37,8 @@ class WpMail implements PluginAwareInterface
 
     use HooksTrait, PluginAwareTrait;
 
-    const CONTENT_TYPE_HTML = 'text/html';
-    const CONTENT_TYPE_PLAIN = 'text/plain';
+    const string CONTENT_TYPE_HTML = 'text/html';
+    const string CONTENT_TYPE_PLAIN = 'text/plain';
 
     /**
      * Holds the from address
