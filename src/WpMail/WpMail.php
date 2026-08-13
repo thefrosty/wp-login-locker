@@ -37,8 +37,8 @@ class WpMail implements PluginAwareInterface
 
     use HooksTrait, PluginAwareTrait;
 
-    const string CONTENT_TYPE_HTML = 'text/html';
-    const string CONTENT_TYPE_PLAIN = 'text/plain';
+    public const string CONTENT_TYPE_HTML = 'text/html';
+    public const string CONTENT_TYPE_PLAIN = 'text/plain';
 
     /**
      * Holds the from address
@@ -236,7 +236,7 @@ class WpMail implements PluginAwareInterface
 
         ob_start();
 
-        // Render the header
+        // Render the header.
         include $this->getPlugin()->getDirectory() . 'templates/email/header.php';
 
         /**
@@ -244,7 +244,7 @@ class WpMail implements PluginAwareInterface
          */
         do_action(LoginLocker::HOOK_PREFIX . 'email_header', $this);
 
-        // Render the body
+        // Render the body.
         include $this->getPlugin()->getDirectory() . 'templates/email/body.php';
 
         /**
@@ -253,7 +253,7 @@ class WpMail implements PluginAwareInterface
          */
         do_action(LoginLocker::HOOK_PREFIX . 'email_body', $this);
 
-        // Render the footer
+        // Render the footer.
         include $this->getPlugin()->getDirectory() . 'templates/email/footer.php';
 
         /**
@@ -348,7 +348,7 @@ class WpMail implements PluginAwareInterface
         $this->removeFilter('wp_mail_from_name', [$this, 'getFromName']);
         $this->removeFilter('wp_mail_content_type', [$this, 'getContentType']);
 
-        // Reset heading to an empty string
+        // Reset heading to an empty string.
         $this->heading = '';
     }
 

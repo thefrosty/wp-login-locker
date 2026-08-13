@@ -21,8 +21,10 @@ trait GeoUtilTrait
      */
     public function getIP(): string
     {
-        if ($this->getRequest()->server->has('HTTP_CLIENT_IP') &&
-        !empty($this->getRequest()->server->get('HTTP_CLIENT_IP'))) {
+        if (
+            $this->getRequest()->server->has('HTTP_CLIENT_IP') &&
+            !empty($this->getRequest()->server->get('HTTP_CLIENT_IP'))
+        ) {
             return (string)$this->getRequest()->server->get('HTTP_CLIENT_IP');
         }
 
