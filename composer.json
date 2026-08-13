@@ -18,13 +18,13 @@
     },
     "optimize-autoloader": true,
     "platform": {
-      "php": "8.3"
+      "php": "8.4"
     },
     "preferred-install": "dist",
     "sort-packages": true
   },
   "require": {
-    "php": "^8.3 || ^8.4 || ^8.5",
+    "php": "^8.4 || ^8.5",
     "ext-openssl": "*",
     "composer/installers": "~2.0",
     "dwnload/wp-settings-api": "^3.10",
