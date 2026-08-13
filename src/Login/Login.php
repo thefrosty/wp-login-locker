@@ -53,11 +53,12 @@ class Login extends AbstractLoginLocker
      */
     protected function wpAddInlineLoginStyle(): void
     {
+        global $wp_version;
         $logo = Options::getOption(Settings::LOGIN_SETTING_LOGO, Settings::LOGIN_SETTINGS, '');
         if (!array_key_exists(Settings::LOGIN_SETTING_LOGO, $this->settings) || empty($logo)) {
             return;
         }
-        $login_h1 = version_compare($GLOBALS['wp_version'], '6.7', '>=') ? '.login .wp-login-logo' : '.login h1';
+        $login_h1 = version_compare($wp_version, '6.7', '>=') ? '.login .wp-login-logo' : '.login h1';
         $css = sprintf(
             '%s a {
 	background-image: none, url(%s);
