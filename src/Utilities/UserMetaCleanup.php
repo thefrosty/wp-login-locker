@@ -25,7 +25,7 @@ class UserMetaCleanup
      */
     private int $user_id;
 
-    private const MAX_POST_META_COUNT = 10;
+    private const int MAX_POST_META_COUNT = 10;
 
     /**
      * UserMetaCleanup constructor.

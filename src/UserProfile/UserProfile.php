@@ -28,8 +28,8 @@ abstract class UserProfile extends AbstractLoginLocker
 {
     use ContainerAwareTrait, HooksTrait, PluginAwareTrait;
 
-    public const USER_PROFILE_ID = 'login-locker-settings';
-    public const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
+    public const string USER_PROFILE_ID = 'login-locker-settings';
+    public const string USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
 
     /**
      * User meta fields to save.
