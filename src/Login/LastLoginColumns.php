@@ -1,17 +1,25 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Login;
 
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
+use WP_User_Query;
+use function array_merge;
+use function current_user_can;
+use function date_i18n;
+use function end;
+use function esc_html__;
+use function get_option;
+use function get_user_meta;
 
 /**
  * Class LastLoginColumns
  * Based on WP Last Login by Konstantin
- *
  * @link https://wordpress.org/plugins/wp-last-login/
- *
  * @package TheFrosty\WpLoginLocker\Login
  */
 class LastLoginColumns implements WpHooksInterface
@@ -24,7 +32,7 @@ class LastLoginColumns implements WpHooksInterface
     public function addHooks(): void
     {
         // Make sure only 'Admins' who can `list_users` see the new columns.
-        if (\current_user_can('list_users')) {
+        if (current_user_can('list_users')) {
             $this->addAction('manage_site-users-network_columns', [$this, 'addColumn'], 1);
             $this->addAction('manage_users_columns', [$this, 'addColumn'], 1);
             $this->addAction('wpmu_users_columns', [$this, 'addColumn'], 1);
@@ -37,16 +45,15 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Adds the last login column to the network admin user list.
-     * @param  array $cols The default columns.
+     * @param array $cols The default columns.
      * @return array
      */
     protected function addColumn(array $cols): array
     {
-        $cols[LoginLocker::LAST_LOGIN] = \esc_html__('Last Login', 'wp-login-locker');
+        $cols[LoginLocker::LAST_LOGIN] = esc_html__('Last Login', 'wp-login-locker');
 
         return $cols;
     }
-
 
     /**
      * Adds the last login column to the network admin user list.
@@ -58,17 +65,16 @@ class LastLoginColumns implements WpHooksInterface
     protected function manageUsersCustomColumn(?string $value, string $column_name, int $user_id): string
     {
         if ($column_name === LoginLocker::LAST_LOGIN) {
-            $value = \esc_html__('Unknown', 'wp-login-locker');
-            $last_login = \get_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY);
+            $value = esc_html__('Unknown', 'wp-login-locker');
+            $last_login = get_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY);
 
             if (!empty($last_login)) {
-                $value = \date_i18n(\get_option('date_format'), \end($last_login));
+                $value = date_i18n(get_option('date_format'), end($last_login));
             }
         }
 
         return $value ?? '';
     }
-
 
     /**
      * Register the column as sortable.
@@ -82,18 +88,18 @@ class LastLoginColumns implements WpHooksInterface
         return $columns;
     }
 
-
     /**
      * Handle ordering by last login.
      * @param \WP_User_Query $user_query Request arguments.
      * @return \WP_User_Query
      */
-    protected function preGetUsers(\WP_User_Query $user_query): \WP_User_Query
+    protected function preGetUsers(WP_User_Query $user_query): WP_User_Query
     {
-        if (isset($user_query->query_vars['orderby']) &&
+        if (
+            isset($user_query->query_vars['orderby']) &&
             $user_query->query_vars['orderby'] === LoginLocker::LAST_LOGIN
         ) {
-            $user_query->query_vars = \array_merge(
+            $user_query->query_vars = array_merge(
                 $user_query->query_vars,
                 [
                     'meta_key' => LoginLocker::LAST_LOGIN_TIME_META_KEY,

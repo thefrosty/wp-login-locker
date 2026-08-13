@@ -7,6 +7,13 @@ namespace TheFrosty\WpLoginLocker\Login;
 use Dwnload\WpSettingsApi\Api\Options;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
+use function array_key_exists;
+use function get_bloginfo;
+use function home_url;
+use function is_multisite;
+use function sprintf;
+use function wp_add_inline_style;
+use function wp_make_link_relative;
 
 /**
  * Class Login
@@ -46,20 +53,21 @@ class Login extends AbstractLoginLocker
      */
     protected function wpAddInlineLoginStyle(): void
     {
+        global $wp_version;
         $logo = Options::getOption(Settings::LOGIN_SETTING_LOGO, Settings::LOGIN_SETTINGS, '');
-        if (!\array_key_exists(Settings::LOGIN_SETTING_LOGO, $this->settings) || empty($logo)) {
+        if (!array_key_exists(Settings::LOGIN_SETTING_LOGO, $this->settings) || empty($logo)) {
             return;
         }
-        $login_h1 = version_compare($GLOBALS['wp_version'], '6.7', '>=') ? '.login .wp-login-logo' : '.login h1';
-        $css = \sprintf(
+        $login_h1 = version_compare($wp_version, '6.7', '>=') ? '.login .wp-login-logo' : '.login h1';
+        $css = sprintf(
             '%s a {
 	background-image: none, url(%s);
 	background-size: contain;
 }',
             $login_h1,
-            \wp_make_link_relative($logo),
+            wp_make_link_relative($logo),
         );
-        \wp_add_inline_style('login', $css);
+        wp_add_inline_style('login', $css);
     }
 
     /**
@@ -69,8 +77,8 @@ class Login extends AbstractLoginLocker
      */
     protected function loginHeaderUrl(string $url): string
     {
-        if (!\is_multisite()) {
-            return \home_url();
+        if (!is_multisite()) {
+            return home_url();
         }
 
         return $url;
@@ -83,8 +91,8 @@ class Login extends AbstractLoginLocker
      */
     protected function loginHeaderTitle(string $title): string
     {
-        if (!\is_multisite()) {
-            return \get_bloginfo('description');
+        if (!is_multisite()) {
+            return get_bloginfo('description');
         }
 
         return $title;

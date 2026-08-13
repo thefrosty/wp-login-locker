@@ -17,7 +17,7 @@ To install this package, edit your `composer.json` file:
 ```json
 {
     "require": {
-        "thefrosty/wp-login-locker": "^2.6"
+        "thefrosty/wp-login-locker": "^2.10"
     }
 }
 ```
@@ -27,7 +27,7 @@ Then run:
 
 Or, run:
 
-`$ composer require thefrosty/wp-login-locker:^2.6`
+`$ composer require thefrosty/wp-login-locker:^2.10`
 
 -----
 

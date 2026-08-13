@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Utilities;
 
@@ -23,15 +25,17 @@ trait GeoUtilTrait
             $this->getRequest()->server->has('HTTP_CLIENT_IP') &&
             !empty($this->getRequest()->server->get('HTTP_CLIENT_IP'))
         ) {
-            return \strval($this->getRequest()->server->get('HTTP_CLIENT_IP'));
-        } elseif (
+            return (string)$this->getRequest()->server->get('HTTP_CLIENT_IP');
+        }
+
+        if (
             $this->getRequest()->server->has('HTTP_X_FORWARDED_FOR') &&
             !empty($this->getRequest()->server->get('HTTP_X_FORWARDED_FOR'))
         ) {
-            return \strval($this->getRequest()->server->get('HTTP_X_FORWARDED_FOR'));
+            return (string)$this->getRequest()->server->get('HTTP_X_FORWARDED_FOR');
         }
 
-        return \strval($this->getRequest()->server->get('REMOTE_ADDR'));
+        return (string)$this->getRequest()->server->get('REMOTE_ADDR');
     }
 
     /**

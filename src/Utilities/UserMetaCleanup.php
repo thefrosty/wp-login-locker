@@ -1,8 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\Utilities;
 
 use TheFrosty\WpLoginLocker\LoginLocker;
+use function _get_meta_table;
+use function array_diff;
+use function array_map;
+use function array_slice;
+use function count;
+use function implode;
 
 /**
  * Class UserMetaCleanup
@@ -13,16 +21,14 @@ class UserMetaCleanup
 
     /**
      * User ID.
-     *
      * @var int $user_id
      */
-    private $user_id;
+    private int $user_id;
 
-    private const MAX_POST_META_COUNT = 10;
+    private const int MAX_POST_META_COUNT = 10;
 
     /**
      * UserMetaCleanup constructor.
-     *
      * @param int $user_id
      */
     public function __construct(int $user_id)
@@ -46,11 +52,11 @@ class UserMetaCleanup
     {
         $meta_ids = $this->query(LoginLocker::LAST_LOGIN_IP_META_KEY);
 
-        if (!\count($meta_ids) || \count($meta_ids) > self::MAX_POST_META_COUNT + 5) {
+        if (!count($meta_ids) || count($meta_ids) > self::MAX_POST_META_COUNT + 5) {
             return;
         }
 
-        $this->delete(\array_diff($meta_ids, $this->getSlice($meta_ids)));
+        $this->delete(array_diff($meta_ids, $this->getSlice($meta_ids)));
     }
 
     /**
@@ -60,11 +66,11 @@ class UserMetaCleanup
     {
         $meta_ids = $this->query(LoginLocker::LAST_LOGIN_TIME_META_KEY);
 
-        if (!\count($meta_ids) || \count($meta_ids) > self::MAX_POST_META_COUNT + 5) {
+        if (!count($meta_ids) || count($meta_ids) > self::MAX_POST_META_COUNT + 5) {
             return;
         }
 
-        $this->delete(\array_diff($meta_ids, $this->getSlice($meta_ids)));
+        $this->delete(array_diff($meta_ids, $this->getSlice($meta_ids)));
     }
 
     /**
@@ -74,7 +80,7 @@ class UserMetaCleanup
      */
     private function getSlice(array $meta_ids): array
     {
-        return \array_slice($meta_ids, -self::MAX_POST_META_COUNT, self::MAX_POST_META_COUNT, true);
+        return array_slice($meta_ids, -self::MAX_POST_META_COUNT, self::MAX_POST_META_COUNT, true);
     }
 
     /**
@@ -85,7 +91,7 @@ class UserMetaCleanup
     private function query(string $meta_key): array
     {
         global $wpdb;
-        $table = \_get_meta_table('user');
+        $table = _get_meta_table('user');
         $query = $wpdb->prepare(
             "SELECT umeta_id FROM $table WHERE user_id = %d AND meta_key = %s",
             $this->user_id,
@@ -97,16 +103,15 @@ class UserMetaCleanup
 
     /**
      * Delete the arrays past down from the diff.
-     *
      * @param array $meta_ids
      */
     private function delete(array $meta_ids): void
     {
         global $wpdb;
-        $table = \_get_meta_table('user');
+        $table = _get_meta_table('user');
         $query = $wpdb->prepare(
             "DELETE FROM $table WHERE umeta_id IN(%s)",
-            \implode(',', \array_map('\trim', $meta_ids))
+            implode(',', array_map('\trim', $meta_ids))
         );
 
         $wpdb->query($query);

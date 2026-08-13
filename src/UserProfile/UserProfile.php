@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpLoginLocker\UserProfile;
 
@@ -7,25 +9,33 @@ use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpUtilities\Plugin\ContainerAwareTrait;
 use TheFrosty\WpUtilities\Plugin\HooksTrait;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
+use WP_User;
+use function current_user_can;
+use function delete_user_meta;
+use function did_action;
+use function do_action;
+use function esc_attr;
+use function esc_html__;
+use function get_user_meta;
+use function printf;
+use function update_user_meta;
 
 /**
  * Class UserProfile
- *
  * @package TheFrosty\WpLoginLocker\UserProfile
  */
 abstract class UserProfile extends AbstractLoginLocker
 {
     use ContainerAwareTrait, HooksTrait, PluginAwareTrait;
 
-    public const USER_PROFILE_ID = 'login-locker-settings';
-    public const USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
+    public const string USER_PROFILE_ID = 'login-locker-settings';
+    public const string USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';
 
     /**
      * User meta fields to save.
-     *
      * @var array $fields
      */
-    protected $fields = [];
+    protected array $fields = [];
 
     /**
      * Add class hooks.
@@ -43,15 +53,15 @@ abstract class UserProfile extends AbstractLoginLocker
      * @param \WP_User|null $user
      * @return void
      */
-    protected function doUserProfileAction(?\WP_User $user = null): void
+    protected function doUserProfileAction(?WP_User $user = null): void
     {
-        if (!\did_action(self::USER_PROFILE_HOOK)) {
-            \printf(
+        if (!did_action(self::USER_PROFILE_HOOK)) {
+            printf(
                 '<h2 id="%s">%s</h2>',
-                \esc_attr(self::USER_PROFILE_ID),
-                \esc_html__('Login Locker Settings', 'wp-login-locker')
+                esc_attr(self::USER_PROFILE_ID),
+                esc_html__('Login Locker Settings', 'wp-login-locker')
             );
-            \do_action(self::USER_PROFILE_HOOK, $user);
+            do_action(self::USER_PROFILE_HOOK, $user);
         }
     }
 
@@ -62,15 +72,15 @@ abstract class UserProfile extends AbstractLoginLocker
      */
     protected function saveExtraProfileFields($user_id): void
     {
-        if (empty($this->fields) || !\current_user_can('read')) {
+        if (empty($this->fields) || !current_user_can('read')) {
             return;
         }
 
         foreach ($this->fields as $field) {
             if ($this->getRequest()->request->has($field)) {
-                \update_user_meta($user_id, $field, $this->getRequest()->request->get($field));
+                update_user_meta($user_id, $field, $this->getRequest()->request->get($field));
             } else {
-                \delete_user_meta($user_id, $field);
+                delete_user_meta($user_id, $field);
             }
         }
     }
@@ -83,6 +93,6 @@ abstract class UserProfile extends AbstractLoginLocker
      */
     protected function getUserMeta(int $user_id, string $key): array
     {
-        return (array)\get_user_meta($user_id, $key, false);
+        return (array)get_user_meta($user_id, $key);
     }
 }
