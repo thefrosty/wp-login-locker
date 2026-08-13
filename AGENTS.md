@@ -25,11 +25,8 @@ composer phpunit
 # Run PHPUnit with HTML coverage report
 composer phpunit:coverage
 
-# Run Rector PHP refactoring tool
-rector process src/
-
-# Run Rector on tests
-rector process tests/
+# Run Rector on tests (use "--dry-run" flag to validate and test first)
+vendor/bin/rector process tests/
 ```
 
 ## Architecture Overview
