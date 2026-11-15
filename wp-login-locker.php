@@ -4,7 +4,7 @@
  * Description: Disable direct access to your sites /wp-login.php script, plus user notifications based on actions.
  * Author: Austin Passy
  * Author URI: https://austin.passy.co/
- * Version: 2.10.1
+ * Version: 2.11.0
  * Requires at least: 6.7
  * Tested up to: 7.2.0
  * Requires PHP: 8.4
@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
+use TheFrosty\WpUtilities\WpAdmin\GitHubUpdateChecker;
 use function defined;
 use function is_readable;
 use function register_activation_hook;
@@ -41,10 +42,11 @@ $plugin
     ->add(new Actions\Logout())
     ->add(new Actions\NewUser())
     ->add(new DisablePluginUpdateCheck())
+    ->add(new GitHubUpdateChecker('thefrosty/wp-login-locker'))
     ->add(new Login\WpLogin())
     ->add(new Settings())
     ->add(new WpCore\WpSignup())
-    ->add(new WpSettingsApi(Settings::factory('2.10.1')))
+    ->add(new WpSettingsApi(Settings::factory('2.11.0')))
     ->addOnHook(Admin\Menu::class, 'admin_init')
     ->addOnHook(Login\Login::class, 'login_init', 5)
     ->addOnHook(Login\LastLoginColumns::class, 'admin_init', 10, true)
