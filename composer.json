@@ -30,7 +30,7 @@
     "dwnload/wp-settings-api": "^3.10",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^8.1.11",
-    "thefrosty/wp-utilities": "^3.13"
+    "thefrosty/wp-utilities": "^3.13.2"
   },
   "require-dev": {
     "ext-simplexml": "*",
