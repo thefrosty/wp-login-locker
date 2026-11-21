@@ -19,6 +19,7 @@ use function add_query_arg;
 use function add_user_meta;
 use function do_action;
 use function end;
+use function esc_html;
 use function esc_html__;
 use function esc_url;
 use function filter_var;
@@ -241,11 +242,12 @@ class Login extends AbstractLoginLocker
          * %5$s Site name
          * %6$s Site email
          */
+        // The user agent is attacker-controlled and names are user-editable: escape before they go into the HTML email.
         return sprintf(
             $content,
-            $this->getUserName($user),
-            $this->getUserAgent(),
-            $this->getIP(),
+            esc_html($this->getUserName($user)),
+            esc_html($this->getUserAgent()),
+            esc_html($this->getIP()),
             esc_url($login_url),
             $this->wp_mail->getFromName(),
             $this->wp_mail->getFromAddress()
