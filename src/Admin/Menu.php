@@ -7,17 +7,16 @@ namespace TheFrosty\WpLoginLocker\Admin;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\Actions\Logout;
-use TheFrosty\WpLoginLocker\Login\WpLogin;
 use WP_Admin_Bar;
+use function __;
 use function add_query_arg;
 use function admin_url;
 use function esc_html__;
+use function esc_js;
 use function esc_url;
 use function get_current_user_id;
 use function sprintf;
-use function wp_get_current_user;
 use function wp_nonce_url;
-use const PHP_EOL;
 
 /**
  * Class Menu
@@ -58,10 +57,13 @@ class Menu extends AbstractLoginLocker
                 ),
                 'meta' => [
                     'onclick' => sprintf(
-                        'return confirm("Continue to secure log out.%1$s%1$sThis will require you to re-authenticate again with wp-login.php?%2$s=%3$s.")',
-                        PHP_EOL,
-                        WpLogin::AUTH_CHECK_KEY,
-                        wp_get_current_user()->user_login
+                        'return confirm("%s")',
+                        esc_js(
+                            __(
+                                'Continue to secure log out? You will need a login link from a Login Locker email to access wp-login.php again.',
+                                'wp-login-locker'
+                            )
+                        )
                     ),
                 ],
             ]);
