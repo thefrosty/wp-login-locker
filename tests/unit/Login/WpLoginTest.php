@@ -185,10 +185,9 @@ class WpLoginTest extends TestCase
         $this->assertTrue(method_exists($this->wpLogin, 'loginAuthCheck'));
         try {
             $user = self::factory()->user->create_and_get();
-            $cookieValue = $this->reflection->getMethod('getCookieValue');
             $this->wpLogin->getRequest()->cookies->set(
                 WpLogin::COOKIE_NAME,
-                $cookieValue->invoke($this->wpLogin, $user->user_email)
+                SignedToken::create($user, WpLogin::COOKIE_NAME, \time() + 60)
             );
             $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
             $this->assertNull($loginAuthCheck->invoke($this->wpLogin));
@@ -300,6 +299,33 @@ class WpLoginTest extends TestCase
         $this->replaceRequest(Request::create($url, Request::METHOD_POST, [LoginLink::REQUEST_FIELD => 'someone']));
         $this->assertFalse($showLoginLinkForm->invoke($this->wpLogin));
         $this->replaceRequest($original);
+    }
+
+    /**
+     * Test loginAuthCheck(). Expired or forged cookies must NOT grant access.
+     */
+    public function testLoginAuthCheckRejectsExpiredOrForgedCookie(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        $values = [
+            SignedToken::create($user, WpLogin::COOKIE_NAME, \time() - 1),
+            SignedToken::create($user, WpLogin::AUTH_CHECK_KEY, \time() + 60), // Wrong purpose.
+            'OK|' . $user->user_email,
+        ];
+        $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
+        foreach ($values as $value) {
+            $this->wpLogin->getRequest()->cookies->set(WpLogin::COOKIE_NAME, $value);
+            try {
+                $loginAuthCheck->invoke($this->wpLogin);
+                $this->fail('Expected the no-auth login page to terminate the request.');
+            } catch (Throwable $exception) {
+                $this->assertInstanceOf(WPDieException::class, $exception);
+                if (ob_get_level()) {
+                    ob_get_clean();
+                }
+            }
+        }
+        $this->wpLogin->getRequest()->cookies->remove(WpLogin::COOKIE_NAME);
     }
 
     /**
