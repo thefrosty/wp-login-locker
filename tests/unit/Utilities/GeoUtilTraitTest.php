@@ -58,6 +58,29 @@ class GeoUtilTraitTest extends TestCase
     }
 
     /**
+     * Test getIP() ignores client-supplied headers unless they're explicitly trusted.
+     */
+    public function testGetIPIgnoresSpoofedHeaders(): void
+    {
+        $server = $this->class->getRequest()->server;
+        $server->set('REMOTE_ADDR', '203.0.113.10');
+        $server->set('HTTP_CLIENT_IP', '198.51.100.1');
+        $server->set('HTTP_X_FORWARDED_FOR', '198.51.100.2');
+        $this->assertSame('203.0.113.10', $this->class->getIP());
+
+        $filter = static fn(): array => ['HTTP_X_FORWARDED_FOR'];
+        \add_filter('login_locker/trusted_ip_headers', $filter);
+        $server->set('HTTP_X_FORWARDED_FOR', '198.51.100.9, 192.0.2.4');
+        $this->assertSame('192.0.2.4', $this->class->getIP());
+        $server->set('HTTP_X_FORWARDED_FOR', 'not-an-ip');
+        $this->assertSame('203.0.113.10', $this->class->getIP());
+        \remove_filter('login_locker/trusted_ip_headers', $filter);
+
+        $server->remove('HTTP_CLIENT_IP');
+        $server->remove('HTTP_X_FORWARDED_FOR');
+    }
+
+    /**
      * Test getUserAgent().
      */
     public function testGetUserAgent(): void
