@@ -12,8 +12,10 @@ use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
+use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Utilities\IpLocation;
+use TheFrosty\WpLoginLocker\Utilities\SignedToken;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
@@ -25,7 +27,9 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
 #[Group('actions')]
 #[UsesClass(IpLocation::class)]
 #[UsesClass(NewUser::class)]
+#[UsesClass(SignedToken::class)]
 #[UsesClass(UserMetaCleanup::class)]
+#[UsesClass(WpLogin::class)]
 #[UsesClass(WpMail::class)]
 class LoginTest extends TestCase
 {
