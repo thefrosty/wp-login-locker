@@ -197,6 +197,20 @@ class LoginTest extends TestCase
     }
 
     /**
+     * Test getEmailMessage() escapes attacker-controlled values.
+     */
+    public function testGetEmailMessageEscapesUserInput(): void
+    {
+        $payload = '<a href="https://evil.test">Click here</a>';
+        $this->login->getRequest()->server->set('HTTP_USER_AGENT', $payload);
+        $user = self::factory()->user->create_and_get(['first_name' => $payload]);
+        $actual = $this->reflection->getMethod('getEmailMessage')->invoke($this->login, $user);
+        $this->assertStringNotContainsString('<a href="https://evil.test">', $actual);
+        $this->assertStringContainsString('&lt;a href=', $actual);
+        $this->login->getRequest()->server->remove('HTTP_USER_AGENT');
+    }
+
+    /**
      * Test getUserName().
      */
     public function testGetUserName(): void
