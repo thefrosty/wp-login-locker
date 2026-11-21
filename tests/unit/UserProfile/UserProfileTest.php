@@ -111,10 +111,22 @@ class UserProfileTest extends TestCase
             );
             $this->userProfile->getRequest()->request->set($key, 'value');
             $saveExtraProfileFields->invoke($this->userProfile, $user->ID);
-            $this->assertContains(
+            // Checkbox fields only ever store 'true', never the raw request value.
+            $this->assertNotContains(
                 'value',
                 $getUserMeta->invoke($this->userProfile, $user->ID, $key)
             );
+            $this->assertContains(
+                'true',
+                $getUserMeta->invoke($this->userProfile, $user->ID, $key)
+            );
+
+            // A user who can't edit another user can't change that user's settings.
+            $other = self::factory()->user->create_and_get();
+            $saveExtraProfileFields->invoke($this->userProfile, $other->ID);
+            $this->assertEmpty($getUserMeta->invoke($this->userProfile, $other->ID, $key));
+            $this->userProfile->getRequest()->request->remove($key);
+            \wp_delete_user($other->ID);
             \wp_delete_user($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);

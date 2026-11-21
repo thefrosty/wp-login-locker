@@ -66,21 +66,21 @@ abstract class UserProfile extends AbstractLoginLocker
     }
 
     /**
-     * If the inherited class set's fields, save them. Set to current users who can `read` meaning log in
-     * to the admin.
-     * @param int $user_id The current users ID.
+     * If the inherited class set's fields, save them. Only when the current user can edit the user being saved.
+     * All fields are checkboxes, so only the string 'true' is ever stored.
+     * @param int $user_id The ID of the user being saved.
      */
     protected function saveExtraProfileFields($user_id): void
     {
-        if (empty($this->fields) || !current_user_can('read')) {
+        if (empty($this->fields) || !current_user_can('edit_user', (int)$user_id)) {
             return;
         }
 
         foreach ($this->fields as $field) {
             if ($this->getRequest()->request->has($field)) {
-                update_user_meta($user_id, $field, $this->getRequest()->request->get($field));
+                update_user_meta((int)$user_id, $field, 'true');
             } else {
-                delete_user_meta($user_id, $field);
+                delete_user_meta((int)$user_id, $field);
             }
         }
     }
