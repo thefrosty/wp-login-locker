@@ -131,11 +131,35 @@ class WpLoginTest extends TestCase
         $this->assertTrue(method_exists($this->wpLogin, 'loginAuthCheck'));
         try {
             $user = self::factory()->user->create_and_get();
-            $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $user->user_login);
+            \parse_str((string)\parse_url(WpLogin::getAuthCheckUrl($user), \PHP_URL_QUERY), $args);
+            $this->assertArrayHasKey(WpLogin::AUTH_CHECK_KEY, $args);
+            $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $args[WpLogin::AUTH_CHECK_KEY]);
             $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
             $this->assertNull($loginAuthCheck->invoke($this->wpLogin));
             $this->wpLogin->getRequest()->query->remove(WpLogin::AUTH_CHECK_KEY);
         } catch (ReflectionException) {
+        }
+    }
+
+    /**
+     * Test loginAuthCheck(). A plain username/email in the auth check key must NOT grant access.
+     */
+    public function testLoginAuthCheckRejectsPlainUsername(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        foreach ([$user->user_login, $user->user_email] as $value) {
+            $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $value);
+            $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
+            try {
+                $loginAuthCheck->invoke($this->wpLogin);
+                $this->fail('Expected the no-auth login page to terminate the request.');
+            } catch (Throwable $exception) {
+                $this->assertInstanceOf(WPDieException::class, $exception);
+                if (ob_get_level()) {
+                    ob_get_clean();
+                }
+            }
+            $this->wpLogin->getRequest()->query->remove(WpLogin::AUTH_CHECK_KEY);
         }
     }
 

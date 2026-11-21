@@ -13,7 +13,6 @@ use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
-use TheFrosty\WpUtilities\Api\Hash;
 use WP_User;
 use function add_query_arg;
 use function add_user_meta;
@@ -27,14 +26,12 @@ use function home_url;
 use function ob_get_clean;
 use function ob_start;
 use function parse_url;
-use function sanitize_email;
 use function sprintf;
 use function TheFrosty\WpUtilities\exitOrThrow;
 use function time;
 use function wp_die;
 use function wp_get_current_user;
 use function wp_get_referer;
-use function wp_login_url;
 use function wp_safe_redirect;
 use function wp_schedule_single_event;
 use function wp_verify_nonce;
@@ -48,7 +45,7 @@ use const PHP_URL_HOST;
 class Login extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash;
+    use GeoUtilTrait;
 
     public const string ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
     public const string ADMIN_ACTION_NONCE = '_lockerNonce';
@@ -221,17 +218,11 @@ class Login extends AbstractLoginLocker
         }
 
         /**
-         * Add our auth check key and the users email, so they can access the
+         * Add a signed, expiring auth check token, so they can access the
          * login page if they don't have "access" by a cookie session. Force re-auth
          * on login URL render, so they have to re-enter their credentials.
          */
-        $login_url = add_query_arg(
-            [
-                WpLogin::AUTH_CHECK_KEY => $this->encrypt(sanitize_email($user->user_email), home_url()),
-                WpLogin::AUTH_CHECK_IS_ENCRYPTED_KEY => true,
-            ],
-            wp_login_url('', true)
-        );
+        $login_url = WpLogin::getAuthCheckUrl($user);
 
         /**
          * %1$s User first and last name (display name)
