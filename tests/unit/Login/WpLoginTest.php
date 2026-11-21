@@ -210,4 +210,31 @@ class WpLoginTest extends TestCase
         } catch (ReflectionException) {
         }
     }
+
+    /**
+     * Test loginAuthCheck(). A known email POSTed to the lost password form must NOT grant
+     * access when the "Allow lost password?" setting is disabled (the default).
+     */
+    public function testLostPasswordValidationIgnoredWhenDisabled(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        $request = Request::create(
+            \add_query_arg(['action' => 'lostpassword', 'login_locker' => 'true'], \wp_login_url()),
+            'POST',
+            ['login_locker_user_login' => $user->user_email]
+        );
+        $this->wpLogin->setRequest($request);
+        $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
+        try {
+            $loginAuthCheck->invoke($this->wpLogin);
+            $this->fail('Expected the no-auth login page to terminate the request.');
+        } catch (Throwable $exception) {
+            $this->assertInstanceOf(WPDieException::class, $exception);
+            if (ob_get_level()) {
+                ob_get_clean();
+            }
+        }
+        $this->assertFalse($this->reflection->getProperty('has_auth')->getValue($this->wpLogin));
+        $this->wpLogin->setRequest(Request::createFromGlobals());
+    }
 }

@@ -206,11 +206,7 @@ class WpLogin extends AbstractLoginLocker
      */
     private function noAuthLoginHtml(): never
     {
-        $allow_lost_password = filter_var(
-            Options::getOption(Settings::GENERAL_SETTING_ALLOW_LP, Settings::GENERAL_SETTINGS),
-            FILTER_VALIDATE_BOOL
-        );
-        if ($allow_lost_password && $this->isLostPassOrExpired()) {
+        if ($this->isLostPasswordAllowed() && $this->isLostPassOrExpired()) {
             ob_start();
             include $this->getPlugin()->getDirectory() . 'templates/login/lostpassword.php';
             $content = ob_get_clean();
@@ -236,6 +232,15 @@ class WpLogin extends AbstractLoginLocker
      */
     private function maybeValidateLostPasswordUser(): void
     {
+        // Only when lost password is allowed, and only for a POSTed lost password request.
+        if (
+            !$this->isLostPasswordAllowed() ||
+            !$this->isLostPassOrExpired() ||
+            !$this->getRequest()->isMethod('POST')
+        ) {
+            return;
+        }
+
         $request = $this->getRequest()->request;
         if (
             $this->getRequest()->query->has('login_locker') &&
@@ -260,6 +265,18 @@ class WpLogin extends AbstractLoginLocker
                 $this->setLoginCookie($user, $field, sprintf('+%d minute', (int)$expire));
             }
         }
+    }
+
+    /**
+     * Is the "Allow lost password?" setting enabled?
+     * @return bool
+     */
+    private function isLostPasswordAllowed(): bool
+    {
+        return filter_var(
+            Options::getOption(Settings::GENERAL_SETTING_ALLOW_LP, Settings::GENERAL_SETTINGS),
+            FILTER_VALIDATE_BOOL
+        );
     }
 
     /**
