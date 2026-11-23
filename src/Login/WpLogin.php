@@ -257,6 +257,15 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
+     * Show the "Email me a login link" form? Not once it's been submitted, or when the request key is in the URL.
+     * @return bool
+     */
+    private function showLoginLinkForm(): bool
+    {
+        return !$this->getRequest()->query->has(LoginLink::REQUEST_KEY);
+    }
+
+    /**
      * Handle the "Email me a login link" form on the locked page. Responds the same whether the account
      * exists or the request was rate limited, so accounts can't be enumerated.
      * @return string|null The message to show, or null when this isn't a login link request.
@@ -311,6 +320,7 @@ class WpLogin extends AbstractLoginLocker
         }
 
         if (!isset($content)) {
+            $show_login_link_form = $this->showLoginLinkForm();
             ob_start();
             include $this->getPlugin()->getDirectory() . 'templates/login/wp-login.php';
             $code = Response::HTTP_FORBIDDEN;

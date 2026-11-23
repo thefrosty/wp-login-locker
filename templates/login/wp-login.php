@@ -8,7 +8,11 @@ use TheFrosty\WpLoginLocker\LoginLocker;
 function_exists('login_header') || wp_die();
 login_header(__('Log In', 'wp-login-locker'), '', '');
 
-/** @var string|null $message Set by WpLogin::noAuthLoginHtml(). */
+/**
+ * Set by WpLogin::noAuthLoginHtml().
+ * @var string|null $message
+ * @var bool $show_login_link_form
+ */
 ?>
 <p class="message"><?php
     echo apply_filters(
@@ -16,6 +20,7 @@ login_header(__('Log In', 'wp-login-locker'), '', '');
         $message ?? esc_html__('Login without a key has been disabled.', 'wp-login-locker')
     );
     ?></p>
+<?php if ($show_login_link_form ?? true) { ?>
 <form action="<?php echo esc_url(add_query_arg(LoginLink::REQUEST_KEY, true, wp_login_url())); ?>" method="post">
     <p>
         <label for="<?php echo esc_attr(LoginLink::REQUEST_FIELD); ?>"><?php
@@ -29,6 +34,7 @@ login_header(__('Log In', 'wp-login-locker'), '', '');
         esc_attr_e('Email me a login link', 'wp-login-locker'); ?>"/>
     </p>
 </form>
+<?php } ?>
 </div>
 <div class="clear"></div>
 </body>

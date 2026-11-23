@@ -285,6 +285,24 @@ class WpLoginTest extends TestCase
     }
 
     /**
+     * Test showLoginLinkForm(). The form is hidden once submitted, or when the request key is in the URL.
+     */
+    public function testShowLoginLinkForm(): void
+    {
+        $showLoginLinkForm = $this->reflection->getMethod('showLoginLinkForm');
+        $original = $this->replaceRequest(Request::create(\wp_login_url()));
+        $this->assertTrue($showLoginLinkForm->invoke($this->wpLogin));
+
+        $url = \add_query_arg(LoginLink::REQUEST_KEY, true, \wp_login_url());
+        $this->replaceRequest(Request::create($url));
+        $this->assertFalse($showLoginLinkForm->invoke($this->wpLogin));
+
+        $this->replaceRequest(Request::create($url, Request::METHOD_POST, [LoginLink::REQUEST_FIELD => 'someone']));
+        $this->assertFalse($showLoginLinkForm->invoke($this->wpLogin));
+        $this->replaceRequest($original);
+    }
+
+    /**
      * Test lostPasswordMessage().
      */
     public function testLostPasswordMessage(): void
