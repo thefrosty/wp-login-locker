@@ -30,8 +30,7 @@ class UserMetaCleanup
          * User ID.
          */
         private readonly int $user_id
-    )
-    {
+    ) {
     }
 
     /**

@@ -51,6 +51,7 @@ class Login extends AbstractLoginLocker
 
     use GeoUtilTrait;
     use Hash;
+
     public const string ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
     public const string ADMIN_ACTION_NONCE = '_lockerNonce';
 

@@ -19,6 +19,7 @@ class NewUser extends AbstractLoginLocker
 {
     use GeoUtilTrait;
     use HooksTrait;
+
     /**
      * Add class hooks.
      */
