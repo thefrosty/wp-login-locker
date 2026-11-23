@@ -8,6 +8,7 @@ use Dwnload\WpSettingsApi\Api\Options;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use WP_Error;
+use WP_Http;
 use function __;
 use function apply_filters;
 use function array_filter;
@@ -215,7 +216,7 @@ class IpLocation
         );
 
         $code = (int)wp_remote_retrieve_response_code($response);
-        if ($code !== 200) {
+        if ($code !== WP_Http::OK) {
             $this->startCooldown($response, $code);
 
             return null;
@@ -247,7 +248,11 @@ class IpLocation
     private function startCooldown(array|WP_Error $response, int $code): void
     {
         // A 4xx other than 429 (e.g. a bad paid API key) doesn't mean the API is unavailable.
-        if ($code >= 400 && $code < 500 && $code !== 429) {
+        if (
+            $code >= WP_Http::BAD_REQUEST &&
+            $code < WP_Http::INTERNAL_SERVER_ERROR &&
+            $code !== WP_Http::TOO_MANY_REQUESTS
+        ) {
             return;
         }
 
