@@ -17,6 +17,8 @@ use TheFrosty\WpUtilities\Api\Hash;
 use WP_User;
 use function add_query_arg;
 use function apply_filters;
+use function array_map;
+use function array_unique;
 use function array_values;
 use function esc_html__;
 use function explode;
@@ -75,6 +77,7 @@ class WpLogin extends AbstractLoginLocker
 
     public const string AUTH_CHECK_KEY = 'auth_check';
     public const string AUTH_CHECK_LINK_TTL = '+7 days';
+    public const string FILTER_ACCEPT_LEGACY_COOKIE = LoginLocker::HOOK_PREFIX . 'accept_legacy_cookie';
     public const string FILTER_AUTH_CHECK_LINK_TTL = LoginLocker::HOOK_PREFIX . 'auth_check_link_ttl';
     public const string COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const string COOKIE_VALUE_S = 'OK|%s';
@@ -425,14 +428,20 @@ class WpLogin extends AbstractLoginLocker
         if (
             !is_string($cookie) ||
             $cookie === '' ||
-            apply_filters(LoginLocker::HOOK_PREFIX . 'accept_legacy_cookie', true) !== true
+            apply_filters(self::FILTER_ACCEPT_LEGACY_COOKIE, true) !== true
         ) {
             return null;
         }
 
-        $value = $this->decrypt($cookie, $this->getEncryptionKey());
         $prefix = sprintf(self::COOKIE_VALUE_S, '');
-        if (!is_string($value) || !str_starts_with($value, $prefix)) {
+        foreach ($this->getLegacyEncryptionKeys() as $key) {
+            $value = $this->decrypt($cookie, $key);
+            if (is_string($value) && str_starts_with($value, $prefix)) {
+                break;
+            }
+            $value = null;
+        }
+        if (!isset($value)) {
             return null;
         }
 
@@ -447,12 +456,29 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
-     * Gets the sites encryption key. This value is dynamically set into the DB.
-     * @return string a 32 character encryption key.
+     * Gets the keys legacy cookies may have been encrypted with: the key stored in the DB (wp-utilities v3),
+     * then wp-utilities v4's key when it differs (it prefers the `WP_UTILITIES_ENCRYPTION_KEY` constant).
+     * @return string[]
      */
-    private function getEncryptionKey(): string
+    private function getLegacyEncryptionKeys(): array
     {
-        $key = self::hashEncryptionKey();
+        return array_values(
+            array_unique(
+                array_map(
+                    fn(string $key): string => $this->getLegacyEncryptionKey($key),
+                    [self::getStoredEncryptionKey(), self::hashEncryptionKey()]
+                )
+            )
+        );
+    }
+
+    /**
+     * Derive the legacy cookie encryption key from a site encryption key.
+     * @param string $key
+     * @return string
+     */
+    private function getLegacyEncryptionKey(string $key): string
+    {
         [$prefix] = explode(self::ENCRYPTION_DELIMITER, $key);
 
         return sprintf('%s%s%s', $prefix, substr($key, 0, -(strlen($prefix) + 1)), self::ENCRYPTION_DELIMITER);

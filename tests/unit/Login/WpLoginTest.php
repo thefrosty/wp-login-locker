@@ -69,7 +69,7 @@ class WpLoginTest extends TestCase
             new ReflectionClass(Hash::class)->getConstants()
         );
         $this->assertIsArray($constants);
-        $this->assertCount(8, $constants);
+        $this->assertCount(9, $constants);
     }
 
     /**
@@ -325,6 +325,35 @@ class WpLoginTest extends TestCase
                 }
             }
         }
+        $this->wpLogin->getRequest()->cookies->remove(WpLogin::COOKIE_NAME);
+    }
+
+    /**
+     * Test loginAuthCheck(). A legacy (v2.11.0 and below) cookie is accepted once and upgraded.
+     */
+    public function testLoginAuthCheckUpgradesLegacyCookie(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        $keys = $this->reflection->getMethod('getLegacyEncryptionKeys')->invoke($this->wpLogin);
+        $this->assertNotEmpty($keys);
+        $legacy = $this->wpLogin->encrypt(\sprintf(WpLogin::COOKIE_VALUE_S, $user->user_email), $keys[0]);
+        $this->wpLogin->getRequest()->cookies->set(WpLogin::COOKIE_NAME, $legacy);
+        $this->assertNull($this->reflection->getMethod('loginAuthCheck')->invoke($this->wpLogin));
+        $this->assertTrue($this->reflection->getProperty('has_auth')->getValue($this->wpLogin));
+
+        // Disabled via the filter, the same cookie is rejected.
+        $this->reflection->getProperty('has_auth')->setValue($this->wpLogin, false);
+        \add_filter(WpLogin::FILTER_ACCEPT_LEGACY_COOKIE, '__return_false');
+        try {
+            $this->reflection->getMethod('loginAuthCheck')->invoke($this->wpLogin);
+            $this->fail('Expected the no-auth login page to terminate the request.');
+        } catch (Throwable $exception) {
+            $this->assertInstanceOf(WPDieException::class, $exception);
+            if (ob_get_level()) {
+                ob_get_clean();
+            }
+        }
+        \remove_filter(WpLogin::FILTER_ACCEPT_LEGACY_COOKIE, '__return_false');
         $this->wpLogin->getRequest()->cookies->remove(WpLogin::COOKIE_NAME);
     }
 
