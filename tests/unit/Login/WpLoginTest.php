@@ -15,6 +15,7 @@ use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\SignedToken;
 use TheFrosty\WpUtilities\Api\Hash;
 use Throwable;
@@ -200,6 +201,29 @@ class WpLoginTest extends TestCase
             $this->wpLogin->getRequest()->cookies->remove(WpLogin::COOKIE_NAME);
         } catch (ReflectionException) {
         }
+    }
+
+    /**
+     * Test getCookieExpire() uses the "Cookie Expiration" setting, within bounds.
+     */
+    public function testGetCookieExpire(): void
+    {
+        \delete_option(Settings::GENERAL_SETTINGS);
+        $this->assertSame(
+            \sprintf(WpLogin::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DAYS_DEFAULT),
+            WpLogin::getCookieExpire()
+        );
+        $cases = [
+            30 => 30,
+            0 => Settings::COOKIE_EXPIRE_DAYS_DEFAULT,
+            -5 => Settings::COOKIE_EXPIRE_DAYS_DEFAULT,
+            Settings::COOKIE_EXPIRE_DAYS_MAX + 1 => Settings::COOKIE_EXPIRE_DAYS_MAX,
+        ];
+        foreach ($cases as $days => $expected) {
+            \update_option(Settings::GENERAL_SETTINGS, [Settings::GENERAL_SETTING_COOKIE_EXPIRE => $days]);
+            $this->assertSame(\sprintf(WpLogin::COOKIE_EXPIRE_S, $expected), WpLogin::getCookieExpire());
+        }
+        \delete_option(Settings::GENERAL_SETTINGS);
     }
 
     /**

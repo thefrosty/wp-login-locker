@@ -31,6 +31,7 @@ use function is_string;
 use function is_user_logged_in;
 use function ob_get_clean;
 use function ob_start;
+use function min;
 use function parse_url;
 use function sanitize_email;
 use function sanitize_text_field;
@@ -73,7 +74,7 @@ class WpLogin extends AbstractLoginLocker
     public const string FILTER_AUTH_CHECK_LINK_TTL = LoginLocker::HOOK_PREFIX . 'auth_check_link_ttl';
     public const string COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const string COOKIE_VALUE_S = 'OK|%s';
-    public const string COOKIE_EXPIRE = '+1 year';
+    public const string COOKIE_EXPIRE_S = '+%d days';
 
     protected const string ENCRYPTION_DELIMITER = '|';
     private const string ENCRYPTION_KEY = 'WpL0gin' . self::ENCRYPTION_DELIMITER;
@@ -132,6 +133,24 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
+     * Get the access cookie lifetime from the "Cookie Expiration" setting, as a relative strtotime() string.
+     * @return string
+     */
+    public static function getCookieExpire(): string
+    {
+        $days = (int)Options::getOption(
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE,
+            Settings::GENERAL_SETTINGS,
+            Settings::COOKIE_EXPIRE_DAYS_DEFAULT
+        );
+        if ($days < 1) {
+            $days = Settings::COOKIE_EXPIRE_DAYS_DEFAULT;
+        }
+
+        return sprintf(self::COOKIE_EXPIRE_S, min($days, Settings::COOKIE_EXPIRE_DAYS_MAX));
+    }
+
+    /**
      * Add class hooks.
      */
     public function addHooks(): void
@@ -178,7 +197,7 @@ class WpLogin extends AbstractLoginLocker
 
             /**
              * If the signed link is valid, set a cookie in the browser so they have access
-             * to the login page for `self::COOKIE_EXPIRE` time.
+             * to the login page for the "Cookie Expiration" setting's number of days.
              */
             if ($user instanceof WP_User) {
                 $this->has_auth = true;
@@ -288,7 +307,7 @@ class WpLogin extends AbstractLoginLocker
             );
             /**
              * If the $user exists, set a cookie in the browser so they have access
-             * to the login page for `self::COOKIE_EXPIRE` time.
+             * to the login page for the lost password "Timeout" setting's minutes.
              */
             if ($user instanceof WP_User && isset($user->$field)) {
                 $this->has_auth = true;
@@ -384,7 +403,7 @@ class WpLogin extends AbstractLoginLocker
                 self::COOKIE_NAME,
                 $this->getCookieValue($user->$field),
                 [
-                    'expires' => strtotime($expire ?? self::COOKIE_EXPIRE),
+                    'expires' => strtotime($expire ?? self::getCookieExpire()),
                     'path' => COOKIEPATH,
                     'domain' => is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
                     'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
