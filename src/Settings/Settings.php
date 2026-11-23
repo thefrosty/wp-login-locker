@@ -48,12 +48,24 @@ class Settings extends AbstractLoginLocker
     public const string EMAIL_SETTING_HEADER_IMAGE = 'email_header';
     public const string EMAIL_SETTING_HERO_IMAGE = 'hero_image';
     public const string BACKGROUND_COLOR_DEFAULT = '#222222';
-    public const int COOKIE_EXPIRE_DAYS_DEFAULT = 365;
-    public const int COOKIE_EXPIRE_DAYS_MAX = 3650;
+    public const int COOKIE_EXPIRE_DEFAULT = 1;
+    public const int COOKIE_EXPIRE_MAX = 365;
+    public const string COOKIE_EXPIRE_UNIT_DAY = 'day';
+    public const string COOKIE_EXPIRE_UNIT_WEEK = 'week';
+    public const string COOKIE_EXPIRE_UNIT_MONTH = 'month';
+    public const string COOKIE_EXPIRE_UNIT_YEAR = 'year';
+    public const string COOKIE_EXPIRE_UNIT_DEFAULT = self::COOKIE_EXPIRE_UNIT_YEAR;
+    public const array COOKIE_EXPIRE_UNITS = [
+        self::COOKIE_EXPIRE_UNIT_DAY,
+        self::COOKIE_EXPIRE_UNIT_WEEK,
+        self::COOKIE_EXPIRE_UNIT_MONTH,
+        self::COOKIE_EXPIRE_UNIT_YEAR,
+    ];
     public const string FULL_BLEED_COLOR_DEFAULT = '#709f2b';
     public const string GENERAL_SETTINGS = self::PREFIX . 'general_settings';
     public const string GENERAL_SETTING_ALLOW_LP = 'allow_lost_password';
     public const string GENERAL_SETTING_COOKIE_EXPIRE = 'cookie_expiration';
+    public const string GENERAL_SETTING_COOKIE_EXPIRE_UNIT = 'cookie_expiration_unit';
     public const string GENERAL_SETTING_IP_LOCATION = 'ip_location';
     public const string GENERAL_SETTING_FREE_IP_API = 'free_ip_api';
     public const string GENERAL_SETTING_LP_TIMEOUT = 'lost_password_timeout';
@@ -145,15 +157,32 @@ class Settings extends AbstractLoginLocker
                 SettingField::NAME => self::GENERAL_SETTING_COOKIE_EXPIRE,
                 SettingField::LABEL => esc_html__('Cookie Expiration', 'wp-login-locker'),
                 SettingField::DESC => esc_html__(
-                    'How many days a login link (or activation) keeps wp-login.php unlocked in that browser.',
+                    'How long a login link (or activation) keeps wp-login.php unlocked in that browser.',
                     'wp-login-locker'
                 ),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_NUMBER,
-                SettingField::DEFAULT => self::COOKIE_EXPIRE_DAYS_DEFAULT,
+                SettingField::DEFAULT => self::COOKIE_EXPIRE_DEFAULT,
                 SettingField::ATTRIBUTES => [
                     'min' => 1,
-                    'max' => self::COOKIE_EXPIRE_DAYS_MAX,
+                    'max' => self::COOKIE_EXPIRE_MAX,
                     'step' => 1,
+                ],
+                SettingField::SECTION_ID => $general_section_id,
+            ])
+        );
+
+        $field_manager->addField(
+            new SettingField([
+                SettingField::NAME => self::GENERAL_SETTING_COOKIE_EXPIRE_UNIT,
+                SettingField::LABEL => esc_html__('Cookie Expiration Unit', 'wp-login-locker'),
+                SettingField::DESC => esc_html__('The unit of time for the "Cookie Expiration".', 'wp-login-locker'),
+                SettingField::TYPE => FieldTypes::FIELD_TYPE_SELECT,
+                SettingField::DEFAULT => self::COOKIE_EXPIRE_UNIT_DEFAULT,
+                SettingField::OPTIONS => [
+                    self::COOKIE_EXPIRE_UNIT_DAY => esc_html__('Day(s)', 'wp-login-locker'),
+                    self::COOKIE_EXPIRE_UNIT_WEEK => esc_html__('Week(s)', 'wp-login-locker'),
+                    self::COOKIE_EXPIRE_UNIT_MONTH => esc_html__('Month(s)', 'wp-login-locker'),
+                    self::COOKIE_EXPIRE_UNIT_YEAR => esc_html__('Year(s)', 'wp-login-locker'),
                 ],
                 SettingField::SECTION_ID => $general_section_id,
             ])

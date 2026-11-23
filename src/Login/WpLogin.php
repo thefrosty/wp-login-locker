@@ -27,6 +27,7 @@ use function get_option;
 use function get_user_by;
 use function headers_sent;
 use function home_url;
+use function in_array;
 use function is_email;
 use function is_ssl;
 use function is_string;
@@ -76,7 +77,7 @@ class WpLogin extends AbstractLoginLocker
     public const string FILTER_AUTH_CHECK_LINK_TTL = LoginLocker::HOOK_PREFIX . 'auth_check_link_ttl';
     public const string COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const string COOKIE_VALUE_S = 'OK|%s';
-    public const string COOKIE_EXPIRE_S = '+%d days';
+    public const string COOKIE_EXPIRE_S = '+%d %s';
 
     protected const string ENCRYPTION_DELIMITER = '|';
     private const string ENCRYPTION_KEY = 'WpL0gin' . self::ENCRYPTION_DELIMITER;
@@ -143,21 +144,31 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
-     * Get the access cookie lifetime from the "Cookie Expiration" setting, as a relative strtotime() string.
+     * Get the access cookie lifetime from the "Cookie Expiration" and "Cookie Expiration Unit" settings,
+     * as a relative strtotime() string, e.g. "+1 year" or "+2 week".
      * @return string
      */
     public static function getCookieExpire(): string
     {
-        $days = (int)Options::getOption(
+        $number = (int)Options::getOption(
             Settings::GENERAL_SETTING_COOKIE_EXPIRE,
             Settings::GENERAL_SETTINGS,
-            Settings::COOKIE_EXPIRE_DAYS_DEFAULT
+            Settings::COOKIE_EXPIRE_DEFAULT
         );
-        if ($days < 1) {
-            $days = Settings::COOKIE_EXPIRE_DAYS_DEFAULT;
+        if ($number < 1) {
+            $number = Settings::COOKIE_EXPIRE_DEFAULT;
         }
 
-        return sprintf(self::COOKIE_EXPIRE_S, min($days, Settings::COOKIE_EXPIRE_DAYS_MAX));
+        $unit = Options::getOption(
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE_UNIT,
+            Settings::GENERAL_SETTINGS,
+            Settings::COOKIE_EXPIRE_UNIT_DEFAULT
+        );
+        if (!in_array($unit, Settings::COOKIE_EXPIRE_UNITS, true)) {
+            $unit = Settings::COOKIE_EXPIRE_UNIT_DEFAULT;
+        }
+
+        return sprintf(self::COOKIE_EXPIRE_S, min($number, Settings::COOKIE_EXPIRE_MAX), $unit);
     }
 
     /**
@@ -207,7 +218,7 @@ class WpLogin extends AbstractLoginLocker
 
             /**
              * If the signed link is valid, set a cookie in the browser so they have access
-             * to the login page for the "Cookie Expiration" setting's number of days.
+             * to the login page for the "Cookie Expiration" settings' time (see getCookieExpire()).
              */
             if ($user instanceof WP_User) {
                 $this->has_auth = true;

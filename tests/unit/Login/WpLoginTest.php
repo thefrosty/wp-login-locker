@@ -208,24 +208,40 @@ class WpLoginTest extends TestCase
     }
 
     /**
-     * Test getCookieExpire() uses the "Cookie Expiration" setting, within bounds.
+     * Test getCookieExpire() combines the "Cookie Expiration" number and unit settings, within bounds.
      */
     public function testGetCookieExpire(): void
     {
         \delete_option(Settings::GENERAL_SETTINGS);
         $this->assertSame(
-            \sprintf(WpLogin::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DAYS_DEFAULT),
+            \sprintf(WpLogin::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_DEFAULT),
             WpLogin::getCookieExpire()
         );
+
+        foreach (Settings::COOKIE_EXPIRE_UNITS as $unit) {
+            $this->setCookieExpireSettings(2, $unit);
+            $expire = WpLogin::getCookieExpire();
+            $this->assertSame(\sprintf(WpLogin::COOKIE_EXPIRE_S, 2, $unit), $expire);
+            $this->assertGreaterThan(\time(), \strtotime($expire));
+        }
+
         $cases = [
-            30 => 30,
-            0 => Settings::COOKIE_EXPIRE_DAYS_DEFAULT,
-            -5 => Settings::COOKIE_EXPIRE_DAYS_DEFAULT,
-            Settings::COOKIE_EXPIRE_DAYS_MAX + 1 => Settings::COOKIE_EXPIRE_DAYS_MAX,
+            [0, Settings::COOKIE_EXPIRE_UNIT_WEEK, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_WEEK],
+            [-5, Settings::COOKIE_EXPIRE_UNIT_DAY, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_DAY],
+            [3, 'fortnight', 3, Settings::COOKIE_EXPIRE_UNIT_DEFAULT],
+            [
+                Settings::COOKIE_EXPIRE_MAX + 1,
+                Settings::COOKIE_EXPIRE_UNIT_DAY,
+                Settings::COOKIE_EXPIRE_MAX,
+                Settings::COOKIE_EXPIRE_UNIT_DAY,
+            ],
         ];
-        foreach ($cases as $days => $expected) {
-            \update_option(Settings::GENERAL_SETTINGS, [Settings::GENERAL_SETTING_COOKIE_EXPIRE => $days]);
-            $this->assertSame(\sprintf(WpLogin::COOKIE_EXPIRE_S, $expected), WpLogin::getCookieExpire());
+        foreach ($cases as [$number, $unit, $expected_number, $expected_unit]) {
+            $this->setCookieExpireSettings($number, $unit);
+            $this->assertSame(
+                \sprintf(WpLogin::COOKIE_EXPIRE_S, $expected_number, $expected_unit),
+                WpLogin::getCookieExpire()
+            );
         }
         \delete_option(Settings::GENERAL_SETTINGS);
     }
@@ -349,5 +365,17 @@ class WpLoginTest extends TestCase
         $property->setValue(null, $request);
 
         return $original;
+    }
+
+    /**
+     * @param int $number
+     * @param string $unit
+     */
+    private function setCookieExpireSettings(int $number, string $unit): void
+    {
+        \update_option(Settings::GENERAL_SETTINGS, [
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE => $number,
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE_UNIT => $unit,
+        ]);
     }
 }

@@ -72,7 +72,7 @@ vendor/bin/rector process tests/
       "Email me a login link" form, or from `wp login-locker link <user>`), valid for 7 days
     - Logout nonce verification
 3. If no valid auth: returns 403 Forbidden with the locked page and its "Email me a login link" form
-4. If valid: allows login and sets the auth cookie for the "Cookie Expiration" setting's days (default 365)
+4. If valid: allows login and sets the auth cookie for the "Cookie Expiration" number and unit settings (default 1 year)
 
 ### Settings Storage
 
