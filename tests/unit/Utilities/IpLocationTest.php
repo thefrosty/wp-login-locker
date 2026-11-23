@@ -11,7 +11,11 @@ use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\IpLocation;
 use WP_Error;
+use WP_Http;
+use function get_status_header_desc;
 use function json_encode;
+use function sprintf;
+use const MINUTE_IN_SECONDS;
 
 /**
  * Class IpLocationTest
@@ -23,6 +27,7 @@ class IpLocationTest extends TestCase
 {
 
     private const string IP = '1.1.1.1';
+    private const string API_KEY = 'secret';
 
     private IpLocation $ipLocation;
 
@@ -58,8 +63,8 @@ class IpLocationTest extends TestCase
         \delete_transient(IpLocation::TRANSIENT_COOLDOWN);
         \delete_transient(IpLocation::TRANSIENT_REQUEST_LOG);
         \delete_transient(IpLocation::TRANSIENT_CACHE_PREFIX . \md5(self::IP));
-        \remove_all_filters(IpLocation::FILTER_PREFIX . 'api_key');
-        \remove_all_filters(IpLocation::FILTER_PREFIX . 'rate_limits');
+        \remove_all_filters(IpLocation::FILTER_API_KEY);
+        \remove_all_filters(IpLocation::FILTER_RATE_LIMITS);
         unset($this->ipLocation);
         parent::tearDown();
     }
@@ -90,7 +95,7 @@ class IpLocationTest extends TestCase
     {
         $this->assertSame('Sydney, New South Wales, Australia', $this->ipLocation->getLocationString(self::IP));
         $this->assertCount(1, $this->requests);
-        $this->assertSame('https://free.freeipapi.com/api/v1/json/1.1.1.1', $this->requests[0]['url']);
+        $this->assertSame(IpLocation::FREE_BASE_URL . IpLocation::JSON_ENDPOINT . self::IP, $this->requests[0]['url']);
         $this->assertArrayNotHasKey('Authorization', $this->requests[0]['args']['headers']);
         $this->assertNull($this->ipLocation->getLocationString(null));
     }
@@ -139,7 +144,7 @@ class IpLocationTest extends TestCase
 
     public function testRateLimitsCanBeFiltered(): void
     {
-        \add_filter(IpLocation::FILTER_PREFIX . 'rate_limits', static fn(): array => [60 => 2]);
+        \add_filter(IpLocation::FILTER_RATE_LIMITS, static fn(): array => [MINUTE_IN_SECONDS => 2]);
         foreach (['8.8.8.1', '8.8.8.2', '8.8.8.3'] as $ip) {
             $this->ipLocation->lookup($ip);
             \delete_transient(IpLocation::TRANSIENT_CACHE_PREFIX . \md5($ip));
@@ -150,14 +155,17 @@ class IpLocationTest extends TestCase
     public function testTooManyRequestsStartsCooldown(): void
     {
         $this->response = [
-            'headers' => ['retry-after' => '120'],
+            'headers' => ['retry-after' => (string)(2 * MINUTE_IN_SECONDS)],
             'body' => '',
-            'response' => ['code' => 429, 'message' => 'Too Many Requests'],
+            'response' => [
+                'code' => WP_Http::TOO_MANY_REQUESTS,
+                'message' => get_status_header_desc(WP_Http::TOO_MANY_REQUESTS),
+            ],
             'cookies' => [],
             'filename' => null,
         ];
         $this->assertNull($this->ipLocation->lookup(self::IP));
-        $this->assertEquals(429, \get_transient(IpLocation::TRANSIENT_COOLDOWN));
+        $this->assertEquals(WP_Http::TOO_MANY_REQUESTS, \get_transient(IpLocation::TRANSIENT_COOLDOWN));
 
         // No more requests during the cooldown, even for other IPs.
         $this->assertNull($this->ipLocation->lookup('9.9.9.9'));
@@ -173,7 +181,10 @@ class IpLocationTest extends TestCase
 
     public function testPaidApiKey(): void
     {
-        \add_filter(IpLocation::FILTER_PREFIX . 'api_key', static fn(): string => 'secret');
+        \update_option(Settings::GENERAL_SETTINGS, [
+            Settings::GENERAL_SETTING_IP_LOCATION => 'on',
+            Settings::GENERAL_SETTING_FREE_IP_API => ' ' . self::API_KEY . ' ',
+        ]);
         for ($i = 1; $i <= 12; $i++) {
             $ip = "8.8.4.{$i}";
             $this->ipLocation->lookup($ip);
@@ -181,8 +192,23 @@ class IpLocationTest extends TestCase
         }
         // Paid plans aren't rate limited.
         $this->assertCount(12, $this->requests);
-        $this->assertSame('https://us.freeipapi.com/api/json/8.8.4.1', $this->requests[0]['url']);
-        $this->assertSame('Bearer secret', $this->requests[0]['args']['headers']['Authorization']);
+        $this->assertSame(IpLocation::PAID_BASE_URL . IpLocation::JSON_ENDPOINT . '8.8.4.1', $this->requests[0]['url']);
+        $this->assertSame(
+            sprintf('Bearer %s', self::API_KEY),
+            $this->requests[0]['args']['headers']['Authorization']
+        );
+    }
+
+    public function testApiKeyFilterOverridesSetting(): void
+    {
+        \update_option(Settings::GENERAL_SETTINGS, [
+            Settings::GENERAL_SETTING_IP_LOCATION => 'on',
+            Settings::GENERAL_SETTING_FREE_IP_API => self::API_KEY,
+        ]);
+        \add_filter(IpLocation::FILTER_API_KEY, '__return_null');
+        $this->ipLocation->lookup(self::IP);
+        $this->assertSame(IpLocation::FREE_BASE_URL . IpLocation::JSON_ENDPOINT . self::IP, $this->requests[0]['url']);
+        $this->assertArrayNotHasKey('Authorization', $this->requests[0]['args']['headers']);
     }
 
     /**
@@ -194,7 +220,7 @@ class IpLocationTest extends TestCase
         return [
             'headers' => [],
             'body' => (string)json_encode($body),
-            'response' => ['code' => 200, 'message' => 'OK'],
+            'response' => ['code' => WP_Http::OK, 'message' => get_status_header_desc(WP_Http::OK)],
             'cookies' => [],
             'filename' => null,
         ];

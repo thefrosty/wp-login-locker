@@ -15,9 +15,7 @@ use function array_filter;
 use function array_keys;
 use function array_map;
 use function array_values;
-use function constant;
 use function count;
-use function defined;
 use function filter_var;
 use function get_transient;
 use function implode;
@@ -33,6 +31,7 @@ use function sanitize_text_field;
 use function set_transient;
 use function sprintf;
 use function trailingslashit;
+use function trim;
 use function wp_remote_retrieve_body;
 use function wp_remote_retrieve_header;
 use function wp_remote_retrieve_response_code;
@@ -56,10 +55,16 @@ use const WEEK_IN_SECONDS;
 class IpLocation
 {
 
-    public const string API_KEY_CONSTANT = 'LOGIN_LOCKER_FREEIPAPI_API_KEY';
     public const string FREE_BASE_URL = 'https://free.freeipapi.com/api/v1/';
     public const string PAID_BASE_URL = 'https://us.freeipapi.com/api/';
+    public const string JSON_ENDPOINT = 'json/';
     public const string FILTER_PREFIX = LoginLocker::HOOK_PREFIX . 'ip_location/';
+    public const string FILTER_API_KEY = self::FILTER_PREFIX . 'api_key';
+    public const string FILTER_CACHE_TTL = self::FILTER_PREFIX . 'cache_ttl';
+    public const string FILTER_COOLDOWN = self::FILTER_PREFIX . 'cooldown';
+    public const string FILTER_NOT_FOUND_TTL = self::FILTER_PREFIX . 'not_found_ttl';
+    public const string FILTER_PAID_BASE_URL = self::FILTER_PREFIX . 'paid_base_url';
+    public const string FILTER_RATE_LIMITS = self::FILTER_PREFIX . 'rate_limits';
     public const string TRANSIENT_CACHE_PREFIX = LoginLocker::META_PREFIX . 'ipl_';
     public const string TRANSIENT_COOLDOWN = LoginLocker::META_PREFIX . 'ipl_cooldown';
     public const string TRANSIENT_REQUEST_LOG = LoginLocker::META_PREFIX . 'ipl_requests';
@@ -68,7 +73,7 @@ class IpLocation
      * Half the free API's limits ({window seconds} => {max requests}), leaving headroom for concurrent
      * requests racing on the (non-atomic) transient and for other sites sharing the server's outgoing IP.
      */
-    public const array FREE_RATE_LIMITS = [10 => 5, 60 => 30];
+    public const array FREE_RATE_LIMITS = [10 => 5, MINUTE_IN_SECONDS => 30];
 
     private const int TIMEOUT = 3;
     private const string NOT_FOUND = 'not_found';
@@ -142,12 +147,12 @@ class IpLocation
 
         $location = $this->request($ip);
         if ($location === null) {
-            set_transient($cache_key, self::NOT_FOUND, $this->filterInt('not_found_ttl', HOUR_IN_SECONDS));
+            set_transient($cache_key, self::NOT_FOUND, $this->filterInt(self::FILTER_NOT_FOUND_TTL, HOUR_IN_SECONDS));
 
             return null;
         }
 
-        set_transient($cache_key, $location, $this->filterInt('cache_ttl', WEEK_IN_SECONDS));
+        set_transient($cache_key, $location, $this->filterInt(self::FILTER_CACHE_TTL, WEEK_IN_SECONDS));
 
         return $location;
     }
@@ -169,7 +174,7 @@ class IpLocation
          * @param array<int, int> $limits
          */
         $limits = (array)apply_filters(
-            self::FILTER_PREFIX . 'rate_limits',
+            self::FILTER_RATE_LIMITS,
             $this->getApiKey() === null ? self::FREE_RATE_LIMITS : []
         );
         if ($limits === []) {
@@ -207,11 +212,11 @@ class IpLocation
         $headers = ['Accept' => 'application/json'];
         if ($api_key !== null) {
             $headers['Authorization'] = sprintf('Bearer %s', $api_key);
-            $base = (string)apply_filters(self::FILTER_PREFIX . 'paid_base_url', self::PAID_BASE_URL);
+            $base = (string)apply_filters(self::FILTER_PAID_BASE_URL, self::PAID_BASE_URL);
         }
 
         $response = wp_safe_remote_get(
-            sprintf('%sjson/%s', trailingslashit($base ?? self::FREE_BASE_URL), rawurlencode($ip)),
+            trailingslashit($base ?? self::FREE_BASE_URL) . self::JSON_ENDPOINT . rawurlencode($ip),
             ['timeout' => self::TIMEOUT, 'headers' => $headers]
         );
 
@@ -258,32 +263,37 @@ class IpLocation
 
         $retry_after = $response instanceof WP_Error ? '' : wp_remote_retrieve_header($response, 'retry-after');
         $seconds = max(
-            $this->filterInt('cooldown', MINUTE_IN_SECONDS),
+            $this->filterInt(self::FILTER_COOLDOWN, MINUTE_IN_SECONDS),
             is_numeric($retry_after) ? (int)$retry_after : 0
         );
         set_transient(self::TRANSIENT_COOLDOWN, $code, $seconds);
     }
 
     /**
-     * Get the paid plan API key, from the `LOGIN_LOCKER_FREEIPAPI_API_KEY` constant or the filter.
+     * Get the paid plan API key from the "FreeIPAPI Key" setting (filterable).
      * @return string|null
      */
     private function getApiKey(): ?string
     {
-        $key = defined(self::API_KEY_CONSTANT) ? constant(self::API_KEY_CONSTANT) : null;
-        $key = apply_filters(self::FILTER_PREFIX . 'api_key', $key);
+        $key = Options::getOption(Settings::GENERAL_SETTING_FREE_IP_API, Settings::GENERAL_SETTINGS, null);
+
+        /**
+         * Filter the freeipapi.com paid plan API key.
+         * @param string|null $key The "FreeIPAPI Key" setting value.
+         */
+        $key = apply_filters(self::FILTER_API_KEY, is_string($key) ? trim($key) : null);
 
         return is_string($key) && $key !== '' ? $key : null;
     }
 
     /**
-     * @param string $name
+     * @param string $name The filter name.
      * @param int $default
      * @return int
      */
     private function filterInt(string $name, int $default): int
     {
-        return max(1, (int)apply_filters(self::FILTER_PREFIX . $name, $default));
+        return max(1, (int)apply_filters($name, $default));
     }
 
     /**
