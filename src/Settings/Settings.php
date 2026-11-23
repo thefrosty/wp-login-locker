@@ -168,7 +168,7 @@ class Settings extends AbstractLoginLocker
                 SettingField::NAME => self::LOGIN_SETTING_LOGO,
                 SettingField::LABEL => esc_html__('Login Logo', 'wp-login-locker'),
                 SettingField::DESC => esc_html__(
-                    'Logo to replace WordPress\' logo on the login page (must be uploaded to media library).',
+                    "Logo to replace WordPress' logo on the login page (must be uploaded to media library).",
                     'wp-login-locker'
                 ),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_FILE,
@@ -300,6 +300,7 @@ class Settings extends AbstractLoginLocker
         if (!$wp_settings_api->isCurrentMenuSlug(self::MENU_SLUG)) {
             return;
         }
+
         $query = $this->getRequest()->query;
         if ($query->has('sent') && filter_var($query->get('sent'), FILTER_VALIDATE_BOOLEAN)) {
             printf(
@@ -307,6 +308,7 @@ class Settings extends AbstractLoginLocker
                 esc_html__('Success - test email sent.', 'wp-login-locker')
             );
         }
+
         printf(
             '<p><a href="%1$s" class="button button-secondary" onclick="return confirm(\'%3$s\');">%2$s</a></p>',
             esc_url(

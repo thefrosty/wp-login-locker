@@ -17,7 +17,8 @@ use function time;
  */
 class NewUser extends AbstractLoginLocker
 {
-    use GeoUtilTrait, HooksTrait;
+    use GeoUtilTrait;
+    use HooksTrait;
 
     /**
      * Add class hooks.

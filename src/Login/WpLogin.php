@@ -59,7 +59,8 @@ use const PHP_URL_SCHEME;
 class WpLogin extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash {
+    use GeoUtilTrait;
+    use Hash {
         Hash::getEncryptionKey as hashEncryptionKey;
     }
 
@@ -85,11 +86,13 @@ class WpLogin extends AbstractLoginLocker
             setcookie(
                 self::COOKIE_NAME,
                 '',
-                time() - HOUR_IN_SECONDS,
-                COOKIEPATH,
-                COOKIE_DOMAIN,
-                is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
-                true
+                [
+                    'expires' => time() - HOUR_IN_SECONDS,
+                    'path' => COOKIEPATH,
+                    'domain' => COOKIE_DOMAIN,
+                    'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
+                    'httponly' => true,
+                ]
             );
         }
     }
@@ -158,6 +161,7 @@ class WpLogin extends AbstractLoginLocker
             if ($cookie === false) {
                 $delete_cookie = true;
             }
+
             [, $cookie_value] = explode(
                 self::ENCRYPTION_DELIMITER,
                 $cookie !== false ? $cookie : self::ENCRYPTION_DELIMITER
@@ -294,7 +298,7 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Helper to return an array of user data and the flag type used.
      * @param string $input Incoming user credentials, email or login.
-     * @return array An array of user: WP_User object of false, and the field type flag for the
+     * @return array<string, mixed> An array of user: WP_User object of false, and the field type flag for the
      *     WP_User object data.
      */
     private function getUserBy(string $input): array
@@ -350,11 +354,13 @@ class WpLogin extends AbstractLoginLocker
             setcookie(
                 self::COOKIE_NAME,
                 $this->getCookieValue($user->$field),
-                strtotime($expire ?? self::COOKIE_EXPIRE),
-                COOKIEPATH,
-                is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
-                is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
-                httponly: true
+                [
+                    'expires' => strtotime($expire ?? self::COOKIE_EXPIRE),
+                    'path' => COOKIEPATH,
+                    'domain' => is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
+                    'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
+                    'httponly' => true,
+                ]
             );
         }
     }

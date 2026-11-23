@@ -26,7 +26,9 @@ use function update_user_meta;
  */
 abstract class UserProfile extends AbstractLoginLocker
 {
-    use ContainerAwareTrait, HooksTrait, PluginAwareTrait;
+    use ContainerAwareTrait;
+    use HooksTrait;
+    use PluginAwareTrait;
 
     public const string USER_PROFILE_ID = 'login-locker-settings';
     public const string USER_PROFILE_HOOK = LoginLocker::HOOK_PREFIX . 'user_profile/extra_fields';

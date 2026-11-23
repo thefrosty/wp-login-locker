@@ -49,7 +49,8 @@ use const PHP_URL_HOST;
 class Login extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash;
+    use GeoUtilTrait;
+    use Hash;
 
     public const string ADMIN_ACTION_SEND_EMAIL = 'login-locker-send-email';
     public const string ADMIN_ACTION_NONCE = '_lockerNonce';
@@ -79,12 +80,13 @@ class Login extends AbstractLoginLocker
     protected function wpLoginAction(string $user_login, WP_User $user): void
     {
         $disable = filter_var(
-            Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, false),
+            Options::getOption(Settings::EMAIL_SETTING_DISABLE, Settings::EMAIL_SETTINGS, default: false),
             FILTER_VALIDATE_BOOL
         );
         if ($disable === true) {
             return;
         }
+
         $current_ip = $this->getIP();
         $last_login_ip = get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY);
         $user_notification = get_user_meta($user->ID, LoginLocker::USER_EMAIL_META_KEY, true);
@@ -136,14 +138,16 @@ class Login extends AbstractLoginLocker
             $user->ID === 0
         ) {
             wp_die(
-                esc_html__('Couldn\'t send test email.', 'wp-login-locker'),
+                esc_html__("Couldn't send test email.", 'wp-login-locker'),
                 '',
                 ['response' => Response::HTTP_NOT_ACCEPTABLE]
             );
         }
+
         $this->wp_mail = new WpMail();
         $this->wp_mail->setPlugin($this->getPlugin());
         $this->wp_mail->__set('pretext', $this->getEmailPretext());
+
         $sent = $this->wp_mail->send(
             $user->user_email,
             sprintf(esc_html__('[TEST] New login to %1$s account', 'wp-login-locker'), $this->getHomeUrl()),
@@ -170,12 +174,10 @@ class Login extends AbstractLoginLocker
      */
     protected function setProtectedMeta($protected, $meta_key): bool
     {
-        switch ($meta_key) {
-            case LoginLocker::LAST_LOGIN_IP_META_KEY:
-            case LoginLocker::LAST_LOGIN_TIME_META_KEY:
-                $protected = true;
-                break;
-        }
+        $protected = match ($meta_key) {
+            LoginLocker::LAST_LOGIN_IP_META_KEY, LoginLocker::LAST_LOGIN_TIME_META_KEY => true,
+            default => $protected,
+        };
 
         return $protected;
     }
@@ -189,7 +191,7 @@ class Login extends AbstractLoginLocker
         $content = Options::getOption(
             Settings::EMAIL_SETTING_PRETEXT,
             Settings::EMAIL_SETTINGS,
-            null
+            default: null
         );
         if (empty($content)) {
             ob_start();
@@ -213,7 +215,7 @@ class Login extends AbstractLoginLocker
         $content = Options::getOption(
             Settings::EMAIL_SETTING_MESSAGE,
             Settings::EMAIL_SETTINGS,
-            null
+            default: null
         );
         if (empty($content)) {
             ob_start();

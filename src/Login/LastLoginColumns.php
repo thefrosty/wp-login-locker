@@ -45,7 +45,7 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Adds the last login column to the network admin user list.
-     * @param array $cols The default columns.
+     * @param array<string, mixed> $cols The default columns.
      * @return array
      */
     protected function addColumn(array $cols): array
@@ -78,7 +78,7 @@ class LastLoginColumns implements WpHooksInterface
 
     /**
      * Register the column as sortable.
-     * @param array $columns
+     * @param array<string, mixed> $columns
      * @return array
      */
     protected function addSortable(array $columns): array

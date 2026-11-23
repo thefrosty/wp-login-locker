@@ -59,6 +59,7 @@ class LastLogin extends UserProfile
         if (empty($user_login_ip)) {
             return __('No data', 'wp-login-locker');
         }
+
         return end($user_login_ip);
     }
 
@@ -77,6 +78,7 @@ class LastLogin extends UserProfile
         } elseif ($count === 1) {
             return date_i18n($this->getDateTimeFormat(), end($user_login_time));
         }
+
         return date_i18n(
             $this->getDateTimeFormat(),
             $user_login_time[($count - 1)] ?? end($user_login_time)
@@ -94,6 +96,7 @@ class LastLogin extends UserProfile
         if (empty($user_login_time)) {
             $user_login_time[] = time();
         }
+
         return date_i18n($this->getDateTimeFormat(), end($user_login_time));
     }
 

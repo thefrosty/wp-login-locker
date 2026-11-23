@@ -24,13 +24,13 @@
     "sort-packages": true
   },
   "require": {
-    "php": "^8.4 || ^8.5",
+    "php": "^8.4",
     "ext-openssl": "*",
     "composer/installers": "~2.0",
-    "dwnload/wp-settings-api": "^3.10",
-    "pimple/pimple": "~3.0",
+    "dwnload/wp-settings-api": "^4.0",
+    "php-di/php-di": "^7.1",
     "symfony/http-foundation": "^8.1.11",
-    "thefrosty/wp-utilities": "^3.13.2"
+    "thefrosty/wp-utilities": "^4.0"
   },
   "require-dev": {
     "ext-simplexml": "*",
@@ -64,6 +64,8 @@
     "phpcs:fix": "bash ./vendor/thefrosty/wp-utilities/bin/phpcbf.sh --standard=phpcs-ruleset.xml",
     "phpunit": "./vendor/bin/phpunit --colors",
     "phpunit:coverage": "./vendor/bin/phpunit --colors --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 70",
+    "refactor": "rector --ansi",
+    "test:refactor": "rector --dry-run --debug --ansi",
     "tests": [
       "@phpcs",
       "@phpunit"
