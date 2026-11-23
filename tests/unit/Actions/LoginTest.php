@@ -13,6 +13,7 @@ use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Utilities\IpLocation;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 
@@ -22,6 +23,7 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
  */
 #[CoversClass(Login::class)]
 #[Group('actions')]
+#[UsesClass(IpLocation::class)]
 #[UsesClass(NewUser::class)]
 #[UsesClass(UserMetaCleanup::class)]
 #[UsesClass(WpMail::class)]

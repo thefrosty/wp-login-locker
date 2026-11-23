@@ -50,6 +50,7 @@ class Settings extends AbstractLoginLocker
     public const string FULL_BLEED_COLOR_DEFAULT = '#709f2b';
     public const string GENERAL_SETTINGS = self::PREFIX . 'general_settings';
     public const string GENERAL_SETTING_ALLOW_LP = 'allow_lost_password';
+    public const string GENERAL_SETTING_IP_LOCATION = 'ip_location';
     public const string GENERAL_SETTING_LP_TIMEOUT = 'lost_password_timeout';
     public const string LOGIN_SETTINGS = self::PREFIX . 'login_settings';
     public const string LOGIN_SETTING_LOGO = 'logo';
@@ -153,6 +154,19 @@ class Settings extends AbstractLoginLocker
             ])
         );
 
+        $field_manager->addField(
+            new SettingField([
+                SettingField::NAME => self::GENERAL_SETTING_IP_LOCATION,
+                SettingField::LABEL => esc_html__('Look up login location?', 'wp-login-locker'),
+                SettingField::DESC => esc_html__(
+                    'Add the approximate location to new login emails. Login IPs are sent to freeipapi.com.',
+                    'wp-login-locker'
+                ),
+                SettingField::TYPE => FieldTypes::FIELD_TYPE_CHECKBOX,
+                SettingField::SECTION_ID => $general_section_id,
+            ])
+        );
+
         /**
          * Login Settings Section
          */
@@ -237,6 +251,7 @@ class Settings extends AbstractLoginLocker
 <li><code>%4$s</code> Login URL (with auth check and re-auth)</li>
 <li><code>%5$s</code> Site name</li>
 <li><code>%6$s</code> Site (admin) email</li>
+<li><code>%7$s</code> Approximate location line (empty unless "Look up login location?" is enabled and found)</li>
 </ul>',
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_HTML,
                 SettingField::SECTION_ID => $email_section_id,

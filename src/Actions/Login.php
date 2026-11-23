@@ -11,6 +11,7 @@ use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
+use TheFrosty\WpLoginLocker\Utilities\IpLocation;
 use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Api\Hash;
@@ -41,6 +42,7 @@ use function wp_safe_redirect;
 use function wp_schedule_single_event;
 use function wp_verify_nonce;
 use const MINUTE_IN_SECONDS;
+use const PHP_EOL;
 use const PHP_URL_HOST;
 
 /**
@@ -248,6 +250,7 @@ class Login extends AbstractLoginLocker
          * %4$s Login URL
          * %5$s Site name
          * %6$s Site email
+         * %7$s Location line, e.g. "\nLocation: Sydney, New South Wales, Australia" (empty when unknown/disabled)
          */
         // The user agent is attacker-controlled and names are user-editable: escape before they go into the HTML email.
         return sprintf(
@@ -257,8 +260,23 @@ class Login extends AbstractLoginLocker
             esc_html($this->getIP() ?? __('Unknown', 'wp-login-locker')),
             esc_url($login_url),
             $this->wp_mail->getFromName(),
-            $this->wp_mail->getFromAddress()
+            $this->wp_mail->getFromAddress(),
+            $this->getLocationLine()
         );
+    }
+
+    /**
+     * Get the approximate location line for the current IP, when "Look up login location?" is enabled.
+     * @return string
+     */
+    private function getLocationLine(): string
+    {
+        $location = new IpLocation()->getLocationString($this->getIP());
+        if ($location === null) {
+            return '';
+        }
+
+        return PHP_EOL . sprintf(esc_html__('Location: %s', 'wp-login-locker'), esc_html($location));
     }
 
     /**
