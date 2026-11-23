@@ -6,8 +6,8 @@ namespace TheFrosty\Tests\WpLoginLocker;
 
 use Override;
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Container\ContainerInterface;
 use ReflectionObject;
-use TheFrosty\WpUtilities\Plugin\Container;
 use TheFrosty\WpUtilities\Plugin\Plugin;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 
@@ -20,7 +20,7 @@ class TestCase extends \WP_UnitTestCase
 
     public const string METHOD_ADD_FILTER = 'addFilter';
 
-    /** @var Container $container */
+    /** @var ContainerInterface|null $container */
     protected $container;
 
     protected Plugin $plugin;
