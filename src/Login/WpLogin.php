@@ -86,11 +86,13 @@ class WpLogin extends AbstractLoginLocker
             setcookie(
                 self::COOKIE_NAME,
                 '',
-                time() - HOUR_IN_SECONDS,
-                COOKIEPATH,
-                COOKIE_DOMAIN,
-                is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
-                true
+                [
+                    'expires' => time() - HOUR_IN_SECONDS,
+                    'path' => COOKIEPATH,
+                    'domain' => COOKIE_DOMAIN,
+                    'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
+                    'httponly' => true,
+                ]
             );
         }
     }
@@ -352,11 +354,13 @@ class WpLogin extends AbstractLoginLocker
             setcookie(
                 self::COOKIE_NAME,
                 $this->getCookieValue($user->$field),
-                strtotime($expire ?? self::COOKIE_EXPIRE),
-                COOKIEPATH,
-                is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
-                is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
-                httponly: true
+                [
+                    'expires' => strtotime($expire ?? self::COOKIE_EXPIRE),
+                    'path' => COOKIEPATH,
+                    'domain' => is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
+                    'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
+                    'httponly' => true,
+                ]
             );
         }
     }
