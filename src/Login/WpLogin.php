@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TheFrosty\WpLoginLocker\Login;
 
 use Dwnload\WpSettingsApi\Api\Options;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
@@ -17,6 +18,7 @@ use WP_User;
 use function add_query_arg;
 use function apply_filters;
 use function array_values;
+use function esc_html__;
 use function explode;
 use function filter_input;
 use function filter_var;
@@ -106,12 +108,27 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Build a signed, expiring wp-login.php URL that grants the user access to the login form.
      * @param WP_User $user
+     * @param int|null $expires Unix timestamp the link expires at. Defaults to getAuthCheckLinkExpires().
      * @return string
      */
-    public static function getAuthCheckUrl(WP_User $user): string
+    public static function getAuthCheckUrl(WP_User $user, ?int $expires = null): string
+    {
+        return add_query_arg(
+            self::AUTH_CHECK_KEY,
+            SignedToken::create($user, self::AUTH_CHECK_KEY, $expires ?? self::getAuthCheckLinkExpires($user)),
+            wp_login_url('', true)
+        );
+    }
+
+    /**
+     * Get the Unix timestamp a new login link for the user expires at.
+     * @param WP_User $user
+     * @return int
+     */
+    public static function getAuthCheckLinkExpires(WP_User $user): int
     {
         /**
-         * Filter how long a login link (sent in notification emails) stays valid.
+         * Filter how long a login link (sent in emails) stays valid.
          * @param string $ttl A relative strtotime() string. Default '+7 days'.
          * @param WP_User $user
          */
@@ -121,15 +138,8 @@ class WpLogin extends AbstractLoginLocker
             $user
         );
         $expires = strtotime($ttl);
-        if ($expires === false) {
-            $expires = strtotime(self::AUTH_CHECK_LINK_TTL);
-        }
 
-        return add_query_arg(
-            self::AUTH_CHECK_KEY,
-            SignedToken::create($user, self::AUTH_CHECK_KEY, $expires),
-            wp_login_url('', true)
-        );
+        return $expires !== false ? $expires : strtotime(self::AUTH_CHECK_LINK_TTL);
     }
 
     /**
@@ -231,8 +241,32 @@ class WpLogin extends AbstractLoginLocker
         }
 
         if (!$this->has_auth) {
-            $this->noAuthLoginHtml();
+            $this->noAuthLoginHtml($this->maybeRequestLoginLink());
         }
+    }
+
+    /**
+     * Handle the "Email me a login link" form on the locked page. Responds the same whether the account
+     * exists or the request was rate limited, so accounts can't be enumerated.
+     * @return string|null The message to show, or null when this isn't a login link request.
+     */
+    private function maybeRequestLoginLink(): ?string
+    {
+        $request = $this->getRequest();
+        if (!$request->isMethod(Request::METHOD_POST) || !$request->query->has(LoginLink::REQUEST_KEY)) {
+            return null;
+        }
+
+        $login = $request->request->all()[LoginLink::REQUEST_FIELD] ?? '';
+        new LoginLink($this->getPlugin())->request(
+            is_string($login) ? sanitize_text_field(wp_unslash($login)) : '',
+            $this->getIP()
+        );
+
+        return esc_html__(
+            'If that account exists, we\'ve emailed a login link to its email address.',
+            'wp-login-locker'
+        );
     }
 
     /**
@@ -255,8 +289,9 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Render the fake login HTML and send the response to the page.
      * Sets a 403 Forbidden Status code and terminates all processes (unless los passwords are allowed).
+     * @param string|null $message An (escaped) message to show instead of the default.
      */
-    private function noAuthLoginHtml(): never
+    private function noAuthLoginHtml(?string $message = null): never
     {
         if ($this->isLostPasswordAllowed() && $this->isLostPassOrExpired()) {
             ob_start();

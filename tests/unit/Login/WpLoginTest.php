@@ -13,10 +13,12 @@ use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
+use TheFrosty\WpLoginLocker\Login\LoginLink;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\SignedToken;
+use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Api\Hash;
 use Throwable;
 use WPDieException;
@@ -31,7 +33,9 @@ use function ob_get_level;
 #[CoversClass(NewUser::class)]
 #[CoversClass(WpLogin::class)]
 #[Group('login')]
+#[UsesClass(LoginLink::class)]
 #[UsesClass(SignedToken::class)]
+#[UsesClass(WpMail::class)]
 class WpLoginTest extends TestCase
 {
 
@@ -227,6 +231,44 @@ class WpLoginTest extends TestCase
     }
 
     /**
+     * Test loginAuthCheck(). The "Email me a login link" form emails a link and still shows the locked page.
+     */
+    public function testLoginLinkRequestSendsEmail(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        $mails = [];
+        $capture = static function (?bool $return, array $atts) use (&$mails): bool {
+            $mails[] = $atts;
+
+            return true;
+        };
+        \add_filter('pre_wp_mail', $capture, 10, 2);
+        $original = $this->replaceRequest(
+            Request::create(
+                \add_query_arg(LoginLink::REQUEST_KEY, true, \wp_login_url()),
+                Request::METHOD_POST,
+                [LoginLink::REQUEST_FIELD => $user->user_email]
+            )
+        );
+        try {
+            $this->reflection->getMethod('loginAuthCheck')->invoke($this->wpLogin);
+            $this->fail('Expected the no-auth login page to terminate the request.');
+        } catch (Throwable $exception) {
+            $this->assertInstanceOf(WPDieException::class, $exception);
+            if (ob_get_level()) {
+                ob_get_clean();
+            }
+        }
+        \remove_filter('pre_wp_mail', $capture);
+        $this->assertCount(1, $mails);
+        $this->assertSame($user->user_email, $mails[0]['to']);
+        $this->assertFalse($this->reflection->getProperty('has_auth')->getValue($this->wpLogin));
+        \delete_transient(LoginLink::TRANSIENT_USER_PREFIX . $user->ID);
+        \delete_transient(LoginLink::TRANSIENT_IP_PREFIX . \md5((string)$this->wpLogin->getIP()));
+        $this->replaceRequest($original);
+    }
+
+    /**
      * Test lostPasswordMessage().
      */
     public function testLostPasswordMessage(): void
@@ -280,7 +322,7 @@ class WpLoginTest extends TestCase
             'POST',
             ['login_locker_user_login' => $user->user_email]
         );
-        $this->wpLogin->setRequest($request);
+        $original = $this->replaceRequest($request);
         $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
         try {
             $loginAuthCheck->invoke($this->wpLogin);
@@ -292,6 +334,20 @@ class WpLoginTest extends TestCase
             }
         }
         $this->assertFalse($this->reflection->getProperty('has_auth')->getValue($this->wpLogin));
-        $this->wpLogin->setRequest(Request::createFromGlobals());
+        $this->replaceRequest($original);
+    }
+
+    /**
+     * Swap the request. HttpFoundationRequestTrait::setRequest() only sets it once, and it's static.
+     * @param Request $request
+     * @return Request The previous request, to restore.
+     */
+    private function replaceRequest(Request $request): Request
+    {
+        $property = $this->reflection->getProperty('request');
+        $original = $property->getValue();
+        $property->setValue(null, $request);
+
+        return $original;
     }
 }

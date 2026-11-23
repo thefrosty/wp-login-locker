@@ -60,7 +60,7 @@ class Menu extends AbstractLoginLocker
                         'return confirm("%s")',
                         esc_js(
                             __(
-                                'Continue to secure log out? You will need a login link from a Login Locker email to access wp-login.php again.',
+                                'Continue to secure log out? To access wp-login.php again, request a login link by email on that page.',
                                 'wp-login-locker'
                             )
                         )
