@@ -15,6 +15,7 @@ use TheFrosty\WpLoginLocker\Utilities\UserMetaCleanup;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Api\Hash;
 use WP_User;
+use function __;
 use function add_query_arg;
 use function add_user_meta;
 use function do_action;
@@ -94,6 +95,7 @@ class Login extends AbstractLoginLocker
         /**
          * If the current IP does not match their last login IP
          * (and the user has login notifications 'on'), send a notification.
+         * An unknown (null) IP never matches, so it always notifies.
          */
         if ((!empty($last_login_ip) && $current_ip !== end($last_login_ip)) && empty($user_notification)) {
             $this->wp_mail = new WpMail();
@@ -108,7 +110,7 @@ class Login extends AbstractLoginLocker
 
         /**
          * Action when a user logs-in you can hook into.
-         * @param string $current_ip The current users IP address.
+         * @param string|null $current_ip The current users IP address, null when it can't be determined.
          * @param array $last_login_ip An array of the users last login IP's.
          * @param mixed $user_notification Whether the users notification preferences are enabled.
          */
@@ -118,7 +120,10 @@ class Login extends AbstractLoginLocker
          * Update the current users login meta data
          * (regardless of current IP or notification settings)
          */
-        add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, false);
+        if ($current_ip !== null) {
+            add_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, $current_ip, false);
+        }
+
         add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, time(), false);
         unset($current_ip, $last_login_ip, $user_notification, $this->wp_mail);
         wp_schedule_single_event(time() + MINUTE_IN_SECONDS, 'login_locker_cleanup_last_login_meta', [$user->ID]);
@@ -249,7 +254,7 @@ class Login extends AbstractLoginLocker
             $content,
             esc_html($this->getUserName($user)),
             esc_html($this->getUserAgent()),
-            esc_html($this->getIP()),
+            esc_html($this->getIP() ?? __('Unknown', 'wp-login-locker')),
             esc_url($login_url),
             $this->wp_mail->getFromName(),
             $this->wp_mail->getFromAddress()

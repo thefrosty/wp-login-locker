@@ -46,19 +46,18 @@ class GeoUtilTraitTest extends TestCase
      */
     public function testGetIP(): void
     {
-        $HTTP_CLIENT_IP = '127.0.0.1';
-        $HTTP_X_FORWARDED_FOR = '127.0.0.1';
-        $this->assertIsString($this->class->getIP());
-        $this->class->getRequest()->server->set('HTTP_CLIENT_IP', $HTTP_CLIENT_IP);
-        $this->assertIsString($this->class->getIP());
-        $this->class->getRequest()->server->remove('HTTP_CLIENT_IP');
-        $this->class->getRequest()->server->set('HTTP_X_FORWARDED_FOR', $HTTP_X_FORWARDED_FOR);
-        $this->assertIsString($this->class->getIP());
-        $this->class->getRequest()->server->remove('HTTP_X_FORWARDED_FOR');
+        $server = $this->class->getRequest()->server;
+        $server->set('REMOTE_ADDR', '127.0.0.1');
+        $this->assertSame('127.0.0.1', $this->class->getIP());
+        $server->remove('REMOTE_ADDR');
+        $this->assertNull($this->class->getIP());
+        $server->set('REMOTE_ADDR', 'not-an-ip');
+        $this->assertNull($this->class->getIP());
+        $server->remove('REMOTE_ADDR');
     }
 
     /**
-     * Test getIP() ignores client-supplied headers unless they're explicitly trusted.
+     * Test getIP() ignores client-supplied headers unless the request comes from a trusted proxy.
      */
     public function testGetIPIgnoresSpoofedHeaders(): void
     {
@@ -66,18 +65,21 @@ class GeoUtilTraitTest extends TestCase
         $server->set('REMOTE_ADDR', '203.0.113.10');
         $server->set('HTTP_CLIENT_IP', '198.51.100.1');
         $server->set('HTTP_X_FORWARDED_FOR', '198.51.100.2');
+        $server->set('HTTP_CF_CONNECTING_IP', '198.51.100.3');
         $this->assertSame('203.0.113.10', $this->class->getIP());
 
-        $filter = static fn(): array => ['HTTP_X_FORWARDED_FOR'];
-        \add_filter('login_locker/trusted_ip_headers', $filter);
+        $proxies = static fn(): array => ['203.0.113.0/24'];
+        \add_filter('thefrosty/wp_utilities/trusted_proxies', $proxies);
         $server->set('HTTP_X_FORWARDED_FOR', '198.51.100.9, 192.0.2.4');
         $this->assertSame('192.0.2.4', $this->class->getIP());
         $server->set('HTTP_X_FORWARDED_FOR', 'not-an-ip');
         $this->assertSame('203.0.113.10', $this->class->getIP());
-        \remove_filter('login_locker/trusted_ip_headers', $filter);
+        \remove_filter('thefrosty/wp_utilities/trusted_proxies', $proxies);
 
+        $server->remove('REMOTE_ADDR');
         $server->remove('HTTP_CLIENT_IP');
         $server->remove('HTTP_X_FORWARDED_FOR');
+        $server->remove('HTTP_CF_CONNECTING_IP');
     }
 
     /**

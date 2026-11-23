@@ -50,7 +50,7 @@ vendor/bin/rector process tests/
 | `UserProfile\EmailNotificationSetting` | `src/UserProfile/EmailNotificationSetting.php` | User profile page email notification toggle                                                 |
 | `UserProfile\LastLogin`                | `src/UserProfile/LastLogin.php`                | Displays last login info in user profile                                                    |
 | `WpMail\WpMail`                        | `src/WpMail/WpMail.php`                        | Email template builder and sender                                                           |
-| `Utilities\GeoUtilTrait`               | `src/Utilities/GeoUtilTrait.php`               | Gets IP address from various headers                                                        |
+| `Utilities\GeoUtilTrait`               | `src/Utilities/GeoUtilTrait.php`               | Gets the client IP via wp-utilities `getIpAddress()` (REMOTE_ADDR, trusted proxies only)    |
 | `Utilities\UserMetaCleanup`            | `src/Utilities/UserMetaCleanup.php`            | Cron job to limit stored login history (max 10)                                             |
 
 ### Key Constants (`src/LoginLocker.php`)
