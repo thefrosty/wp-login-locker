@@ -16,6 +16,7 @@ use Dwnload\WpSettingsApi\WpSettingsApi;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\Login;
 use TheFrosty\WpLoginLocker\UserProfile\UserProfile;
+use TheFrosty\WpLoginLocker\Utilities\IpLocation;
 use function add_query_arg;
 use function admin_url;
 use function array_unshift;
@@ -172,10 +173,18 @@ class Settings extends AbstractLoginLocker
             new SettingField([
                 SettingField::NAME => self::GENERAL_SETTING_FREE_IP_API,
                 SettingField::LABEL => sprintf(esc_html__('%s Key', 'wp-login-locker'), 'FreeIPAPI'),
-                SettingField::DESC => esc_html__(
-                    'API keys are one way to authenticate requests to the paid API. 
-                    You need an active subscription to create and use them.',
-                    'wp-login-locker'
+                SettingField::DESC => sprintf(
+                    /* translators: %s: "active subscription" link to freeipapi.com. */
+                    esc_html__(
+                        // phpcs:ignore Generic.Files.LineLength.TooLong
+                        'API keys are one way to authenticate requests to the paid API. You need an %s to create and use them.',
+                        'wp-login-locker'
+                    ),
+                    sprintf(
+                        '<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+                        esc_url(IpLocation::SUBSCRIPTION_URL),
+                        esc_html__('active subscription', 'wp-login-locker')
+                    )
                 ),
                 SettingField::TYPE => FieldTypes::FIELD_TYPE_TEXT,
                 SettingField::SECTION_ID => $general_section_id,

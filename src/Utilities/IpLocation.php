@@ -58,6 +58,7 @@ class IpLocation
     public const string FREE_BASE_URL = 'https://free.freeipapi.com/api/v1/';
     public const string PAID_BASE_URL = 'https://us.freeipapi.com/api/';
     public const string JSON_ENDPOINT = 'json/';
+    public const string SUBSCRIPTION_URL = 'https://freeipapi.com/docs/app/subscription';
     public const string FILTER_PREFIX = LoginLocker::HOOK_PREFIX . 'ip_location/';
     public const string FILTER_API_KEY = self::FILTER_PREFIX . 'api_key';
     public const string FILTER_CACHE_TTL = self::FILTER_PREFIX . 'cache_ttl';
