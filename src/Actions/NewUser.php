@@ -31,11 +31,13 @@ class NewUser extends AbstractLoginLocker
     /**
      * Add default user meta on activation.
      * @param int $user_id
-     * @param string $ip_address
+     * @param string|null $ip_address Null when the IP can't be determined (not stored).
      */
-    public static function addLoginUserMeta(int $user_id, string $ip_address): void
+    public static function addLoginUserMeta(int $user_id, ?string $ip_address): void
     {
-        add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $ip_address);
+        if ($ip_address !== null) {
+            add_user_meta($user_id, LoginLocker::LAST_LOGIN_IP_META_KEY, $ip_address);
+        }
         add_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY, time());
     }
 

@@ -66,7 +66,9 @@ class NewUserTest extends TestCase
             $user = self::factory()->user->create_and_get();
             $userRegisterAction->invoke($this->newUser, $user->ID);
             $actual = \get_user_meta($user->ID, LoginLocker::LAST_LOGIN_IP_META_KEY, true);
-            $this->assertSame($this->newUser->getIP(), $actual);
+            // An unknown (null) IP isn't stored, so the single meta value is an empty string.
+            $this->assertSame($this->newUser->getIP() ?? '', $actual);
+            $this->assertNotEmpty(\get_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, true));
             $this->deleteUserMeta($user->ID);
         } catch (\ReflectionException $exception) {
             $this->assertInstanceOf(\ReflectionException::class, $exception);
