@@ -498,7 +498,9 @@ class WpLogin extends AbstractLoginLocker
          */
         $expires = strtotime($expire ?? self::getCookieExpire());
         if ($expires === false) {
-            $expires = strtotime(sprintf(self::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DAYS_DEFAULT));
+            $expires = strtotime(
+                sprintf(self::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_DEFAULT)
+            );
         }
         if (!headers_sent()) {
             setcookie(
