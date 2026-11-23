@@ -52,6 +52,9 @@ vendor/bin/rector process tests/
 | `WpMail\WpMail`                        | `src/WpMail/WpMail.php`                        | Email template builder and sender                                                           |
 | `Utilities\GeoUtilTrait`               | `src/Utilities/GeoUtilTrait.php`               | Gets the client IP via wp-utilities `getIpAddress()` (REMOTE_ADDR, trusted proxies only)    |
 | `Utilities\UserMetaCleanup`            | `src/Utilities/UserMetaCleanup.php`            | Cron job to limit stored login history (max 10)                                             |
+| `Login\LoginLink`                      | `src/Login/LoginLink.php`                      | Emails signed login links ("Email me a login link" form), rate limited per IP/user          |
+| `Cli\LoginLinkCommand`                 | `src/Cli/LoginLinkCommand.php`                 | `wp login-locker link <user> [--send]` WP-CLI command                                       |
+| `Utilities\SignedToken`                | `src/Utilities/SignedToken.php`                | HMAC-signed, expiring, user-bound tokens for login links and cookies                        |
 
 ### Key Constants (`src/LoginLocker.php`)
 
@@ -64,17 +67,18 @@ vendor/bin/rector process tests/
 
 1. User visits `/wp-login.php`
 2. `WpLogin::loginAuthCheck()` validates:
-    - Auth cookie (encrypted with site URL as key)
-    - `auth_check` GET parameter (one-time link sent via email)
+    - Auth cookie
+    - `auth_check` GET parameter: a `SignedToken` login link (sent in new login emails, by the
+      "Email me a login link" form, or from `wp login-locker link <user>`), valid for 7 days
     - Logout nonce verification
-3. If no valid auth: returns 403 Forbidden with fake login page
-4. If valid: allows login and sets long-lived auth cookie
+3. If no valid auth: returns 403 Forbidden with the locked page and its "Email me a login link" form
+4. If valid: allows login and sets the auth cookie for the "Cookie Expiration" setting's days (default 365)
 
 ### Settings Storage
 
 Uses `dwnload/wp-settings-api` with three setting groups:
 
-- `login_locker_general_settings` (lost password timeout, allow lost password)
+- `login_locker_general_settings` (cookie expiration, lost password timeout, allow lost password, login location, FreeIPAPI key)
 - `login_locker_login_settings` (custom logo)
 - `login_locker_email_settings` (email templates, disable emails toggle)
 

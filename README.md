@@ -29,6 +29,18 @@ Or, run:
 
 `$ composer require thefrosty/wp-login-locker:^2.10`
 
+## Getting into wp-login.php
+
+Direct access to `/wp-login.php` is blocked unless the browser has a valid Login Locker cookie. The cookie is set
+when the plugin is activated, and when a signed login link (valid for 7 days) is used. It lasts for the
+**Cookie Expiration** setting's number of days (default 365). To get a login link:
+
+- **Email me a login link:** enter your username or email address on the locked wp-login.php page. Requests are
+  rate limited, and the page shows the same message whether or not the account exists.
+- **New login emails:** each "new login" notification includes a login link.
+- **WP-CLI:** `wp login-locker link <user>` prints a link for a user ID, username or email address. Add `--send`
+  to email it to the user instead, or `--porcelain` to only output the link.
+
 -----
 
 - [Actions](#actions)

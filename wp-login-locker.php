@@ -25,6 +25,7 @@ use TheFrosty\WpUtilities\Plugin\ContainerWriter;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
 use TheFrosty\WpUtilities\WpAdmin\GitHubUpdateChecker;
+use WP_CLI;
 use function defined;
 use function is_readable;
 use function register_activation_hook;
@@ -56,6 +57,10 @@ $plugin
     ->addOnHook(UserProfile\LastLogin::class, 'admin_init', 10, true)
     ->addOnHook(UserProfile\EmailNotificationSetting::class, 'admin_init', 10, true)
     ->initialize();
+
+if (defined('WP_CLI') && WP_CLI) {
+    WP_CLI::add_command(Cli\LoginLinkCommand::COMMAND, new Cli\LoginLinkCommand($plugin));
+}
 
 require_once 'helpers.php';
 register_activation_hook(__FILE__, static function (): void {
