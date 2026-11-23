@@ -1,6 +1,7 @@
 <?php
 
-\esc_html_e('Hi %1$s,
+// phpcs:disable Generic.Files.LineLength.TooLong -- Wrapping would change the email text.
+esc_html_e('Hi %1$s,
 
 Someone has just logged into your %5$s account. If this wasn\'t you, we suggest you login immediately to review your credentials.
 
