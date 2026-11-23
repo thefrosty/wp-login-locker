@@ -63,7 +63,6 @@ class IpLocationTest extends TestCase
         \delete_transient(IpLocation::TRANSIENT_COOLDOWN);
         \delete_transient(IpLocation::TRANSIENT_REQUEST_LOG);
         \delete_transient(IpLocation::TRANSIENT_CACHE_PREFIX . \md5(self::IP));
-        \remove_all_filters(IpLocation::FILTER_API_KEY);
         \remove_all_filters(IpLocation::FILTER_RATE_LIMITS);
         unset($this->ipLocation);
         parent::tearDown();
@@ -199,13 +198,12 @@ class IpLocationTest extends TestCase
         );
     }
 
-    public function testApiKeyFilterOverridesSetting(): void
+    public function testBlankApiKeyUsesFreeApi(): void
     {
         \update_option(Settings::GENERAL_SETTINGS, [
             Settings::GENERAL_SETTING_IP_LOCATION => 'on',
-            Settings::GENERAL_SETTING_FREE_IP_API => self::API_KEY,
+            Settings::GENERAL_SETTING_FREE_IP_API => '   ',
         ]);
-        \add_filter(IpLocation::FILTER_API_KEY, '__return_null');
         $this->ipLocation->lookup(self::IP);
         $this->assertSame(IpLocation::FREE_BASE_URL . IpLocation::JSON_ENDPOINT . self::IP, $this->requests[0]['url']);
         $this->assertArrayNotHasKey('Authorization', $this->requests[0]['args']['headers']);

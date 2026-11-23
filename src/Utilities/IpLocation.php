@@ -60,7 +60,6 @@ class IpLocation
     public const string JSON_ENDPOINT = 'json/';
     public const string SUBSCRIPTION_URL = 'https://freeipapi.com/docs/app/subscription';
     public const string FILTER_PREFIX = LoginLocker::HOOK_PREFIX . 'ip_location/';
-    public const string FILTER_API_KEY = self::FILTER_PREFIX . 'api_key';
     public const string FILTER_CACHE_TTL = self::FILTER_PREFIX . 'cache_ttl';
     public const string FILTER_COOLDOWN = self::FILTER_PREFIX . 'cooldown';
     public const string FILTER_NOT_FOUND_TTL = self::FILTER_PREFIX . 'not_found_ttl';
@@ -271,20 +270,15 @@ class IpLocation
     }
 
     /**
-     * Get the paid plan API key from the "FreeIPAPI Key" setting (filterable).
+     * Get the paid plan API key from the "FreeIPAPI Key" setting.
      * @return string|null
      */
     private function getApiKey(): ?string
     {
         $key = Options::getOption(Settings::GENERAL_SETTING_FREE_IP_API, Settings::GENERAL_SETTINGS, null);
+        $key = is_string($key) ? trim($key) : '';
 
-        /**
-         * Filter the freeipapi.com paid plan API key.
-         * @param string|null $key The "FreeIPAPI Key" setting value.
-         */
-        $key = apply_filters(self::FILTER_API_KEY, is_string($key) ? trim($key) : null);
-
-        return is_string($key) && $key !== '' ? $key : null;
+        return $key !== '' ? $key : null;
     }
 
     /**
