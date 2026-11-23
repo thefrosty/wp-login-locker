@@ -7,12 +7,14 @@ namespace TheFrosty\Tests\WpLoginLocker\Login;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpUtilities\Api\Hash;
 use Throwable;
 use WPDieException;
 use function method_exists;
@@ -53,7 +55,11 @@ class WpLoginTest extends TestCase
      */
     public function testConstructor(): void
     {
-        $constants = $this->reflection->getConstants();
+        // Exclude constants inherited from the wp-utilities Hash trait (v4 adds its own).
+        $constants = \array_diff_key(
+            $this->reflection->getConstants(),
+            new ReflectionClass(Hash::class)->getConstants()
+        );
         $this->assertIsArray($constants);
         $this->assertCount(7, $constants);
     }
