@@ -25,7 +25,7 @@ class Login extends AbstractLoginLocker
      * Settings array.
      * @var array $settings
      */
-    private mixed $settings;
+    private readonly mixed $settings;
 
     /**
      * Login constructor.
@@ -43,6 +43,7 @@ class Login extends AbstractLoginLocker
         if (empty($this->settings)) {
             return;
         }
+
         $this->addAction('login_enqueue_scripts', [$this, 'wpAddInlineLoginStyle']);
         $this->addFilter('login_headerurl', [$this, 'loginHeaderUrl']);
         $this->addFilter('login_headertext', [$this, 'loginHeaderTitle']);
@@ -58,6 +59,7 @@ class Login extends AbstractLoginLocker
         if (!array_key_exists(Settings::LOGIN_SETTING_LOGO, $this->settings) || empty($logo)) {
             return;
         }
+
         $login_h1 = version_compare($wp_version, '6.7', '>=') ? '.login .wp-login-logo' : '.login h1';
         $css = sprintf(
             '%s a {

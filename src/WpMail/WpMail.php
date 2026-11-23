@@ -35,8 +35,8 @@ use function wpautop;
 class WpMail implements PluginAwareInterface
 {
 
-    use HooksTrait, PluginAwareTrait;
-
+    use HooksTrait;
+    use PluginAwareTrait;
     public const string CONTENT_TYPE_HTML = 'text/html';
     public const string CONTENT_TYPE_PLAIN = 'text/plain';
 

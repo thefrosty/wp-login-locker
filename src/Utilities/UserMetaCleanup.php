@@ -19,21 +19,19 @@ use function implode;
 class UserMetaCleanup
 {
 
-    /**
-     * User ID.
-     * @var int $user_id
-     */
-    private int $user_id;
-
     private const int MAX_POST_META_COUNT = 10;
 
     /**
      * UserMetaCleanup constructor.
      * @param int $user_id
      */
-    public function __construct(int $user_id)
+    public function __construct(
+        /**
+         * User ID.
+         */
+        private readonly int $user_id
+    )
     {
-        $this->user_id = $user_id;
     }
 
     /**
@@ -80,7 +78,7 @@ class UserMetaCleanup
      */
     private function getSlice(array $meta_ids): array
     {
-        return array_slice($meta_ids, -self::MAX_POST_META_COUNT, self::MAX_POST_META_COUNT, true);
+        return array_slice($meta_ids, -self::MAX_POST_META_COUNT, self::MAX_POST_META_COUNT, preserve_keys: true);
     }
 
     /**

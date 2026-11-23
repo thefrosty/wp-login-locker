@@ -59,7 +59,8 @@ use const PHP_URL_SCHEME;
 class WpLogin extends AbstractLoginLocker
 {
 
-    use GeoUtilTrait, Hash {
+    use GeoUtilTrait;
+    use Hash {
         Hash::getEncryptionKey as hashEncryptionKey;
     }
 
@@ -158,6 +159,7 @@ class WpLogin extends AbstractLoginLocker
             if ($cookie === false) {
                 $delete_cookie = true;
             }
+
             [, $cookie_value] = explode(
                 self::ENCRYPTION_DELIMITER,
                 $cookie !== false ? $cookie : self::ENCRYPTION_DELIMITER
@@ -294,7 +296,7 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Helper to return an array of user data and the flag type used.
      * @param string $input Incoming user credentials, email or login.
-     * @return array An array of user: WP_User object of false, and the field type flag for the
+     * @return array<string, mixed> An array of user: WP_User object of false, and the field type flag for the
      *     WP_User object data.
      */
     private function getUserBy(string $input): array

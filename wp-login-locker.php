@@ -33,9 +33,7 @@ if (is_readable(__DIR__ . '/vendor/autoload.php')) {
 }
 
 $plugin = PluginFactory::create('login-locker');
-$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = static function (): Request {
-    return Request::createFromGlobals();
-};
+$plugin->getContainer()[LoginLocker::CONTAINER_REQUEST] = static fn(): Request => Request::createFromGlobals();
 
 $plugin
     ->add(new Actions\Login())
