@@ -101,6 +101,11 @@ class LoginLinkTest extends TestCase
         $this->assertCount(1, $this->mails);
         $this->assertSame($user->user_email, $this->mails[0]['to']);
         $this->assertStringContainsString(self::IP, $this->mails[0]['message']);
+        // WpMail::textToHtml() makes the login URL a link.
+        $this->assertMatchesRegularExpression(
+            '/<a href="[^"]*' . WpLogin::AUTH_CHECK_KEY . '=/',
+            $this->mails[0]['message']
+        );
 
         $pattern = '/' . WpLogin::AUTH_CHECK_KEY . '=([0-9]+\.[0-9]+\.[a-f0-9]+)/';
         $this->assertSame(1, preg_match($pattern, $this->mails[0]['message'], $matches));

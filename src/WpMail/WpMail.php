@@ -19,6 +19,7 @@ use function get_bloginfo;
 use function get_site_option;
 use function implode;
 use function is_array;
+use function make_clickable;
 use function ob_get_clean;
 use function ob_start;
 use function sprintf;
@@ -355,7 +356,7 @@ class WpMail implements PluginAwareInterface
 
     /**
      * Converts text to formatted HTML. This is primarily for turning line breaks into <p> and
-     * <br/> tags.
+     * <br/> tags, and plain URLs into links.
      * @param string $message
      * @return string
      */
@@ -363,7 +364,7 @@ class WpMail implements PluginAwareInterface
     {
         if ($this->content_type === self::CONTENT_TYPE_HTML || $this->html === true) {
             $message = apply_filters(LoginLocker::HOOK_PREFIX . 'email_template_wpautop', true) ?
-                wpautop($message) : $message;
+                make_clickable(wpautop($message)) : $message;
         }
 
         return $message;
