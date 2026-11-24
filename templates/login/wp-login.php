@@ -21,12 +21,14 @@ login_header(__('Log In', 'wp-login-locker'), '', '');
     );
     ?></p>
 <?php if ($show_login_link_form ?? true) { ?>
-<p class="message" id="<?php echo esc_attr(LoginLink::NOTICE_ID); ?>" hidden><?php
+<p class="message" id="<?php echo esc_attr(LoginLink::NOTICE_ID); ?>" hidden>
+    <?php
     esc_html_e(
         'A login link was requested from this browser recently. Check your email, or try again in a few minutes.',
         'wp-login-locker'
     );
-    ?></p>
+    ?>
+</p>
 <form action="<?php echo esc_url(add_query_arg(LoginLink::REQUEST_KEY, true, wp_login_url())); ?>" method="post"
       id="<?php echo esc_attr(LoginLink::FORM_ID); ?>">
     <p>
