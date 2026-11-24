@@ -51,7 +51,8 @@ class LoginLinkTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->loginLink = new LoginLink($this->plugin);
+        $this->loginLink = new LoginLink();
+        $this->loginLink->setPlugin($this->plugin);
         $this->mails = [];
         $this->userIds = [];
         \add_filter('pre_wp_mail', [$this, 'captureMail'], 10, 2);

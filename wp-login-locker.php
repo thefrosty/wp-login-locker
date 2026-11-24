@@ -59,7 +59,9 @@ $plugin
     ->initialize();
 
 if (defined('WP_CLI') && WP_CLI) {
-    WP_CLI::add_command(Cli\LoginLinkCommand::COMMAND, new Cli\LoginLinkCommand($plugin));
+    $login_link_command = new Cli\LoginLinkCommand();
+    $login_link_command->setPlugin($plugin);
+    WP_CLI::add_command(Cli\LoginLinkCommand::COMMAND, $login_link_command);
 }
 
 require_once 'helpers.php';

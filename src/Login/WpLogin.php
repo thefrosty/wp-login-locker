@@ -278,7 +278,9 @@ class WpLogin extends AbstractLoginLocker
         }
 
         $login = $request->request->all()[LoginLink::REQUEST_FIELD] ?? '';
-        new LoginLink($this->getPlugin())->request(
+        $login_link = new LoginLink();
+        $login_link->setPlugin($this->getPlugin());
+        $login_link->request(
             is_string($login) ? sanitize_text_field(wp_unslash($login)) : '',
             $this->getIP()
         );

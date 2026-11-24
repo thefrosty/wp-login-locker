@@ -6,7 +6,8 @@ namespace TheFrosty\WpLoginLocker\Login;
 
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\WpMail\WpMail;
-use TheFrosty\WpUtilities\Plugin\PluginInterface;
+use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
+use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 use WP_User;
 use function __;
 use function apply_filters;
@@ -35,8 +36,10 @@ use const MINUTE_IN_SECONDS;
  * user, and the caller always shows the same response so accounts can't be enumerated.
  * @package TheFrosty\WpLoginLocker\Login
  */
-final class LoginLink
+final class LoginLink implements PluginAwareInterface
 {
+
+    use PluginAwareTrait;
 
     public const string REQUEST_KEY = LoginLocker::META_PREFIX . 'request_link';
     public const string REQUEST_FIELD = LoginLocker::META_PREFIX . 'request_link_user';
@@ -54,14 +57,6 @@ final class LoginLink
 
     /** Only one email per user per USER_WINDOW (prevents email bombing a user). */
     public const int USER_WINDOW = 5 * MINUTE_IN_SECONDS;
-
-    /**
-     * LoginLink constructor.
-     * @param PluginInterface $plugin Used to locate the email templates.
-     */
-    public function __construct(private readonly PluginInterface $plugin)
-    {
-    }
 
     /**
      * Get the Unix timestamp a new magic login link for the user expires at.
@@ -135,14 +130,14 @@ final class LoginLink
     {
         $expires = self::getExpires($user);
         $wp_mail = new WpMail();
-        $wp_mail->setPlugin($this->plugin);
+        $wp_mail->setPlugin($this->getPlugin());
         $wp_mail->__set(
             'pretext',
             sprintf(esc_html__('Your login link for %s.', 'wp-login-locker'), esc_html($wp_mail->getFromName()))
         );
 
         ob_start();
-        include $this->plugin->getDirectory() . 'templates/email/messages/action-login-link.php';
+        include $this->getPlugin()->getDirectory() . 'templates/email/messages/action-login-link.php';
         $content = (string)ob_get_clean();
 
         /**

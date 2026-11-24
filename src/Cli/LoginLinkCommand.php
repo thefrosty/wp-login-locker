@@ -6,7 +6,8 @@ namespace TheFrosty\WpLoginLocker\Cli;
 
 use TheFrosty\WpLoginLocker\Login\LoginLink;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
-use TheFrosty\WpUtilities\Plugin\PluginInterface;
+use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
+use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 use WP_CLI;
 use WP_User;
 use function ctype_digit;
@@ -23,20 +24,14 @@ use function WP_CLI\Utils\get_flag_value;
  * @codeCoverageIgnore
  * @package TheFrosty\WpLoginLocker\Cli
  */
-final class LoginLinkCommand
+final class LoginLinkCommand implements PluginAwareInterface
 {
+
+    use PluginAwareTrait;
 
     public const string COMMAND = 'login-locker link';
     public const string FLAG_PORCELAIN = 'porcelain';
     public const string FLAG_SEND = 'send';
-
-    /**
-     * LoginLinkCommand constructor.
-     * @param PluginInterface $plugin
-     */
-    public function __construct(private readonly PluginInterface $plugin)
-    {
-    }
 
     /**
      * Get a signed login link that unlocks wp-login.php for a user.
@@ -72,7 +67,9 @@ final class LoginLinkCommand
         }
 
         if (get_flag_value($assoc_args, self::FLAG_SEND, false)) {
-            if (!new LoginLink($this->plugin)->send($user)) {
+            $login_link = new LoginLink();
+            $login_link->setPlugin($this->getPlugin());
+            if (!$login_link->send($user)) {
                 WP_CLI::error(sprintf('Could not email the login link to %s.', $user->user_email));
             }
             WP_CLI::success(sprintf('Login link emailed to %s.', $user->user_email));
