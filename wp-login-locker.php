@@ -34,8 +34,8 @@ if (is_readable(__DIR__ . '/vendor/autoload.php')) {
 }
 
 $plugin = PluginFactory::create('login-locker');
+$plugin->addServiceProvider(new DefaultServiceProvider());
 $plugin
-    ->addServiceProvider(new DefaultServiceProvider())
     ->add(new Actions\Login())
     ->add(new Actions\Logout())
     ->add(new Actions\NewUser())
