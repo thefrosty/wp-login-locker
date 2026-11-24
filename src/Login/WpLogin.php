@@ -52,6 +52,7 @@ use function TheFrosty\WpLoginLocker\Helpers\terminate;
 use function time;
 use function wp_get_current_user;
 use function wp_login_url;
+use function wp_print_inline_script_tag;
 use function wp_unslash;
 use function wp_verify_nonce;
 use const COOKIE_DOMAIN;
@@ -182,6 +183,7 @@ class WpLogin extends AbstractLoginLocker
     {
         $this->addAction('login_init', [$this, 'loginAuthCheck']);
         $this->addFilter('login_message', [$this, 'lostPasswordMessage'], 11);
+        $this->addAction('login_footer', [$this, 'clearLoginLinkStorage']);
     }
 
     /**
@@ -284,6 +286,20 @@ class WpLogin extends AbstractLoginLocker
             'If that account exists, we\'ve emailed a login link to its email address.',
             'wp-login-locker'
         );
+    }
+
+    /**
+     * When wp-login.php is unlocked (a valid login link or access cookie), forget this browser's last
+     * "Email me a login link" request, so the form isn't hidden on a later locked page (e.g. after a
+     * Secure Log Out). Logging in through wp-login.php always loads it unlocked first.
+     */
+    protected function clearLoginLinkStorage(): void
+    {
+        if (!$this->has_auth) {
+            return;
+        }
+
+        wp_print_inline_script_tag(LoginLink::getClearLocalStorageScript());
     }
 
     /**
