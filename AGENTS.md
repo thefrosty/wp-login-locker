@@ -45,7 +45,7 @@ vendor/bin/rector process tests/
 | `Actions\NewUser`                      | `src/Actions/NewUser.php`                      | Handles `user_register` hook - initializes user meta                                        |
 | `Login\WpLogin`                        | `src/Login/WpLogin.php`                        | Core authentication - validates auth cookies, blocks unauthorized access to `/wp-login.php` |
 | `Login\Login`                          | `src/Login/Login.php`                          | Customizes login page styling (logo, header)                                                |
-| `Settings`                             | `src/Settings/Settings.php`                    | Plugin settings page (general, login, email settings)                                       |
+| `Settings`                             | `src/Settings/Settings.php`                    | Plugin settings page (general, Free IP API, login, email settings)                          |
 | `Admin\Menu`                           | `src/Admin/Menu.php`                           | Admin bar menu with secure logout link                                                      |
 | `UserProfile\EmailNotificationSetting` | `src/UserProfile/EmailNotificationSetting.php` | User profile page email notification toggle                                                 |
 | `UserProfile\LastLogin`                | `src/UserProfile/LastLogin.php`                | Displays last login info in user profile                                                    |
@@ -77,9 +77,10 @@ vendor/bin/rector process tests/
 
 ### Settings Storage
 
-Uses `dwnload/wp-settings-api` with three setting groups:
+Uses `dwnload/wp-settings-api` with four setting groups:
 
-- `login_locker_general_settings` (cookie expiration, lost password timeout, allow lost password, login location, FreeIPAPI key)
+- `login_locker_general_settings` (cookie expiration number and unit, allow lost password, lost password timeout)
+- `login_locker_free_ip_api_settings` (look up login location, FreeIPAPI paid plan API key)
 - `login_locker_login_settings` (custom logo)
 - `login_locker_email_settings` (email templates, disable emails toggle)
 
