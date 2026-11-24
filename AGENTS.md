@@ -45,13 +45,16 @@ vendor/bin/rector process tests/
 | `Actions\NewUser`                      | `src/Actions/NewUser.php`                      | Handles `user_register` hook - initializes user meta                                        |
 | `Login\WpLogin`                        | `src/Login/WpLogin.php`                        | Core authentication - validates auth cookies, blocks unauthorized access to `/wp-login.php` |
 | `Login\Login`                          | `src/Login/Login.php`                          | Customizes login page styling (logo, header)                                                |
-| `Settings`                             | `src/Settings/Settings.php`                    | Plugin settings page (general, login, email settings)                                       |
+| `Settings`                             | `src/Settings/Settings.php`                    | Plugin settings page (general, Free IP API, login, email settings)                          |
 | `Admin\Menu`                           | `src/Admin/Menu.php`                           | Admin bar menu with secure logout link                                                      |
 | `UserProfile\EmailNotificationSetting` | `src/UserProfile/EmailNotificationSetting.php` | User profile page email notification toggle                                                 |
 | `UserProfile\LastLogin`                | `src/UserProfile/LastLogin.php`                | Displays last login info in user profile                                                    |
 | `WpMail\WpMail`                        | `src/WpMail/WpMail.php`                        | Email template builder and sender                                                           |
 | `Utilities\GeoUtilTrait`               | `src/Utilities/GeoUtilTrait.php`               | Gets the client IP via wp-utilities `getIpAddress()` (REMOTE_ADDR, trusted proxies only)    |
 | `Utilities\UserMetaCleanup`            | `src/Utilities/UserMetaCleanup.php`            | Cron job to limit stored login history (max 10)                                             |
+| `Login\LoginLink`                      | `src/Login/LoginLink.php`                      | Emails signed login links ("Email me a login link" form), rate limited per IP/user          |
+| `Cli\LoginLinkCommand`                 | `src/Cli/LoginLinkCommand.php`                 | `wp login-locker link <user> [--send]` WP-CLI command                                       |
+| `Utilities\SignedToken`                | `src/Utilities/SignedToken.php`                | HMAC-signed, expiring, user-bound tokens for login links and cookies                        |
 
 ### Key Constants (`src/LoginLocker.php`)
 
@@ -64,17 +67,20 @@ vendor/bin/rector process tests/
 
 1. User visits `/wp-login.php`
 2. `WpLogin::loginAuthCheck()` validates:
-    - Auth cookie (encrypted with site URL as key)
-    - `auth_check` GET parameter (one-time link sent via email)
+    - Auth cookie
+    - `auth_check` GET parameter: a `SignedToken` login link (sent in new login emails, by the
+      "Email me a login link" form, or from `wp login-locker link <user>`). Form and WP-CLI links are valid for
+      15 minutes (`LoginLink::FILTER_LINK_TTL`), new login email links for 7 days
     - Logout nonce verification
-3. If no valid auth: returns 403 Forbidden with fake login page
-4. If valid: allows login and sets long-lived auth cookie
+3. If no valid auth: returns 403 Forbidden with the locked page and its "Email me a login link" form
+4. If valid: allows login and sets the auth cookie for the "Cookie Expiration" number and unit settings (default 1 year)
 
 ### Settings Storage
 
-Uses `dwnload/wp-settings-api` with three setting groups:
+Uses `dwnload/wp-settings-api` with four setting groups:
 
-- `login_locker_general_settings` (lost password timeout, allow lost password)
+- `login_locker_general_settings` (cookie expiration number and unit, allow lost password, lost password timeout)
+- `login_locker_free_ip_api_settings` (look up login location, FreeIPAPI paid plan API key)
 - `login_locker_login_settings` (custom logo)
 - `login_locker_email_settings` (email templates, disable emails toggle)
 

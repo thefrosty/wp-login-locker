@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace TheFrosty\WpLoginLocker\Login;
 
 use Dwnload\WpSettingsApi\Api\Options;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use TheFrosty\WpLoginLocker\AbstractLoginLocker;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
 use TheFrosty\WpLoginLocker\LoginLocker;
 use TheFrosty\WpLoginLocker\Settings\Settings;
 use TheFrosty\WpLoginLocker\Utilities\GeoUtilTrait;
+use TheFrosty\WpLoginLocker\Utilities\SignedToken;
 use TheFrosty\WpUtilities\Api\Hash;
 use WP_User;
+use function add_query_arg;
+use function apply_filters;
 use function array_values;
+use function esc_html__;
 use function explode;
 use function filter_input;
 use function filter_var;
@@ -22,10 +27,12 @@ use function get_option;
 use function get_user_by;
 use function headers_sent;
 use function home_url;
+use function in_array;
 use function is_email;
 use function is_ssl;
 use function is_string;
 use function is_user_logged_in;
+use function min;
 use function ob_get_clean;
 use function ob_start;
 use function parse_url;
@@ -41,6 +48,7 @@ use function substr;
 use function TheFrosty\WpLoginLocker\Helpers\terminate;
 use function time;
 use function wp_get_current_user;
+use function wp_login_url;
 use function wp_unslash;
 use function wp_verify_nonce;
 use const COOKIE_DOMAIN;
@@ -65,10 +73,11 @@ class WpLogin extends AbstractLoginLocker
     }
 
     public const string AUTH_CHECK_KEY = 'auth_check';
-    public const string AUTH_CHECK_IS_ENCRYPTED_KEY = 'auth_encrypted';
+    public const string AUTH_CHECK_LINK_TTL = '+7 days';
+    public const string FILTER_AUTH_CHECK_LINK_TTL = LoginLocker::HOOK_PREFIX . 'auth_check_link_ttl';
     public const string COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const string COOKIE_VALUE_S = 'OK|%s';
-    public const string COOKIE_EXPIRE = '+1 year';
+    public const string COOKIE_EXPIRE_S = '+%d %s';
 
     protected const string ENCRYPTION_DELIMITER = '|';
     private const string ENCRYPTION_KEY = 'WpL0gin' . self::ENCRYPTION_DELIMITER;
@@ -95,6 +104,71 @@ class WpLogin extends AbstractLoginLocker
                 ]
             );
         }
+    }
+
+    /**
+     * Build a signed, expiring wp-login.php URL that grants the user access to the login form.
+     * @param WP_User $user
+     * @param int|null $expires Unix timestamp the link expires at. Defaults to getAuthCheckLinkExpires().
+     * @return string
+     */
+    public static function getAuthCheckUrl(WP_User $user, ?int $expires = null): string
+    {
+        return add_query_arg(
+            self::AUTH_CHECK_KEY,
+            SignedToken::create($user, self::AUTH_CHECK_KEY, $expires ?? self::getAuthCheckLinkExpires($user)),
+            wp_login_url('', true)
+        );
+    }
+
+    /**
+     * Get the Unix timestamp a new login link for the user expires at.
+     * @param WP_User $user
+     * @return int
+     */
+    public static function getAuthCheckLinkExpires(WP_User $user): int
+    {
+        /**
+         * Filter how long a login link (sent in emails) stays valid.
+         * @param string $ttl A relative strtotime() string. Default '+7 days'.
+         * @param WP_User $user
+         */
+        $ttl = (string)apply_filters(
+            self::FILTER_AUTH_CHECK_LINK_TTL,
+            self::AUTH_CHECK_LINK_TTL,
+            $user
+        );
+        $expires = strtotime($ttl);
+
+        return $expires !== false ? $expires : strtotime(self::AUTH_CHECK_LINK_TTL);
+    }
+
+    /**
+     * Get the access cookie lifetime from the "Cookie Expiration" and "Cookie Expiration Unit" settings,
+     * as a relative strtotime() string, e.g. "+1 year" or "+2 week".
+     * @return string
+     */
+    public static function getCookieExpire(): string
+    {
+        $number = (int)Options::getOption(
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE,
+            Settings::GENERAL_SETTINGS,
+            Settings::COOKIE_EXPIRE_DEFAULT
+        );
+        if ($number < 1) {
+            $number = Settings::COOKIE_EXPIRE_DEFAULT;
+        }
+
+        $unit = Options::getOption(
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE_UNIT,
+            Settings::GENERAL_SETTINGS,
+            Settings::COOKIE_EXPIRE_UNIT_DEFAULT
+        );
+        if (!in_array($unit, Settings::COOKIE_EXPIRE_UNITS, true)) {
+            $unit = Settings::COOKIE_EXPIRE_UNIT_DEFAULT;
+        }
+
+        return sprintf(self::COOKIE_EXPIRE_S, min($number, Settings::COOKIE_EXPIRE_MAX), $unit);
     }
 
     /**
@@ -139,21 +213,16 @@ class WpLogin extends AbstractLoginLocker
 
         $this->maybeValidateLostPasswordUser();
 
-        if ($query->has(self::AUTH_CHECK_KEY) && !empty($query->get(self::AUTH_CHECK_KEY))) {
-            $encrypted = filter_var($query->get(self::AUTH_CHECK_IS_ENCRYPTED_KEY), FILTER_VALIDATE_BOOL);
-            $value = $encrypted === false ?
-                $query->get(self::AUTH_CHECK_KEY) :
-                $this->decrypt($query->get(self::AUTH_CHECK_KEY), home_url());
-
-            [$user, $field] = array_values($this->getUserBy(sanitize_text_field(wp_unslash($value))));
+        if ($query->has(self::AUTH_CHECK_KEY)) {
+            $user = SignedToken::verify($query->all()[self::AUTH_CHECK_KEY] ?? null, self::AUTH_CHECK_KEY);
 
             /**
-             * If the $user exists, set a cookie in the browser so they have access
-             * to the login page for `self::COOKIE_EXPIRE` time.
+             * If the signed link is valid, set a cookie in the browser so they have access
+             * to the login page for the "Cookie Expiration" settings' time (see getCookieExpire()).
              */
-            if ($user instanceof WP_User && isset($user->$field)) {
+            if ($user instanceof WP_User) {
                 $this->has_auth = true;
-                $this->setLoginCookie($user, $field);
+                $this->setLoginCookie($user, 'user_email');
             }
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
             // Validate the cookie.
@@ -183,8 +252,43 @@ class WpLogin extends AbstractLoginLocker
         }
 
         if (!$this->has_auth) {
-            $this->noAuthLoginHtml();
+            $this->noAuthLoginHtml($this->maybeRequestLoginLink());
         }
+    }
+
+    /**
+     * Show the "Email me a login link" form? Not once it's been submitted, or when the request key is in the URL.
+     * @return bool
+     */
+    private function showLoginLinkForm(): bool
+    {
+        return !$this->getRequest()->query->has(LoginLink::REQUEST_KEY);
+    }
+
+    /**
+     * Handle the "Email me a login link" form on the locked page. Responds the same whether the account
+     * exists or the request was rate limited, so accounts can't be enumerated.
+     * @return string|null The message to show, or null when this isn't a login link request.
+     */
+    private function maybeRequestLoginLink(): ?string
+    {
+        $request = $this->getRequest();
+        if (!$request->isMethod(Request::METHOD_POST) || !$request->query->has(LoginLink::REQUEST_KEY)) {
+            return null;
+        }
+
+        $login = $request->request->all()[LoginLink::REQUEST_FIELD] ?? '';
+        $login_link = new LoginLink();
+        $login_link->setPlugin($this->getPlugin());
+        $login_link->request(
+            is_string($login) ? sanitize_text_field(wp_unslash($login)) : '',
+            $this->getIP()
+        );
+
+        return esc_html__(
+            'If that account exists, we\'ve emailed a login link to its email address.',
+            'wp-login-locker'
+        );
     }
 
     /**
@@ -207,8 +311,9 @@ class WpLogin extends AbstractLoginLocker
     /**
      * Render the fake login HTML and send the response to the page.
      * Sets a 403 Forbidden Status code and terminates all processes (unless los passwords are allowed).
+     * @param string|null $message An (escaped) message to show instead of the default.
      */
-    private function noAuthLoginHtml(): never
+    private function noAuthLoginHtml(?string $message = null): never
     {
         if ($this->isLostPasswordAllowed() && $this->isLostPassOrExpired()) {
             ob_start();
@@ -217,6 +322,7 @@ class WpLogin extends AbstractLoginLocker
         }
 
         if (!isset($content)) {
+            $show_login_link_form = $this->showLoginLinkForm();
             ob_start();
             include $this->getPlugin()->getDirectory() . 'templates/login/wp-login.php';
             $code = Response::HTTP_FORBIDDEN;
@@ -259,7 +365,7 @@ class WpLogin extends AbstractLoginLocker
             );
             /**
              * If the $user exists, set a cookie in the browser so they have access
-             * to the login page for `self::COOKIE_EXPIRE` time.
+             * to the login page for the lost password "Timeout" setting's minutes.
              */
             if ($user instanceof WP_User && isset($user->$field)) {
                 $this->has_auth = true;
@@ -355,7 +461,7 @@ class WpLogin extends AbstractLoginLocker
                 self::COOKIE_NAME,
                 $this->getCookieValue($user->$field),
                 [
-                    'expires' => strtotime($expire ?? self::COOKIE_EXPIRE),
+                    'expires' => strtotime($expire ?? self::getCookieExpire()),
                     'path' => COOKIEPATH,
                     'domain' => is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
                     'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',

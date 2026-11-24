@@ -7,13 +7,18 @@ namespace TheFrosty\Tests\WpLoginLocker\Login;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\UsesClass;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\Tests\WpLoginLocker\TestCase;
 use TheFrosty\WpLoginLocker\Actions\NewUser;
+use TheFrosty\WpLoginLocker\Login\LoginLink;
 use TheFrosty\WpLoginLocker\Login\WpLogin;
 use TheFrosty\WpLoginLocker\LoginLocker;
+use TheFrosty\WpLoginLocker\Settings\Settings;
+use TheFrosty\WpLoginLocker\Utilities\SignedToken;
+use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Api\Hash;
 use Throwable;
 use WPDieException;
@@ -28,6 +33,9 @@ use function ob_get_level;
 #[CoversClass(NewUser::class)]
 #[CoversClass(WpLogin::class)]
 #[Group('login')]
+#[UsesClass(LoginLink::class)]
+#[UsesClass(SignedToken::class)]
+#[UsesClass(WpMail::class)]
 class WpLoginTest extends TestCase
 {
 
@@ -61,7 +69,7 @@ class WpLoginTest extends TestCase
             new ReflectionClass(Hash::class)->getConstants()
         );
         $this->assertIsArray($constants);
-        $this->assertCount(7, $constants);
+        $this->assertCount(8, $constants);
     }
 
     /**
@@ -137,11 +145,35 @@ class WpLoginTest extends TestCase
         $this->assertTrue(method_exists($this->wpLogin, 'loginAuthCheck'));
         try {
             $user = self::factory()->user->create_and_get();
-            $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $user->user_login);
+            \parse_str((string)\parse_url(WpLogin::getAuthCheckUrl($user), \PHP_URL_QUERY), $args);
+            $this->assertArrayHasKey(WpLogin::AUTH_CHECK_KEY, $args);
+            $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $args[WpLogin::AUTH_CHECK_KEY]);
             $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
             $this->assertNull($loginAuthCheck->invoke($this->wpLogin));
             $this->wpLogin->getRequest()->query->remove(WpLogin::AUTH_CHECK_KEY);
         } catch (ReflectionException) {
+        }
+    }
+
+    /**
+     * Test loginAuthCheck(). A plain username/email in the auth check key must NOT grant access.
+     */
+    public function testLoginAuthCheckRejectsPlainUsername(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        foreach ([$user->user_login, $user->user_email] as $value) {
+            $this->wpLogin->getRequest()->query->set(WpLogin::AUTH_CHECK_KEY, $value);
+            $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
+            try {
+                $loginAuthCheck->invoke($this->wpLogin);
+                $this->fail('Expected the no-auth login page to terminate the request.');
+            } catch (Throwable $exception) {
+                $this->assertInstanceOf(WPDieException::class, $exception);
+                if (ob_get_level()) {
+                    ob_get_clean();
+                }
+            }
+            $this->wpLogin->getRequest()->query->remove(WpLogin::AUTH_CHECK_KEY);
         }
     }
 
@@ -173,6 +205,101 @@ class WpLoginTest extends TestCase
             $this->wpLogin->getRequest()->cookies->remove(WpLogin::COOKIE_NAME);
         } catch (ReflectionException) {
         }
+    }
+
+    /**
+     * Test getCookieExpire() combines the "Cookie Expiration" number and unit settings, within bounds.
+     */
+    public function testGetCookieExpire(): void
+    {
+        \delete_option(Settings::GENERAL_SETTINGS);
+        $this->assertSame(
+            \sprintf(WpLogin::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_DEFAULT),
+            WpLogin::getCookieExpire()
+        );
+
+        foreach (Settings::COOKIE_EXPIRE_UNITS as $unit) {
+            $this->setCookieExpireSettings(2, $unit);
+            $expire = WpLogin::getCookieExpire();
+            $this->assertSame(\sprintf(WpLogin::COOKIE_EXPIRE_S, 2, $unit), $expire);
+            $this->assertGreaterThan(\time(), \strtotime($expire));
+        }
+
+        $cases = [
+            [0, Settings::COOKIE_EXPIRE_UNIT_WEEK, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_WEEK],
+            [-5, Settings::COOKIE_EXPIRE_UNIT_DAY, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_DAY],
+            [3, 'fortnight', 3, Settings::COOKIE_EXPIRE_UNIT_DEFAULT],
+            [
+                Settings::COOKIE_EXPIRE_MAX + 1,
+                Settings::COOKIE_EXPIRE_UNIT_DAY,
+                Settings::COOKIE_EXPIRE_MAX,
+                Settings::COOKIE_EXPIRE_UNIT_DAY,
+            ],
+        ];
+        foreach ($cases as [$number, $unit, $expected_number, $expected_unit]) {
+            $this->setCookieExpireSettings($number, $unit);
+            $this->assertSame(
+                \sprintf(WpLogin::COOKIE_EXPIRE_S, $expected_number, $expected_unit),
+                WpLogin::getCookieExpire()
+            );
+        }
+        \delete_option(Settings::GENERAL_SETTINGS);
+    }
+
+    /**
+     * Test loginAuthCheck(). The "Email me a login link" form emails a link and still shows the locked page.
+     */
+    public function testLoginLinkRequestSendsEmail(): void
+    {
+        $user = self::factory()->user->create_and_get();
+        $mails = [];
+        $capture = static function (?bool $return, array $atts) use (&$mails): bool {
+            $mails[] = $atts;
+
+            return true;
+        };
+        \add_filter('pre_wp_mail', $capture, 10, 2);
+        $original = $this->replaceRequest(
+            Request::create(
+                \add_query_arg(LoginLink::REQUEST_KEY, true, \wp_login_url()),
+                Request::METHOD_POST,
+                [LoginLink::REQUEST_FIELD => $user->user_email]
+            )
+        );
+        try {
+            $this->reflection->getMethod('loginAuthCheck')->invoke($this->wpLogin);
+            $this->fail('Expected the no-auth login page to terminate the request.');
+        } catch (Throwable $exception) {
+            $this->assertInstanceOf(WPDieException::class, $exception);
+            if (ob_get_level()) {
+                ob_get_clean();
+            }
+        }
+        \remove_filter('pre_wp_mail', $capture);
+        $this->assertCount(1, $mails);
+        $this->assertSame($user->user_email, $mails[0]['to']);
+        $this->assertFalse($this->reflection->getProperty('has_auth')->getValue($this->wpLogin));
+        \delete_transient(LoginLink::TRANSIENT_USER_PREFIX . $user->ID);
+        \delete_transient(LoginLink::TRANSIENT_IP_PREFIX . \md5((string)$this->wpLogin->getIP()));
+        $this->replaceRequest($original);
+    }
+
+    /**
+     * Test showLoginLinkForm(). The form is hidden once submitted, or when the request key is in the URL.
+     */
+    public function testShowLoginLinkForm(): void
+    {
+        $showLoginLinkForm = $this->reflection->getMethod('showLoginLinkForm');
+        $original = $this->replaceRequest(Request::create(\wp_login_url()));
+        $this->assertTrue($showLoginLinkForm->invoke($this->wpLogin));
+
+        $url = \add_query_arg(LoginLink::REQUEST_KEY, true, \wp_login_url());
+        $this->replaceRequest(Request::create($url));
+        $this->assertFalse($showLoginLinkForm->invoke($this->wpLogin));
+
+        $this->replaceRequest(Request::create($url, Request::METHOD_POST, [LoginLink::REQUEST_FIELD => 'someone']));
+        $this->assertFalse($showLoginLinkForm->invoke($this->wpLogin));
+        $this->replaceRequest($original);
     }
 
     /**
@@ -229,7 +356,7 @@ class WpLoginTest extends TestCase
             'POST',
             ['login_locker_user_login' => $user->user_email]
         );
-        $this->wpLogin->setRequest($request);
+        $original = $this->replaceRequest($request);
         $loginAuthCheck = $this->reflection->getMethod('loginAuthCheck');
         try {
             $loginAuthCheck->invoke($this->wpLogin);
@@ -241,6 +368,32 @@ class WpLoginTest extends TestCase
             }
         }
         $this->assertFalse($this->reflection->getProperty('has_auth')->getValue($this->wpLogin));
-        $this->wpLogin->setRequest(Request::createFromGlobals());
+        $this->replaceRequest($original);
+    }
+
+    /**
+     * Swap the request. HttpFoundationRequestTrait::setRequest() only sets it once, and it's static.
+     * @param Request $request
+     * @return Request The previous request, to restore.
+     */
+    private function replaceRequest(Request $request): Request
+    {
+        $property = $this->reflection->getProperty('request');
+        $original = $property->getValue();
+        $property->setValue(null, $request);
+
+        return $original;
+    }
+
+    /**
+     * @param int $number
+     * @param string $unit
+     */
+    private function setCookieExpireSettings(int $number, string $unit): void
+    {
+        \update_option(Settings::GENERAL_SETTINGS, [
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE => $number,
+            Settings::GENERAL_SETTING_COOKIE_EXPIRE_UNIT => $unit,
+        ]);
     }
 }

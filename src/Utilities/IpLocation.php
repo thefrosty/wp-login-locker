@@ -85,7 +85,7 @@ class IpLocation
     public static function isEnabled(): bool
     {
         return filter_var(
-            Options::getOption(Settings::GENERAL_SETTING_IP_LOCATION, Settings::GENERAL_SETTINGS),
+            Options::getOption(Settings::FREE_IP_API_SETTING_IP_LOCATION, Settings::GENERAL_SETTINGS),
             FILTER_VALIDATE_BOOL
         );
     }
@@ -275,7 +275,7 @@ class IpLocation
      */
     private function getApiKey(): ?string
     {
-        $key = Options::getOption(Settings::GENERAL_SETTING_FREE_IP_API, Settings::GENERAL_SETTINGS, null);
+        $key = Options::getOption(Settings::FREE_IP_API_SETTING_API_KEY, Settings::GENERAL_SETTINGS, null);
         $key = is_string($key) ? trim($key) : '';
 
         return $key !== '' ? $key : null;

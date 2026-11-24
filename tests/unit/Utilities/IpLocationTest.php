@@ -51,7 +51,7 @@ class IpLocationTest extends TestCase
             'countryCode' => 'AU',
             'isProxy' => false,
         ]);
-        \update_option(Settings::GENERAL_SETTINGS, [Settings::GENERAL_SETTING_IP_LOCATION => 'on']);
+        \update_option(Settings::GENERAL_SETTINGS, [Settings::FREE_IP_API_SETTING_IP_LOCATION => 'on']);
         \add_filter('pre_http_request', [$this, 'mockHttp'], 10, 3);
     }
 
@@ -181,8 +181,8 @@ class IpLocationTest extends TestCase
     public function testPaidApiKey(): void
     {
         \update_option(Settings::GENERAL_SETTINGS, [
-            Settings::GENERAL_SETTING_IP_LOCATION => 'on',
-            Settings::GENERAL_SETTING_FREE_IP_API => ' ' . self::API_KEY . ' ',
+            Settings::FREE_IP_API_SETTING_IP_LOCATION => 'on',
+            Settings::FREE_IP_API_SETTING_API_KEY => ' ' . self::API_KEY . ' ',
         ]);
         for ($i = 1; $i <= 12; $i++) {
             $ip = "8.8.4.{$i}";
@@ -201,8 +201,8 @@ class IpLocationTest extends TestCase
     public function testBlankApiKeyUsesFreeApi(): void
     {
         \update_option(Settings::GENERAL_SETTINGS, [
-            Settings::GENERAL_SETTING_IP_LOCATION => 'on',
-            Settings::GENERAL_SETTING_FREE_IP_API => '   ',
+            Settings::FREE_IP_API_SETTING_IP_LOCATION => 'on',
+            Settings::FREE_IP_API_SETTING_API_KEY => '   ',
         ]);
         $this->ipLocation->lookup(self::IP);
         $this->assertSame(IpLocation::FREE_BASE_URL . IpLocation::JSON_ENDPOINT . self::IP, $this->requests[0]['url']);
