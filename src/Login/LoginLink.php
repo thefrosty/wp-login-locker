@@ -107,6 +107,20 @@ final class LoginLink implements PluginAwareInterface
     }
 
     /**
+     * Get the inline script that forgets this browser's last login link request (see
+     * getLocalStorageScript()), so the form isn't hidden after the user got in, e.g. a Secure Log Out
+     * shortly after using the link.
+     * @return string
+     */
+    public static function getClearLocalStorageScript(): string
+    {
+        return sprintf(
+            '(function(key){try{window.localStorage.removeItem(key);}catch(e){}})(%s);',
+            wp_json_encode(self::LOCAL_STORAGE_KEY)
+        );
+    }
+
+    /**
      * Find a user by email address or username.
      * @param string $login
      * @return WP_User|null

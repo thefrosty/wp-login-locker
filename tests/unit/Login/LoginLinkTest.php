@@ -95,6 +95,14 @@ class LoginLinkTest extends TestCase
         $this->assertSame(2, \substr_count($script, 'try{'));
     }
 
+    public function testClearLocalStorageScript(): void
+    {
+        $script = LoginLink::getClearLocalStorageScript();
+        $this->assertStringContainsString('localStorage.removeItem(key)', $script);
+        $this->assertStringContainsString(\wp_json_encode(LoginLink::LOCAL_STORAGE_KEY), $script);
+        $this->assertStringContainsString('try{', $script);
+    }
+
     public function testFindUser(): void
     {
         $user = $this->createUser();

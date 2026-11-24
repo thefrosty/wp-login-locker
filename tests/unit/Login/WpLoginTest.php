@@ -79,7 +79,7 @@ class WpLoginTest extends TestCase
     {
         $this->assertTrue(method_exists($this->wpLogin, 'addHooks'));
         $provider = $this->getMockProvider(WpLogin::class);
-        $provider->expects($this->exactly(2))
+        $provider->expects($this->exactly(3))
             ->method(self::METHOD_ADD_FILTER)
             ->willReturn(true);
         /** @var WpLogin $provider */
@@ -281,6 +281,28 @@ class WpLoginTest extends TestCase
         \delete_transient(LoginLink::TRANSIENT_USER_PREFIX . $user->ID);
         \delete_transient(LoginLink::TRANSIENT_IP_PREFIX . \md5((string)$this->wpLogin->getIP()));
         $this->replaceRequest($original);
+    }
+
+    /**
+     * Test clearLoginLinkStorage() only prints the script when wp-login.php is unlocked.
+     */
+    public function testClearLoginLinkStorage(): void
+    {
+        $clearLoginLinkStorage = $this->reflection->getMethod('clearLoginLinkStorage');
+        $has_auth = $this->reflection->getProperty('has_auth');
+
+        $has_auth->setValue($this->wpLogin, false);
+        \ob_start();
+        $clearLoginLinkStorage->invoke($this->wpLogin);
+        $this->assertSame('', \ob_get_clean());
+
+        $has_auth->setValue($this->wpLogin, true);
+        \ob_start();
+        $clearLoginLinkStorage->invoke($this->wpLogin);
+        $output = (string)\ob_get_clean();
+        $this->assertStringContainsString('<script', $output);
+        $this->assertStringContainsString(LoginLink::getClearLocalStorageScript(), $output);
+        $has_auth->setValue($this->wpLogin, false);
     }
 
     /**
