@@ -27,6 +27,7 @@ use function sanitize_user;
 use function set_transient;
 use function sprintf;
 use function time;
+use function wp_json_encode;
 use const MINUTE_IN_SECONDS;
 
 /**
@@ -45,6 +46,10 @@ final class LoginLink implements PluginAwareInterface
     public const string REQUEST_FIELD = LoginLocker::META_PREFIX . 'request_link_user';
     public const string TRANSIENT_IP_PREFIX = LoginLocker::META_PREFIX . 'link_ip_';
     public const string TRANSIENT_USER_PREFIX = LoginLocker::META_PREFIX . 'link_user_';
+
+    public const string FORM_ID = LoginLocker::META_PREFIX . 'request_link_form';
+    public const string LOCAL_STORAGE_KEY = LoginLocker::META_PREFIX . 'request_link_sent';
+    public const string NOTICE_ID = LoginLocker::META_PREFIX . 'request_link_notice';
 
     public const string FILTER_LINK_TTL = LoginLocker::HOOK_PREFIX . 'login_link_ttl';
 
@@ -73,6 +78,32 @@ final class LoginLink implements PluginAwareInterface
         $ttl = (int)apply_filters(self::FILTER_LINK_TTL, self::LINK_TTL, $user);
 
         return time() + ($ttl > 0 ? $ttl : self::LINK_TTL);
+    }
+
+    /**
+     * Get the inline script that remembers (in localStorage) when this browser last submitted the
+     * "Email me a login link" form, and hides the form until USER_WINDOW has passed. An extra check
+     * on top of the server-side rate limits: it saves requests from browsers that keep retrying, but
+     * can be bypassed by clearing storage, so the server limits stay the real protection.
+     * @return string
+     */
+    public static function getLocalStorageScript(): string
+    {
+        return sprintf(
+            '(function(key,waitSeconds,formId,noticeId){' .
+            'var form=document.getElementById(formId),notice=document.getElementById(noticeId),last=0;' .
+            'if(!form){return;}' .
+            'try{last=parseInt(window.localStorage.getItem(key),10)||0;}catch(e){}' .
+            'if(last&&Date.now()-last<waitSeconds*1000){form.hidden=true;if(notice){notice.hidden=false;}return;}' .
+            'form.addEventListener("submit",function(){' .
+            'try{window.localStorage.setItem(key,String(Date.now()));}catch(e){}' .
+            '});' .
+            '})(%1$s,%2$d,%3$s,%4$s);',
+            wp_json_encode(self::LOCAL_STORAGE_KEY),
+            self::USER_WINDOW,
+            wp_json_encode(self::FORM_ID),
+            wp_json_encode(self::NOTICE_ID)
+        );
     }
 
     /**
