@@ -80,7 +80,7 @@ final class LoginLinkCommand
             return;
         }
 
-        $expires = WpLogin::getAuthCheckLinkExpires($user);
+        $expires = LoginLink::getExpires($user);
         WP_CLI::line(WpLogin::getAuthCheckUrl($user, $expires));
         if (!get_flag_value($assoc_args, self::FLAG_PORCELAIN, false)) {
             WP_CLI::success(

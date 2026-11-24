@@ -69,7 +69,8 @@ vendor/bin/rector process tests/
 2. `WpLogin::loginAuthCheck()` validates:
     - Auth cookie
     - `auth_check` GET parameter: a `SignedToken` login link (sent in new login emails, by the
-      "Email me a login link" form, or from `wp login-locker link <user>`), valid for 7 days
+      "Email me a login link" form, or from `wp login-locker link <user>`). Form and WP-CLI links are valid for
+      15 minutes (`LoginLink::FILTER_LINK_TTL`), new login email links for 7 days
     - Logout nonce verification
 3. If no valid auth: returns 403 Forbidden with the locked page and its "Email me a login link" form
 4. If valid: allows login and sets the auth cookie for the "Cookie Expiration" number and unit settings (default 1 year)

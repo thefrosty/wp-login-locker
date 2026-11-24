@@ -20,6 +20,8 @@ use WP_User;
 use function md5;
 use function preg_match;
 use function str_repeat;
+use const HOUR_IN_SECONDS;
+use const MINUTE_IN_SECONDS;
 
 /**
  * Class LoginLinkTest
@@ -104,6 +106,31 @@ class LoginLinkTest extends TestCase
         $this->assertSame($user->ID, SignedToken::verify($matches[1], WpLogin::AUTH_CHECK_KEY)?->ID);
     }
 
+    public function testMagicLinkExpiresInFifteenMinutesByDefault(): void
+    {
+        $this->assertSame(15 * MINUTE_IN_SECONDS, LoginLink::LINK_TTL);
+        $user = $this->createUser();
+        $before = \time();
+        $this->loginLink->send($user, self::IP);
+        $this->assertEqualsWithDelta($before + LoginLink::LINK_TTL, $this->getSentTokenExpires(), 2);
+    }
+
+    public function testMagicLinkExpiryIsFilterable(): void
+    {
+        $user = $this->createUser();
+        $ttl = static fn(): int => HOUR_IN_SECONDS;
+        \add_filter(LoginLink::FILTER_LINK_TTL, $ttl);
+        $this->assertEqualsWithDelta(\time() + HOUR_IN_SECONDS, LoginLink::getExpires($user), 2);
+        $this->loginLink->send($user, self::IP);
+        $this->assertEqualsWithDelta(\time() + HOUR_IN_SECONDS, $this->getSentTokenExpires(), 2);
+        \remove_filter(LoginLink::FILTER_LINK_TTL, $ttl);
+
+        // An invalid TTL falls back to the default.
+        \add_filter(LoginLink::FILTER_LINK_TTL, '__return_zero');
+        $this->assertEqualsWithDelta(\time() + LoginLink::LINK_TTL, LoginLink::getExpires($user), 2);
+        \remove_filter(LoginLink::FILTER_LINK_TTL, '__return_zero');
+    }
+
     public function testRequestUnknownAccountSendsNothing(): void
     {
         $this->assertFalse($this->loginLink->request('no-such-user', self::IP));
@@ -143,5 +170,18 @@ class LoginLinkTest extends TestCase
         $this->userIds[] = $user->ID;
 
         return $user;
+    }
+
+    /**
+     * Get the expiry from the signed token in the last sent email.
+     * @return int
+     */
+    private function getSentTokenExpires(): int
+    {
+        $message = \end($this->mails)['message'];
+        $pattern = '/' . WpLogin::AUTH_CHECK_KEY . '=([0-9]+)\.([0-9]+)\.[a-f0-9]+/';
+        $this->assertSame(1, preg_match($pattern, $message, $matches));
+
+        return (int)$matches[2];
     }
 }

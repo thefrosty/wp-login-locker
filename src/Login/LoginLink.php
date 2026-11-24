@@ -9,6 +9,7 @@ use TheFrosty\WpLoginLocker\WpMail\WpMail;
 use TheFrosty\WpUtilities\Plugin\PluginInterface;
 use WP_User;
 use function __;
+use function apply_filters;
 use function date_i18n;
 use function esc_html;
 use function esc_html__;
@@ -24,6 +25,7 @@ use function sanitize_email;
 use function sanitize_user;
 use function set_transient;
 use function sprintf;
+use function time;
 use const MINUTE_IN_SECONDS;
 
 /**
@@ -41,6 +43,11 @@ final class LoginLink
     public const string TRANSIENT_IP_PREFIX = LoginLocker::META_PREFIX . 'link_ip_';
     public const string TRANSIENT_USER_PREFIX = LoginLocker::META_PREFIX . 'link_user_';
 
+    public const string FILTER_LINK_TTL = LoginLocker::HOOK_PREFIX . 'login_link_ttl';
+
+    /** How long a magic login link stays valid, in seconds. */
+    public const int LINK_TTL = 15 * MINUTE_IN_SECONDS;
+
     /** Max link requests per IP address per IP_WINDOW. */
     public const int IP_LIMIT = 5;
     public const int IP_WINDOW = 15 * MINUTE_IN_SECONDS;
@@ -54,6 +61,23 @@ final class LoginLink
      */
     public function __construct(private readonly PluginInterface $plugin)
     {
+    }
+
+    /**
+     * Get the Unix timestamp a new magic login link for the user expires at.
+     * @param WP_User $user
+     * @return int
+     */
+    public static function getExpires(WP_User $user): int
+    {
+        /**
+         * Filter how long a magic login link (from the "Email me a login link" form or WP-CLI) stays valid.
+         * @param int $ttl Seconds. Default 15 minutes.
+         * @param WP_User $user
+         */
+        $ttl = (int)apply_filters(self::FILTER_LINK_TTL, self::LINK_TTL, $user);
+
+        return time() + ($ttl > 0 ? $ttl : self::LINK_TTL);
     }
 
     /**
@@ -109,7 +133,7 @@ final class LoginLink
      */
     public function send(WP_User $user, ?string $ip = null): bool
     {
-        $expires = WpLogin::getAuthCheckLinkExpires($user);
+        $expires = self::getExpires($user);
         $wp_mail = new WpMail();
         $wp_mail->setPlugin($this->plugin);
         $wp_mail->__set(
