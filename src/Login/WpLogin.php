@@ -17,6 +17,8 @@ use TheFrosty\WpUtilities\Api\Hash;
 use WP_User;
 use function add_query_arg;
 use function apply_filters;
+use function array_map;
+use function array_unique;
 use function array_values;
 use function esc_html__;
 use function explode;
@@ -42,6 +44,7 @@ use function sanitize_user;
 use function setcookie;
 use function sprintf;
 use function str_replace;
+use function str_starts_with;
 use function strlen;
 use function strtotime;
 use function substr;
@@ -74,6 +77,7 @@ class WpLogin extends AbstractLoginLocker
 
     public const string AUTH_CHECK_KEY = 'auth_check';
     public const string AUTH_CHECK_LINK_TTL = '+7 days';
+    public const string FILTER_ACCEPT_LEGACY_COOKIE = LoginLocker::HOOK_PREFIX . 'accept_legacy_cookie';
     public const string FILTER_AUTH_CHECK_LINK_TTL = LoginLocker::HOOK_PREFIX . 'auth_check_link_ttl';
     public const string COOKIE_NAME = LoginLocker::META_PREFIX . self::AUTH_CHECK_KEY;
     public const string COOKIE_VALUE_S = 'OK|%s';
@@ -186,7 +190,7 @@ class WpLogin extends AbstractLoginLocker
     public function activate(): void
     {
         if (is_user_logged_in()) {
-            $this->setLoginCookie(wp_get_current_user(), 'user_email');
+            $this->setLoginCookie(wp_get_current_user());
             $this->addDefaultUserMeta();
         }
     }
@@ -222,28 +226,19 @@ class WpLogin extends AbstractLoginLocker
              */
             if ($user instanceof WP_User) {
                 $this->has_auth = true;
-                $this->setLoginCookie($user, 'user_email');
+                $this->setLoginCookie($user);
             }
         } elseif ($this->getRequest()->cookies->has(self::COOKIE_NAME)) {
-            // Validate the cookie.
-            $cookie = $this->decrypt($this->getRequest()->cookies->get(self::COOKIE_NAME), $this->getEncryptionKey());
-            if ($cookie === false) {
-                $delete_cookie = true;
+            // Validate the cookie: a signed, expiring token (or a legacy cookie that gets upgraded).
+            $cookie = $this->getRequest()->cookies->all()[self::COOKIE_NAME] ?? null;
+            $user = SignedToken::verify($cookie, self::COOKIE_NAME);
+            if (!$user instanceof WP_User) {
+                $user = $this->maybeUpgradeLegacyCookie($cookie);
             }
-
-            [, $cookie_value] = explode(
-                self::ENCRYPTION_DELIMITER,
-                $cookie !== false ? $cookie : self::ENCRYPTION_DELIMITER
-            );
-            if (!empty($cookie_value)) {
-                [$user] = array_values(
-                    $this->getUserBy($cookie_value)
-                );
-                if ($user instanceof WP_User) {
-                    $this->has_auth = true;
-                } else {
-                    $delete_cookie = true;
-                }
+            if ($user instanceof WP_User) {
+                $this->has_auth = true;
+            } else {
+                $delete_cookie = true;
             }
         }
 
@@ -372,7 +367,7 @@ class WpLogin extends AbstractLoginLocker
                 // Assign the global post object with the user_login value to trigger the form.
                 $_POST['user_login'] = $request->get('login_locker_user_login'); // phpcs:ignore
                 $expire = Options::getOption(Settings::GENERAL_SETTING_LP_TIMEOUT, Settings::GENERAL_SETTINGS, 1);
-                $this->setLoginCookie($user, $field, sprintf('+%d minute', (int)$expire));
+                $this->setLoginCookie($user, sprintf('+%d minute', (int)$expire));
             }
         }
     }
@@ -421,47 +416,98 @@ class WpLogin extends AbstractLoginLocker
     }
 
     /**
-     * Returns an encrypted hash from the incoming value.
-     * @param string $value
-     * @return string
-     * @throws Random\RandomException
+     * Validate a cookie created before signed cookies (v2.11.0 and below): `encrypt('OK|{email}')`.
+     * Legacy cookies are unauthenticated and never expire server-side, so a valid one is
+     * replaced with a signed cookie right away. Disable this transitional path with
+     * `add_filter('login_locker/accept_legacy_cookie', '__return_false');`.
+     * @param mixed $cookie
+     * @return WP_User|null
      */
-    private function getCookieValue(string $value): string
+    private function maybeUpgradeLegacyCookie(mixed $cookie): ?WP_User
     {
-        return $this->encrypt(sprintf(self::COOKIE_VALUE_S, $value), $this->getEncryptionKey());
+        if (
+            !is_string($cookie) ||
+            $cookie === '' ||
+            apply_filters(self::FILTER_ACCEPT_LEGACY_COOKIE, true) !== true
+        ) {
+            return null;
+        }
+
+        $prefix = sprintf(self::COOKIE_VALUE_S, '');
+        foreach ($this->getLegacyEncryptionKeys() as $key) {
+            $value = $this->decrypt($cookie, $key);
+            if (is_string($value) && str_starts_with($value, $prefix)) {
+                break;
+            }
+            $value = null;
+        }
+        if (!isset($value)) {
+            return null;
+        }
+
+        [$user] = array_values($this->getUserBy(substr($value, strlen($prefix))));
+        if (!$user instanceof WP_User) {
+            return null;
+        }
+
+        $this->setLoginCookie($user);
+
+        return $user;
     }
 
     /**
-     * Gets the sites encryption key. This value is dynamically set into the DB.
-     * @return string a 32 character encryption key.
+     * Gets the keys legacy cookies may have been encrypted with: the key stored in the DB (wp-utilities v3),
+     * then wp-utilities v4's key when it differs (it prefers the `WP_UTILITIES_ENCRYPTION_KEY` constant).
+     * @return string[]
      */
-    private function getEncryptionKey(): string
+    private function getLegacyEncryptionKeys(): array
     {
-        $key = self::hashEncryptionKey();
+        return array_values(
+            array_unique(
+                array_map(
+                    fn(string $key): string => $this->getLegacyEncryptionKey($key),
+                    [self::getStoredEncryptionKey(), self::hashEncryptionKey()]
+                )
+            )
+        );
+    }
+
+    /**
+     * Derive the legacy cookie encryption key from a site encryption key.
+     * @param string $key
+     * @return string
+     */
+    private function getLegacyEncryptionKey(string $key): string
+    {
         [$prefix] = explode(self::ENCRYPTION_DELIMITER, $key);
 
         return sprintf('%s%s%s', $prefix, substr($key, 0, -(strlen($prefix) + 1)), self::ENCRYPTION_DELIMITER);
     }
 
     /**
-     * Set's the user login cookie.
+     * Set's the user login cookie: a signed token that expires server-side, too.
      * @param WP_User $user WP_User object.
-     * @param string $field WP_User object property field.
      * @param string|null $expire Cookie expiration time.
      */
-    private function setLoginCookie(WP_User $user, string $field, ?string $expire = null): void
+    private function setLoginCookie(WP_User $user, ?string $expire = null): void
     {
         /**
          * Dev note, you can't use Symfony's Response()->headers->setCookie( new Cookie( 'name', 'value' ) )
          * because it sends the headers, which then makes the login page throw a message notice
          * that the headers have already been sent. So, default `setcookie` is used.
          */
+        $expires = strtotime($expire ?? self::getCookieExpire());
+        if ($expires === false) {
+            $expires = strtotime(
+                sprintf(self::COOKIE_EXPIRE_S, Settings::COOKIE_EXPIRE_DEFAULT, Settings::COOKIE_EXPIRE_UNIT_DEFAULT)
+            );
+        }
         if (!headers_sent()) {
             setcookie(
                 self::COOKIE_NAME,
-                $this->getCookieValue($user->$field),
+                SignedToken::create($user, self::COOKIE_NAME, $expires),
                 [
-                    'expires' => strtotime($expire ?? self::getCookieExpire()),
+                    'expires' => $expires,
                     'path' => COOKIEPATH,
                     'domain' => is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : parse_url(home_url(), PHP_URL_HOST),
                     'secure' => is_ssl() && parse_url(get_option('home'), PHP_URL_SCHEME) === 'https',
