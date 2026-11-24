@@ -132,6 +132,21 @@ class LoginLinkTest extends TestCase
         $this->assertEqualsWithDelta($before + LoginLink::LINK_TTL, $this->getSentTokenExpires(), 2);
     }
 
+    public function testExpiryIsShownInTheSiteTimezone(): void
+    {
+        $timezone = \get_option('timezone_string');
+        \update_option('timezone_string', 'America/Los_Angeles');
+        $this->loginLink->send($this->createUser(), self::IP);
+        $expires = $this->getSentTokenExpires();
+        $format = \get_option('date_format') . ' ' . \get_option('time_format');
+        $message = \end($this->mails)['message'];
+
+        $this->assertStringContainsString(\esc_html(\wp_date($format, $expires)), $message);
+        // Not the UTC time (what date_i18n() printed for a Unix timestamp).
+        $this->assertStringNotContainsString(\esc_html(\gmdate($format, $expires)), $message);
+        \update_option('timezone_string', $timezone);
+    }
+
     public function testMagicLinkExpiryIsFilterable(): void
     {
         $user = $this->createUser();

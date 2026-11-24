@@ -11,7 +11,6 @@ use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 use WP_User;
 use function __;
 use function apply_filters;
-use function date_i18n;
 use function esc_html;
 use function esc_html__;
 use function esc_url;
@@ -27,6 +26,7 @@ use function sanitize_user;
 use function set_transient;
 use function sprintf;
 use function time;
+use function wp_date;
 use function wp_json_encode;
 use const MINUTE_IN_SECONDS;
 
@@ -183,7 +183,7 @@ final class LoginLink implements PluginAwareInterface
             esc_html($user->display_name !== '' ? $user->display_name : $user->user_login),
             esc_html($wp_mail->getFromName()),
             esc_url(WpLogin::getAuthCheckUrl($user, $expires)),
-            esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires)),
+            esc_html((string)wp_date(get_option('date_format') . ' ' . get_option('time_format'), $expires)),
             esc_html($ip ?? __('Unknown', 'wp-login-locker'))
         );
 
