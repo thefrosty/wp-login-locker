@@ -30,7 +30,7 @@
     "dwnload/wp-settings-api": "^4.0",
     "php-di/php-di": "^7.1",
     "symfony/http-foundation": "^8.1.11",
-    "thefrosty/wp-utilities": "^4.0"
+    "thefrosty/wp-utilities": "^4.1"
   },
   "require-dev": {
     "ext-simplexml": "*",

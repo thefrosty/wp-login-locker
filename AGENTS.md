@@ -35,6 +35,7 @@ vendor/bin/rector process tests/
 
 - `wp-login-locker.php` - Main plugin file that bootstraps the plugin using `PluginFactory`
 - All plugins/actions are registered via `$plugin->add()` and `$plugin->addOnHook()`
+- The container gets wp-utilities' `DefaultServiceProvider` (the current request as `DefaultServiceProvider::REQUEST`, and a shared `View`)
 
 ### Plugin Components (registered in wp-login-locker.php)
 
