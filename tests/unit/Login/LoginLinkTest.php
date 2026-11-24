@@ -84,6 +84,17 @@ class LoginLinkTest extends TestCase
         return true;
     }
 
+    public function testLocalStorageScript(): void
+    {
+        $script = LoginLink::getLocalStorageScript();
+        $this->assertStringContainsString(\wp_json_encode(LoginLink::LOCAL_STORAGE_KEY), $script);
+        $this->assertStringContainsString(\wp_json_encode(LoginLink::FORM_ID), $script);
+        $this->assertStringContainsString(\wp_json_encode(LoginLink::NOTICE_ID), $script);
+        $this->assertStringContainsString(',' . LoginLink::USER_WINDOW . ',', $script);
+        // Storage access must be guarded: it throws when blocked (e.g. some private browsing modes).
+        $this->assertSame(2, \substr_count($script, 'try{'));
+    }
+
     public function testFindUser(): void
     {
         $user = $this->createUser();

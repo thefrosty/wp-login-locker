@@ -21,7 +21,14 @@ login_header(__('Log In', 'wp-login-locker'), '', '');
     );
     ?></p>
 <?php if ($show_login_link_form ?? true) { ?>
-<form action="<?php echo esc_url(add_query_arg(LoginLink::REQUEST_KEY, true, wp_login_url())); ?>" method="post">
+<p class="message" id="<?php echo esc_attr(LoginLink::NOTICE_ID); ?>" hidden><?php
+    esc_html_e(
+        'A login link was requested from this browser recently. Check your email, or try again in a few minutes.',
+        'wp-login-locker'
+    );
+    ?></p>
+<form action="<?php echo esc_url(add_query_arg(LoginLink::REQUEST_KEY, true, wp_login_url())); ?>" method="post"
+      id="<?php echo esc_attr(LoginLink::FORM_ID); ?>">
     <p>
         <label for="<?php echo esc_attr(LoginLink::REQUEST_FIELD); ?>"><?php
             esc_html_e('Username or Email Address', 'wp-login-locker'); ?></label>
@@ -34,7 +41,10 @@ login_header(__('Log In', 'wp-login-locker'), '', '');
         esc_attr_e('Email me a login link', 'wp-login-locker'); ?>"/>
     </p>
 </form>
-<?php } ?>
+    <?php
+    wp_print_inline_script_tag(LoginLink::getLocalStorageScript());
+}
+?>
 </div>
 <div class="clear"></div>
 </body>
