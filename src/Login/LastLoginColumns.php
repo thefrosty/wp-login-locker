@@ -10,11 +10,11 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 use WP_User_Query;
 use function array_merge;
 use function current_user_can;
-use function date_i18n;
 use function end;
 use function esc_html__;
 use function get_option;
 use function get_user_meta;
+use function wp_date;
 
 /**
  * Class LastLoginColumns
@@ -69,7 +69,7 @@ class LastLoginColumns implements WpHooksInterface
             $last_login = get_user_meta($user_id, LoginLocker::LAST_LOGIN_TIME_META_KEY);
 
             if (!empty($last_login)) {
-                $value = date_i18n(get_option('date_format'), end($last_login));
+                $value = (string)wp_date(get_option('date_format'), (int)end($last_login));
             }
         }
 

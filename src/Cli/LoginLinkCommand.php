@@ -11,11 +11,11 @@ use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 use WP_CLI;
 use WP_User;
 use function ctype_digit;
-use function date_i18n;
 use function get_option;
 use function get_user_by;
 use function sprintf;
 use function WP_CLI\Utils\get_flag_value;
+use function wp_date;
 
 /**
  * Class LoginLinkCommand
@@ -84,7 +84,7 @@ final class LoginLinkCommand implements PluginAwareInterface
                 sprintf(
                     'Login link for %s, valid until %s.',
                     $user->user_login,
-                    date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires)
+                    (string)wp_date(get_option('date_format') . ' ' . get_option('time_format'), $expires)
                 )
             );
         }

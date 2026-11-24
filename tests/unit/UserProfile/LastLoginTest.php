@@ -143,6 +143,27 @@ class LastLoginTest extends TestCase
     }
 
     /**
+     * Test login times are shown in the site's timezone, not UTC.
+     */
+    public function testLoginTimesUseTheSiteTimezone(): void
+    {
+        $timezone = \get_option('timezone_string');
+        \update_option('timezone_string', 'America/Los_Angeles');
+        $user = self::factory()->user->create_and_get();
+        $time = \time();
+        \add_user_meta($user->ID, LoginLocker::LAST_LOGIN_TIME_META_KEY, $time);
+        $format = \get_option('date_format') . '\\ ' . \get_option('time_format');
+        $expected = \wp_date($format, $time);
+
+        $this->assertSame($expected, $this->lastLogin->getCurrentLogin($user->ID));
+        $this->assertSame($expected, $this->lastLogin->getLastLogin($user->ID));
+        $this->assertNotSame(\gmdate(\get_option('time_format'), $time), \wp_date(\get_option('time_format'), $time));
+
+        \update_option('timezone_string', $timezone);
+        \wp_delete_user($user->ID);
+    }
+
+    /**
      * Test getCurrentLogin().
      */
     public function testGetCurrentLogin(): void

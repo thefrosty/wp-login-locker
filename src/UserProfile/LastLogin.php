@@ -8,11 +8,11 @@ use TheFrosty\WpLoginLocker\LoginLocker;
 use WP_User;
 use function __;
 use function count;
-use function date_i18n;
 use function end;
 use function get_option;
 use function ob_get_clean;
 use function ob_start;
+use function wp_date;
 
 /**
  * Class LastLogin
@@ -76,13 +76,10 @@ class LastLogin extends UserProfile
         if ($count === 0) {
             return __('No data', 'wp-login-locker');
         } elseif ($count === 1) {
-            return date_i18n($this->getDateTimeFormat(), end($user_login_time));
+            return $this->formatTime(end($user_login_time));
         }
 
-        return date_i18n(
-            $this->getDateTimeFormat(),
-            $user_login_time[($count - 1)] ?? end($user_login_time)
-        );
+        return $this->formatTime($user_login_time[($count - 1)] ?? end($user_login_time));
     }
 
     /**
@@ -97,7 +94,7 @@ class LastLogin extends UserProfile
             $user_login_time[] = time();
         }
 
-        return date_i18n($this->getDateTimeFormat(), end($user_login_time));
+        return $this->formatTime(end($user_login_time));
     }
 
     /**
@@ -109,6 +106,16 @@ class LastLogin extends UserProfile
         ob_start();
         include $this->getPlugin()->getDirectory() . 'templates/user-profile/last-login.php';
         echo ob_get_clean();
+    }
+
+    /**
+     * Format a stored (Unix) login timestamp in the site's timezone.
+     * @param mixed $timestamp
+     * @return string
+     */
+    private function formatTime(mixed $timestamp): string
+    {
+        return (string)wp_date($this->getDateTimeFormat(), (int)$timestamp);
     }
 
     /**

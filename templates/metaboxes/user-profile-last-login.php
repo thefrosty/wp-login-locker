@@ -20,7 +20,9 @@ if (empty($user_login_ip) || empty($user_login_time)) {
             <span id="lastlogintime"><?php
                 printf(
                     esc_html__('Last login Date: %1$s', 'wp-login-locker'),
-                    '<strong>' . esc_html(date_i18n(get_option('date_format'), end($user_login_time))) . '</strong>'
+                    '<strong>' .
+                    esc_html((string)wp_date(get_option('date_format'), (int)end($user_login_time))) .
+                    '</strong>'
                 );
                 ?></span>
         </div>

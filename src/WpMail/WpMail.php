@@ -10,8 +10,6 @@ use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
 use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
 use function _doing_it_wrong;
 use function apply_filters;
-use function current_time;
-use function date_i18n;
 use function did_action;
 use function do_action;
 use function error_log;
@@ -24,6 +22,7 @@ use function ob_get_clean;
 use function ob_start;
 use function sprintf;
 use function str_replace;
+use function wp_date;
 use function wp_mail;
 use function wp_specialchars_decode;
 use function wp_strip_all_tags;
@@ -313,7 +312,7 @@ class WpMail implements PluginAwareInterface
             $log_message = sprintf(
                 "Email from %s failed to send.\nSend time: %s\nTo: %s\nSubject: %s\n\n",
                 self::class,
-                date_i18n('F j Y H:i:s', current_time('timestamp')),
+                (string)wp_date('F j Y H:i:s'),
                 $to,
                 $subject
             );
