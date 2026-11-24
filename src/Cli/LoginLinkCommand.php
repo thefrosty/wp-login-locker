@@ -20,7 +20,7 @@ use function WP_CLI\Utils\get_flag_value;
 /**
  * Class LoginLinkCommand
  * `wp login-locker link <user>`: recover access to wp-login.php when email isn't an option.
- * A thin WP-CLI wrapper around LoginLink and WpLogin (which are tested); WP-CLI isn't loaded in PHPUnit.
+ * A thin WP-CLI wrapper around LoginLink and WpLogin (which are tested); WP-CLI isn't bootstrapped in PHPUnit.
  * @codeCoverageIgnore
  * @package TheFrosty\WpLoginLocker\Cli
  */
