@@ -21,7 +21,6 @@ interface LoginLocker
     public const string USER_EMAIL = self::META_PREFIX . 'user_email';
     public const string USER_EMAIL_META_KEY = self::USER_EMAIL . '_notification';
 
-    public const string CONTAINER_REQUEST = 'request';
     public const string WP_LOGIN = 'WpLogin';
 
     public const string CONTAINER_GITHUB_ARGS = 'github.config';

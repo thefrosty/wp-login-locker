@@ -45,7 +45,6 @@ class LoginLockerTest extends TestCase
             LoginLocker::LAST_LOGIN_TIME_META_KEY,
             LoginLocker::USER_EMAIL,
             LoginLocker::USER_EMAIL_META_KEY,
-            LoginLocker::CONTAINER_REQUEST,
             LoginLocker::WP_LOGIN,
             LoginLocker::CONTAINER_GITHUB_ARGS,
         ];

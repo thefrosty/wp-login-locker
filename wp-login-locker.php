@@ -19,9 +19,8 @@ namespace TheFrosty\WpLoginLocker;
 defined('ABSPATH') || exit;
 
 use Dwnload\WpSettingsApi\WpSettingsApi;
-use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpLoginLocker\Settings\Settings;
-use TheFrosty\WpUtilities\Plugin\ContainerWriter;
+use TheFrosty\WpUtilities\Plugin\DefaultServiceProvider;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
 use TheFrosty\WpUtilities\WpAdmin\GitHubUpdateChecker;
@@ -35,13 +34,8 @@ if (is_readable(__DIR__ . '/vendor/autoload.php')) {
 }
 
 $plugin = PluginFactory::create('login-locker');
-ContainerWriter::set(
-    $plugin->getContainer(),
-    LoginLocker::CONTAINER_REQUEST,
-    static fn(): Request => Request::createFromGlobals()
-);
-
 $plugin
+    ->addServiceProvider(new DefaultServiceProvider())
     ->add(new Actions\Login())
     ->add(new Actions\Logout())
     ->add(new Actions\NewUser())
